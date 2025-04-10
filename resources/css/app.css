@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+
+@source '../views';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    /* Font */
+    --font-inter: "Inter", "sans-serif";
+
+    /* Font sizes */
+    --font-header-1: 2rem;
+    --font-header-2: 1.5rem;
+    --font-body: 1rem;
+    --font-caption: 0.75rem;
+
+    /* Font weights */
+    --font-weight-bold: 700;
+    --font-weight-semibold: 600;
+    --font-weight-regular: 400;
+    --font-weight-light: 300;
+
+    /* Line heights */
+    --line-height-headers: 1.5rem;
+    --line-height-body: 1.5rem;
+    --line-height-caption: 1.2rem;
+
+    /* Colors */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-dark-gray: #707070;
+    --color-gray: #dbdbdb;
+    --color-light-gray: #eeeeee;
+
+    --color-dark-blue: #176087;
+    --color-blue: #1d84b5;
+    --color-light-blue: #53a2be;
+
+    --color-green: #28a745;
+    --color-red: #dc3545;
+    --color-yellow: #ffc107;
+}
