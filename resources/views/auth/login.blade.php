@@ -26,14 +26,14 @@
                 <p class="text-base text-dark-gray">Welkom terug! Voer uw gegevens in.</p>
             </div>
 
-            <form method="POST" action="" class="space-y-4">
+            <form method="POST" action="" class="space-y-5">
                 <div>
-                    <x-label for="email">Email</x-label>
+                    <x-input-field-label for="email">Email</x-input-field-label>
                     <x-input-field id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
                 </div>
 
                 <div>
-                    <x-label for="password">Wachtwoord</x-label>
+                    <x-input-field-label for="password">Wachtwoord</x-input-field-label>
                     <x-input-field id="password" type="password" name="password" placeholder="***********" required autofocus />
                 </div>
 
