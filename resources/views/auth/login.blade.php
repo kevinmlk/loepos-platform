@@ -28,15 +28,13 @@
 
             <form method="POST" action="" class="space-y-4">
                 <div>
-                    <label for="email" class="block mb-1 text-sm font-medium">Email</label>
-                    <input id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <x-label for="email">Email</x-label>
+                    <x-input-field id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
                 </div>
 
                 <div>
-                    <label for="password" class="block mb-1 text-sm font-medium">Wachtwoord</label>
-                    <input id="password" type="password" name="password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <x-label for="password">Wachtwoord</x-label>
+                    <x-input-field id="password" type="password" name="password" placeholder="***********" required autofocus />
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -44,13 +42,13 @@
                         <input type="checkbox" name="remember" class="mr-2">
                         Herinner mij
                     </label>
-                    <a href="" class="text-sm text-blue hover:text-dark-blue">
+                    <a href="" class="text-sm font-semibold text-blue hover:text-dark-blue">
                         Wachtwoord vergeten
                     </a>
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-blue text-white py-2 px-4 rounded-md hover:bg-dark-blue transition">
+                    class="w-full bg-blue text-white text-lg font-semibold py-2 px-4 rounded-md hover:bg-dark-blue transition">
                     Aanmelden
                 </button>
             </form>
