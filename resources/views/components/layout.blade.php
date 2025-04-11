@@ -14,12 +14,22 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter ">
+    <body class="font-inter text-black bg-white">
         {{-- Navigation --}}
         <nav>
             <ul>
-                <li><x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link></li>
-                <li><x-nav-link href="/post-processing" :active="request()->is('post-processing')">Postverwerking</x-nav-link></li>
+                {{-- Home --}}
+                <x-nav-link-container>
+                    <x-nav-link href="/" :active="request()->is('/')">
+                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Home
+                    </x-nav-link>
+                </x-nav-link-container>
+
+                {{-- Post processing --}}
+                <x-nav-link-container>
+                    <x-nav-link href="/post-processing" :active="request()->is('post-processing')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Postverwerking
+                    </x-nav-link>
+                </x-nav-link-container>
             </ul>
         </nav>
 
