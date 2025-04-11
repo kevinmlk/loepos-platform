@@ -15,7 +15,22 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-inter ">
-        <h1 class="text-4xl text-dark-blue">Hello Loepos!</h1>
-        <x-phosphor-alarm class="w-6 h-6 text-gray-500"/>
+        {{-- Navigation --}}
+        <nav>
+            <ul>
+                <li><x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link></li>
+                <li><x-nav-link href="/post-processing" :active="request()->is('post-processing')">Postverwerking</x-nav-link></li>
+            </ul>
+        </nav>
+
+        {{-- Header --}}
+        <header>
+            <h1>{{ $title }}</h1>
+        </header>
+
+        {{-- Main --}}
+        <main>
+            {{ $slot }}
+        </main>
     </body>
 </html>

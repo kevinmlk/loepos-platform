@@ -1,0 +1,1 @@
+<a class="" aria-current="{{ request()->is('/') ? 'page' : 'false' }}" {{$attributes}}>{{ $slot }}</a>
