@@ -1,4 +1,6 @@
 <x-layout>
-    <x-slot:title>Welkom terug, Sophie!</x-slot:title>
+    {{-- Header --}}
+    <x-header>Welkom terug, Sophie!</x-header>
+
     <p>Dashboard page</p>
 </x-layout>

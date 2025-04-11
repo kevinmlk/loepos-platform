@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Loepos</title>
+        <title>Loepos: Slimme oplossingen, Heldere toekomst</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,18 +14,18 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter text-black bg-white">
+    <body class="font-inter text-black bg-white flex">
         {{-- Navigation --}}
-        <nav>
+        <nav class="max-w-xs p-4 border-r-2 border-light-gray">
             <ul>
-                {{-- Home --}}
+                {{-- Home nav link --}}
                 <x-nav-link-container>
                     <x-nav-link href="/" :active="request()->is('/')">
                         <x-phosphor-house-bold class="w-6 h-6 mr-3" />Home
                     </x-nav-link>
                 </x-nav-link-container>
 
-                {{-- Post processing --}}
+                {{-- Post processing nav link --}}
                 <x-nav-link-container>
                     <x-nav-link href="/post-processing" :active="request()->is('post-processing')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Postverwerking
                     </x-nav-link>
@@ -33,13 +33,8 @@
             </ul>
         </nav>
 
-        {{-- Header --}}
-        <header>
-            <h1>{{ $title }}</h1>
-        </header>
-
         {{-- Main --}}
-        <main>
+        <main class="ml-14">
             {{ $slot }}
         </main>
     </body>
