@@ -14,7 +14,7 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter text-black bg-white flex">
+    <body class="font-inter text-black bg-white flex max-h-screen">
         {{-- Navigation --}}
         <nav class="max-w-xs p-4 border-r-2 border-light-gray">
             <ul>
@@ -28,6 +28,24 @@
                 {{-- Post processing nav link --}}
                 <x-nav-link-container>
                     <x-nav-link href="/post-processing" :active="request()->is('post-processing')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Postverwerking
+                    </x-nav-link>
+                </x-nav-link-container>
+
+                {{-- Documents nav link --}}
+                <x-nav-link-container>
+                    <x-nav-link href="/documents" :active="request()->is('documents')"><x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
+                    </x-nav-link>
+                </x-nav-link-container>
+
+                {{-- Reports nav link --}}
+                <x-nav-link-container>
+                    <x-nav-link href="/reports" :active="request()->is('reports')"><x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
+                    </x-nav-link>
+                </x-nav-link-container>
+
+                {{-- Support nav link --}}
+                <x-nav-link-container>
+                    <x-nav-link href="/support" :active="request()->is('support')"><x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
                     </x-nav-link>
                 </x-nav-link-container>
             </ul>
