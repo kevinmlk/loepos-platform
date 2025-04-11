@@ -2,5 +2,5 @@
     {{-- Header --}}
     <x-header>Welkom terug, Sophie!</x-header>
 
-    <p>Dashboard page</p>
+    <p>Documenten pagina</p>
 </x-layout>
