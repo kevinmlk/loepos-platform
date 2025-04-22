@@ -31,11 +31,13 @@
         <div>
           <x-form.label for="email">Email</x-form.label>
           <x-form.input id="email" type="email" name="email" placeholder="mail@example.com" required autofocus />
+          <x-form.error name="email" />
         </div>
 
         <div>
           <x-form.label for="password">Wachtwoord</x-form.label>
           <x-form.input id="password" type="password" name="password" placeholder="***********" required autofocus />
+          <x-form.error name="password" />
         </div>
 
         <div class="flex items-center justify-between">
