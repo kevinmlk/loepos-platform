@@ -49,6 +49,14 @@
                     </x-nav-link>
                 </x-nav-link-container>
             </ul>
+
+            <ul>
+                {{-- Logout button --}}
+                <form method="POST" action="/logout">
+                  @csrf
+                  <x-ui.button>Afmelden</x-form.button>
+                </form>
+            </ul>
         </nav>
 
         {{-- Main --}}

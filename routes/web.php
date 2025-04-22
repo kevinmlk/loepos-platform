@@ -2,10 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Controllers
+use App\Http\Controllers\SessionController;
+
 // Dashboard
 Route::get('/', function () {
     return view('dashboard');
-});
+})->middleware('auth');
 
 // Post processing
 Route::get('/post-processing', function () {
@@ -27,7 +30,9 @@ Route::get('/support', function () {
     return view('support');
 });
 
-// Login
-Route::get('/login', function () {
-    return view('auth/login');
-});
+// Login page
+Route::get('/login', [SessionController::class, 'create'])->name('login');
+// Login action
+Route::post('/login', [SessionController::class, 'store']);
+// Logout action
+Route::post('/logout', [SessionController::class, 'destroy']);

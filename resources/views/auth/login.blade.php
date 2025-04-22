@@ -26,10 +26,11 @@
         <p class="text-base text-dark-gray">Welkom terug! Voer uw gegevens in.</p>
       </div>
 
-      <form method="POST" action="" class="space-y-5">
+      <form method="POST" action="/login" class="space-y-5">
+        @csrf
         <div>
           <x-form.label for="email">Email</x-form.label>
-          <x-form.input id="email" type="email" name="email" placeholder="example@mail.com" required autofocus />
+          <x-form.input id="email" type="email" name="email" placeholder="mail@example.com" required autofocus />
         </div>
 
         <div>
