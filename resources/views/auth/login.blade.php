@@ -28,20 +28,20 @@
 
             <form method="POST" action="" class="space-y-5">
                 <div>
-                    <x-input-field-label for="email">Email</x-input-field-label>
-                    <x-input-field id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
+                    <x-form-label for="email">Email</x-form-label>
+                    <x-form-input id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
                 </div>
 
                 <div>
-                    <x-input-field-label for="password">Wachtwoord</x-input-field-label>
-                    <x-input-field id="password" type="password" name="password" placeholder="***********" required autofocus />
+                    <x-form-label for="password">Wachtwoord</x-form-label>
+                    <x-form-input id="password" type="password" name="password" placeholder="***********" required autofocus />
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <label class="flex items-center text-sm">
+                    <x-form-label>
                         <input type="checkbox" name="remember" class="mr-2">
                         Herinner mij
-                    </label>
+                    </x-form-label>
                     <a href="" class="text-sm font-semibold text-blue hover:text-dark-blue">
                         Wachtwoord vergeten
                     </a>
