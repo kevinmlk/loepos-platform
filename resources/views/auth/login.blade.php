@@ -20,37 +20,39 @@
     <!-- Left Side: Login Form -->
     <div class="w-full md:w-1/2 flex items-center justify-center px-6">
         <div class="w-full max-w-md space-y-6">
-            <div class="mb-10">
-                <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-10 mb-4">
+            <div class="mb-8">
+                <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-14 mb-8">
                 <h2 class="text-4xl font-semibold">Aanmelden</h2>
                 <p class="text-base text-dark-gray">Welkom terug! Voer uw gegevens in.</p>
             </div>
 
             <form method="POST" action="" class="space-y-5">
                 <div>
-                    <x-form-label for="email">Email</x-form-label>
-                    <x-form-input id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
+                    <x-form.label for="email">Email</x-form.label>
+                    <x-form.input id="email" type="email" name="email" placeholder="jane.doe@mail.be" required autofocus />
                 </div>
 
                 <div>
-                    <x-form-label for="password">Wachtwoord</x-form-label>
-                    <x-form-input id="password" type="password" name="password" placeholder="***********" required autofocus />
+                    <x-form.label for="password">Wachtwoord</x-form.label>
+                    <x-form.input id="password" type="password" name="password" placeholder="***********" required autofocus />
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <x-form-label>
+                    <x-form.label>
                         <input type="checkbox" name="remember" class="mr-2">
                         Herinner mij
-                    </x-form-label>
-                    <a href="" class="text-sm font-semibold text-blue hover:text-dark-blue">
+                    </x-form.label>
+                    <a href="" class="text-button font-semibold text-blue hover:text-dark-blue">
                         Wachtwoord vergeten
                     </a>
                 </div>
 
-                <button type="submit"
+                {{-- <button type="submit"
                     class="w-full bg-blue text-white text-lg font-semibold py-2 px-4 rounded-md hover:bg-dark-blue transition">
                     Aanmelden
-                </button>
+                </button> --}}
+
+                <x-ui.button class="w-full justify-center" type="primary">Aanmelden</x-ui.button>
             </form>
 
             <p class="text-xs text-gray-400 text-center mt-10">© Loepos 2025</p>

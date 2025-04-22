@@ -12,14 +12,22 @@
   --font-inter: "Inter", "sans-serif";
 
   /* Font sizes */
-  --font-header-1: 2rem;
-  --font-header-2: 1.5rem;
-  --font-body: 1rem;
-  --font-caption: 0.75rem;
+  --text-display: 3rem;
+  --text-header-1: 2rem;
+  --text-header-2: 1.5rem;
+  --text-header-3: 1.25rem;
+  --text-header-4: 1.125rem;
+  --text-body-large: 1.125rem;
+  --text-body-default: 1rem;
+  --text-body-small: .875rem;
+  --text-caption: .875rem;
+  --text-overline: .75rem;
+  --text-button: 1rem;
 
   /* Font weights */
   --font-weight-bold: 700;
   --font-weight-semibold: 600;
+  --font-weight-medium: 500;
   --font-weight-regular: 400;
   --font-weight-light: 300;
 
