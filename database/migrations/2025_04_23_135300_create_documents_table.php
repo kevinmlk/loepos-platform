@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('filename');
+            $table->string('file_name');
             $table->string('file_path');
             $table->string('mime_type');
-            $table->json('parsed_data');
+            $table->json('parsed_data')->nullable();
             $table->timestamps();
         });
     }

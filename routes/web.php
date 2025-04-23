@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 // Controllers
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\DocumentController;
 
 // Dashboard
 Route::get('/', function () {
@@ -15,10 +16,12 @@ Route::get('/post-processing', function () {
     return view('post-processing');
 })->middleware('auth');
 
-// Documents
-Route::get('/documents', function () {
-    return view('documents');
-})->middleware('auth');
+// Documents - index
+Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth')->name('documents.index');
+// Document - create
+Route::get('/document/create', [DocumentController::class, 'create'])->middleware('auth');
+// Document - store
+Route::post('/document', [DocumentController::class, 'store'])->middleware('auth');
 
 // Reports
 Route::get('/reports', function () {
@@ -30,7 +33,7 @@ Route::get('/support', function () {
     return view('support');
 })->middleware('auth');
 
-// Login page
+// Login
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 // Login action
 Route::post('/login', [SessionController::class, 'store']);
