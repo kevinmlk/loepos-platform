@@ -11,35 +11,37 @@ class SessionController extends Controller
     // Show the login view
     public function create()
     {
-      return view('auth.login');
+        return view("auth.login");
     }
 
     // Function to validate and login the user
-    public function store() {
-      // Validate the form data
-      $attributes = request()->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-      ]);
-
-      // Attempt to login the user
-      if (! Auth::attempt($attributes)) {
-        throw ValidationException::withMessages([
-          'email' => 'These credentials do not match our records.',
-          'password' => 'Password is incorrect.',
+    public function store()
+    {
+        // Validate the form data
+        $attributes = request()->validate([
+            "email" => ["required", "email"],
+            "password" => ["required"],
         ]);
-      }
 
-      // Regenerate the session token
-      request()->session()->regenerate();
+        // Attempt to login the user
+        if (!Auth::attempt($attributes)) {
+            throw ValidationException::withMessages([
+                "email" => "These credentials do not match our records.",
+                "password" => "Password is incorrect.",
+            ]);
+        }
 
-      // Redirect to the dashboard
-      return redirect('/');
+        // Regenerate the session token
+        request()->session()->regenerate();
+
+        // Redirect to the dashboard
+        return redirect("/");
     }
 
     // Function to logout the user
-    public function destroy() {
-      Auth::logout();
-      return redirect('/');
+    public function destroy()
+    {
+        Auth::logout();
+        return redirect("/");
     }
 }
