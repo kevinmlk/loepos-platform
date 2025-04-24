@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 @import "tailwindcss";
 
 @source '../views';
@@ -10,38 +8,52 @@
 @source '../**/*.js';
 
 @theme {
-    /* Font */
-    --font-inter: "Inter", "sans-serif";
+  /* Font */
+  --font-inter: "Inter", "sans-serif";
 
-    /* Font sizes */
-    --font-header-1: 2rem;
-    --font-header-2: 1.5rem;
-    --font-body: 1rem;
-    --font-caption: 0.75rem;
+  /* Font sizes */
+  --text-display: 3rem;
+  --text-header-1: 2rem;
+  --text-header-2: 1.5rem;
+  --text-header-3: 1.25rem;
+  --text-header-4: 1.125rem;
+  --text-body-large: 1.125rem;
+  --text-body-default: 1rem;
+  --text-body-small: .875rem;
+  --text-caption: .875rem;
+  --text-overline: .75rem;
+  --text-button: 1rem;
 
-    /* Font weights */
-    --font-weight-bold: 700;
-    --font-weight-semibold: 600;
-    --font-weight-regular: 400;
-    --font-weight-light: 300;
+  /* Font weights */
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-regular: 400;
+  --font-weight-light: 300;
 
-    /* Line heights */
-    --line-height-headers: 1.5rem;
-    --line-height-body: 1.5rem;
-    --line-height-caption: 1.2rem;
+  /* Line heights */
+  --line-height-headers: 1.5rem;
+  --line-height-body: 1.5rem;
+  --line-height-caption: 1.2rem;
 
-    /* Colors */
-    --color-white: #ffffff;
-    --color-black: #000000;
-    --color-dark-gray: #707070;
-    --color-gray: #dbdbdb;
-    --color-light-gray: #eeeeee;
+  /* Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-dark-gray: #707070;
+  --color-gray: #dbdbdb;
+  --color-light-gray: #eeeeee;
 
-    --color-dark-blue: #176087;
-    --color-blue: #1d84b5;
-    --color-light-blue: #53a2be;
+  --color-dark-blue: #176087;
+  --color-blue: #1d84b5;
+  --color-light-blue: #53a2be;
 
-    --color-green: #28a745;
-    --color-red: #dc3545;
-    --color-yellow: #ffc107;
+  --color-green: #28a745;
+  --color-red: #dc3545;
+  --color-yellow: #ffc107;
+}
+
+h2 {
+  font-size: var(--text-header-2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-headers);
 }
