@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
 // Import Document model
 use App\Models\Document;
 
@@ -12,7 +13,11 @@ class DocumentController extends Controller
 {
     public function index()
     {
-        return view('documents.index');
+        // Get all documents
+        $documents = Document::all();
+
+        // Return view
+        return view('documents.index', compact('documents'));
     }
 
     public function create()
@@ -20,66 +25,62 @@ class DocumentController extends Controller
         return view('documents.create');
     }
 
-    public function store(Request $request)
-    {
-        // Validate
-        $attributes = $request->validate([
-            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+    public function store(Request $request) {
+        // Validate the request data
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,png,jpg'
         ]);
 
+        // Get file properties
         $file = $request->file('file');
-        $originalName = $file->getClientOriginalName();
-        $mimeType = $file->getMimeType();
+        $fileName = $file->getClientOriginalName();
+        $filePath = $file->store('documents', 'public');
+        $fileType = $file->getMimeType();
 
-        // Generate a unique filename
-        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+        // Extract text using OpenAI API
+        $fullPath = Storage::disk('public')->path($filePath);
+        $parsedData = $this->extractText($fullPath);
 
-        // Store file and ensure it's saved properly
-        $storedPath = $file->storeAs('documents', $filename);
+        // Create a new document record
+        Document::create([
+            'file_name' => $fileName,
+            'file_path' => $filePath,
+            'mime_type' => $fileType,
+            'parsed_data' => $parsedData
+        ]);
 
-        // Double-check full absolute path
-        $absolutePath = storage_path("app/{$storedPath}");
-        if (!file_exists($absolutePath)) {
-            return back()->with('error', 'File storage failed.');
-        }
+        // Redirect user with a success message
+        return redirect()->route('documents.index')->with('success', 'Document uploaded successfully');
+    }
 
-        // Save to DB
-        Log::info('Uploading document:', ['file' => $file->getClientOriginalName()]);
+    private function extractText($filePath) {
+        // Create a new client and get the API key
+        $client = new Client();
+        $APIKey = env('OPENAI_API_KEY');
 
-        $document = new Document();
-        $document->file_name = $file->getClientOriginalName();
-        $document->file_path = "documents/{$filePath}";
-        $document->mime_type = $file->getClientMimeType();
-        $document->save();
+        // Prepare the request payload
+        $payload = [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => fopen($filePath, 'r'),
+                    'filename' => basename($filePath)
+                ],
+            ],
+        ];
 
-        Log::info('Document saved:', ['id' => $document->id]);
+        // Send the request to OpenAI API
+        $response = $client->post('https://ai.loepos.com/api/process-document', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $APIKey,
+            ],
+            'multipart' => $payload['multipart'],
+        ]);
 
-        // Send to AI parsing API
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer secret-secret123!',
-            ])->attach(
-                'file',
-                file_get_contents($absolutePath),
-                $originalName
-            )->post('https://ai.loepos.be/api/process-document');
+        // Get the JSON response
+        $responseData = json_decode($response->getBody(), true);
 
-            if ($response->successful()) {
-                $document->parsed_data = json_encode($response->json());
-                $document->save();
-                return redirect('/documents')->with('success', 'Uploaded and parsed successfully.');
-            } else {
-                Log::error('AI API call failed', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-                return redirect('/documents')->with('warning', 'Upload succeeded, but parsing failed.');
-            }
-        } catch (\Exception $e) {
-            Log::error('Exception during document parsing', [
-                'error' => $e->getMessage(),
-            ]);
-            return redirect('/documents')->with('error', 'Upload succeeded, but parsing crashed: ' . $e->getMessage());
-        }
+        // Return the extracted text
+        return json_encode($responseData);
     }
 }

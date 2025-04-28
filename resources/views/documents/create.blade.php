@@ -1,6 +1,11 @@
 <x-layout>
     {{-- Header --}}
-    <x-header>Welkom terug, Sophie!</x-header>
+    <x-header>
+        Document uploaden
+        <x-slot:subText>
+            Beheer de documenten van uw cliënten hier.
+        </x-slot:subText>
+    </x-header>
 
     <section class="mt-10">
         <h2>Document toevoegen</h2>

@@ -12,8 +12,8 @@ Route::get('/', function () {
 })->middleware('auth');
 
 // Post processing
-Route::get('/post-processing', function () {
-    return view('post-processing');
+Route::get('/dossiers', function () {
+    return view('dossiers');
 })->middleware('auth');
 
 // Documents - index
@@ -21,7 +21,7 @@ Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth
 // Document - create
 Route::get('/document/create', [DocumentController::class, 'create'])->middleware('auth');
 // Document - store
-Route::post('/document', [DocumentController::class, 'store'])->middleware('auth');
+Route::post('/document', [DocumentController::class, 'store'])->middleware('auth')->name('documents.create');
 
 // Reports
 Route::get('/reports', function () {
