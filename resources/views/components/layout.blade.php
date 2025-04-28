@@ -14,11 +14,11 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter text-black bg-white flex max-h-screen">
+    <body class="font-inter text-black bg-white flex max-h-screen ">
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen p-4 border-r-2 border-light-gray flex flex-col justify-between">
-            <div>
-                <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-10 mb-8">
+        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
+            <div class="flex flex-col items-start gap-6">
+                <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-14">
                 <ul>
                     {{-- Home nav link --}}
                     <x-nav-link-container>
@@ -66,7 +66,7 @@
         </nav>
 
         {{-- Main --}}
-        <main class="ml-14">
+        <main class="py-6 px-14 w-screen">
             {{ $slot }}
         </main>
     </body>

@@ -1,39 +1,39 @@
 @props([
-  'type' => 'primary', // 'primary', 'secondary', 'tertiary'
-  'disabled' => false, // true or false
-  'icon' => null, // e.g. 'icon="phosphor-plus-bold"'
-  'iconPosition' => 'left', // 'left' or 'right'
+    'type' => 'primary', // 'primary', 'secondary', 'tertiary'
+    'disabled' => false, // true or false
+    'href' => null, // if set, render <a> instead of <button>
+    'icon' => null, // e.g. 'phosphor-plus-bold'
+    'iconPosition' => 'left', // 'left' or 'right'
 ])
 
 @php
-  $baseClasses = 'inline-flex items-center rounded-xl px-6 py-3 text-button font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+    $baseClasses = 'flex items-center rounded-xl px-6 h-12 text-button font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer';
 
-  $types = [
-    'primary' => 'text-white bg-blue hover:bg-dark-blue cursor-pointer focus:ring-blue-500',
-    'secondary' => 'text-black bg-gray-200 hover:bg-gray-300 focus:ring-gray-400',
-    'tertiary' => 'text-blue-600 bg-transparent hover:bg-blue-100 focus:ring-blue-200',
-  ];
+    $types = [
+        'primary' => 'text-white bg-blue hover:bg-dark-blue focus:ring-blue-500',
+        'secondary' => 'text-black bg-gray-200 hover:bg-gray-300 focus:ring-gray-400',
+        'tertiary' => 'text-blue-600 bg-transparent hover:bg-blue-100 focus:ring-blue-200',
+    ];
 
-  $disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
+    $disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
 
-  $iconClasses = 'w-4 h-4';
+    $iconClasses = 'w-6 h-6';
+
+    $finalClasses = "$baseClasses {$types[$type]}" . ($disabled ? " $disabledClasses" : '');
 @endphp
 
-<button
-  {{ $attributes->merge([
-    'class' => "$baseClasses {$types[$type]}" . ($disabled ? " $disabledClasses" : ''),
-    'disabled' => $disabled,
-  ]) }}
->
-  {{-- Icon left --}}
-  @if ($icon && $iconPosition === 'left')
-    <x-dynamic-component :component="$icon" class="{{ $iconClasses }} mr-2" />
-  @endif
-
-  {{ $slot }}
-
-  {{-- Icon right --}}
-  @if ($icon && $iconPosition === 'right')
-    <x-dynamic-component :component="$icon" class="{{ $iconClasses }} ml-2" />
-  @endif
-</button>
+@if ($href)
+    <a
+        href="{{ $href }}"
+        {{ $attributes->merge(['class' => $finalClasses]) }}
+    >
+        @include('components.ui.button-content')
+    </a>
+@else
+    <button
+        {{ $attributes->merge(['class' => $finalClasses]) }}
+        @if($disabled) disabled @endif
+    >
+        @include('components.ui.button-content')
+    </button>
+@endif
