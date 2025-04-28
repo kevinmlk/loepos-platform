@@ -1,8 +1,12 @@
 
 <x-layout>
     {{-- Header --}}
-    <x-header>Welkom terug, Sophie!</x-header>
-
+    <x-header>
+        Alle documenten
+        <x-slot:subText>
+            Beheer de documenten van uw cliënten hier.
+        </x-slot:subText>
+    </x-header>
     <h2>Index page - Documents</h2>
     <!-- Display uploaded documents -->
     <ul>

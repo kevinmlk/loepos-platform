@@ -29,7 +29,7 @@
 
                     {{-- Post processing nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/post-processing" :active="request()->is('post-processing')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Postverwerking
+                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
                         </x-nav-link>
                     </x-nav-link-container>
 
@@ -66,7 +66,7 @@
         </nav>
 
         {{-- Main --}}
-        <main class="py-6 px-14 w-screen">
+        <main class="py-6 px-14 w-screen flex flex-col gap-9">
             {{ $slot }}
         </main>
     </body>

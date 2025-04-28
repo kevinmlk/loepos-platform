@@ -12,8 +12,8 @@ Route::get('/', function () {
 })->middleware('auth');
 
 // Post processing
-Route::get('/post-processing', function () {
-    return view('post-processing');
+Route::get('/dossiers', function () {
+    return view('dossiers');
 })->middleware('auth');
 
 // Documents - index
