@@ -1,7 +1,7 @@
 
 <x-layout>
     <x-header>
-        Alle documenten
+        Documenten
         <x-slot:subText>
             Beheer de documenten van uw cliënten hier.
         </x-slot:subText>
@@ -15,7 +15,7 @@
         </div>
 
         {{-- Tab content --}}
-        <div>
+        <div class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4">
             @if (request('tab', 'overview') === 'overview')
                 @include('documents.partials.overview')
             @elseif (request('tab') === 'upload')

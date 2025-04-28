@@ -1,4 +1,4 @@
-<h2>Index page - Documents</h2>
+<h2>Alle documenten</h2>
 <!-- Display uploaded documents -->
 <ul>
     @foreach($documents as $document)

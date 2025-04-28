@@ -12,7 +12,7 @@
     $types = [
         'primary' => 'text-white bg-blue hover:bg-dark-blue focus:ring-blue-500',
         'secondary' => 'text-black bg-gray-200 hover:bg-gray-300 focus:ring-gray-400',
-        'tertiary' => 'text-blue-600 bg-transparent hover:bg-blue-100 focus:ring-blue-200',
+        'tertiary' => 'text-blue bg-transparent hover:bg-blue-100 focus:ring-blue-200',
     ];
 
     $disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
