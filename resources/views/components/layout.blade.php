@@ -66,7 +66,7 @@
         </nav>
 
         {{-- Main --}}
-        <main class="py-6 px-14 w-screen flex flex-col gap-9">
+        <main class="py-6 px-14 w-screen flex flex-col gap-8">
             {{ $slot }}
         </main>
     </body>
