@@ -21,7 +21,11 @@
   <div class="w-full md:w-1/2 flex items-center justify-center px-6">
     <div class="w-full max-w-md space-y-6">
       <div class="mb-8">
-        <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-14 mb-8">
+        <picture>
+            <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
+            <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
+            <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-14 mb-8">
+        </picture>
         <h2 class="text-4xl font-semibold mb-3">Aanmelden</h2>
         <p class="text-base text-dark-gray">Welkom terug! Voer uw gegevens in.</p>
       </div>
@@ -56,7 +60,11 @@
 
   <!-- Right Side: Preview (optional for aesthetics only) -->
   <div class="hidden md:flex w-1/2 bg-blue items-center justify-end">
-    <img src="{{ asset('images/macbook-mockup.png') }}" alt="Dashboard Preview" class="w-4/5">
+    <picture class="w-4/5">
+        <source srcset="{{ asset('images/macbook-mockup.webp') }}" type="image/webp">
+        <source srcset="{{ asset('images/macbook-mockup.png') }}" type="image/png">
+        <img src="{{ asset('images/mackbook-mockup.png') }}" alt="Dashboard preview">
+    </picture>
   </div>
 
 </body>

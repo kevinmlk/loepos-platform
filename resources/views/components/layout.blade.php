@@ -18,7 +18,11 @@
         {{-- Navigation --}}
         <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
             <div class="flex flex-col items-start gap-6">
-                <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="LoePos Logo" class="h-14">
+                <picture>
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
+                    <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-14">
+                </picture>
                 <ul>
                     {{-- Home nav link --}}
                     <x-nav-link-container>
