@@ -5,10 +5,10 @@
     @csrf
     <div class="dz-message flex flex-col">
         <x-phosphor-image-thin class="h-30 text-blue" />
-        <span>Drop files here to upload</span>
+        <span>Sleep je documenten hier, <br>of klik om een bestand te kiezen.</span>
     </div>
 
-    <div class="flex justify-end gap-4">
+    <div class="dropzone-buttons">
         <x-ui.button type="tertiary" href="/documents?tab=upload">Annuleren</x-ui.button>
         <x-ui.button type="primary" id="form-submit">Upload</x-ui.button>
     </div>
