@@ -1,20 +1,17 @@
-<tr class="border-b hover:bg-gray-50">
+<tr class="border-b border-gray">
     <!-- <td class="px-4 py-2"><input type="checkbox" /></td> -->
-    <td class="px-4 py-2 text-blue-700 flex items-center gap-2">
-        <div class="bg-blue-100 text-blue-700 rounded-full p-2">
-            <svg class="w-4 h-4" fill="currentColor">
-                <x-phosphor-file-bold />
-            </svg>
-        </div>
-        <div>{{ $fileName }}</div>
+    <td class="text-blue">
+        <a href="{{ asset('storage/' . $filePath )}}" target="_blank" class="flex items-center gap-4 py-3">
+            <div class="bg-light-blue rounded-full p-4">
+                <x-phosphor-file-bold class="h-4 text-dark-blue" />
+            </div>
+            <span class="text-black hover:text-blue">{{ $fileName }}</span>
+        </a>
     </td>
     <td>
-        {{ $mimeType }}
+        {{ \Carbon\Carbon::parse($createdAt)->translatedFormat('d M Y') }}
     </td>
     <td>
-        {{ $createdAt }}
-    </td>
-    <td>
-        {{ $updatedAt }}
+        {{ \Carbon\Carbon::parse($updatedAt)->translatedFormat('d M Y') }}
     </td>
 </tr>

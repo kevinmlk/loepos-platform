@@ -14,10 +14,12 @@ class DocumentController extends Controller
     public function index()
     {
         // Get all documents
-        $documents = Document::all();
+        $documents = Document::paginate(5);
 
         // Return view
-        return view('documents.index', compact('documents'));
+        return view('documents.index', [
+            'documents' => $documents
+        ]);
     }
 
     public function create()
