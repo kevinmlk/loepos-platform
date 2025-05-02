@@ -44,9 +44,11 @@ class DocumentController extends Controller
 
         // Create a new document record
         Document::create([
+            'dossier_id' => 1,
+            'type' => Document::TYPE_BILL,
             'file_name' => $fileName,
             'file_path' => $filePath,
-            'parsed_data' => $parsedData
+            'parsed_data' => $parsedData,
         ]);
 
         // Redirect user with a success message
