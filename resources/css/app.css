@@ -57,3 +57,35 @@ h2 {
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-headers);
 }
+
+.dropzone .dz-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.dropzone {
+    border: 2px dashed var(--color-dark-blue) !important; /* Dotted border */
+}
+
+.dropzone .dz-message .icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.dropzone .dz-preview {
+    position: relative !important;
+}
+
+.dropzone .dz-preview .dz-image img {
+    width: 100%;
+}
+
+.dropzone-buttons {
+    margin-top: 20px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+}

@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['employee', 'manager', 'admin'])->default('employee');
+            $table->foreignIdFor(\App\Models\Organization::class);
+            $table->enum('role', ['medewerker', 'manager', 'admin'])->default('medewerker');
             $table->rememberToken();
             $table->timestamps();
         });

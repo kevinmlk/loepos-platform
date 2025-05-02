@@ -1,25 +1,17 @@
 <h2>Document uploaden</h2>
 
 {{-- Upload document form --}}
-<form action="/document" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+<form action="/document" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 dropzone" id="document-dropzone">
     @csrf
-
-    <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-        <div class="text-center flex flex-col">
-            <x-phosphor-image-light class="h-20 text-black" />
-            <div class="mt-4 flex flex-col text-center text-sm/6 text-gray-600">
-                <label for="file" class="flex flex-col font-medium text-blue ">
-                    <span>Upload een bestand</span>
-                    <input id="file" name="file" type="file" class="sr-only" accept=".pdf,image/*" required>
-                </label>
-                <p class="pl-1">of sleep je documenten hier</p>
-            </div>
-            <p class="text-xs/5 text-gray-600">PDF, PNG, JPG tot 10MB</p>
-        </div>
+    <div class="dz-message flex flex-col">
+        <x-phosphor-image-thin class="h-30 text-blue" />
+        <span>Sleep je documenten hier, <br>of klik om een bestand te kiezen.</span>
     </div>
 
-    <div class="flex justify-end gap-4">
+    <div class="dropzone-buttons">
         <x-ui.button type="tertiary" href="/documents?tab=upload">Annuleren</x-ui.button>
-        <x-ui.button type="primary">Upload</x-ui.button>
+        <x-ui.button type="primary" id="form-submit">Upload</x-ui.button>
     </div>
 </form>
+
+@vite(['resources/js/dropzone-config.js'])
