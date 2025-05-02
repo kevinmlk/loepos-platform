@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'email' => 'james.doe@mail.be',
             'password' => 'james123',
             'organization_id' => Organization::factory(),
+            'role' => User::ROLE_EMPLOYEE,
         ]);
     }
 }

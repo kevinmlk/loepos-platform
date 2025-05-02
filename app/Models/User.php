@@ -12,6 +12,17 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // ENUM values
+    const ROLE_EMPLOYEE = 'medewerker';
+    const ROLE_MANAGER = 'manager';
+    const ROLE_ADMIN = 'admin';
+
+    public const ROLES = [
+        self::ROLE_EMPLOYEE,
+        self::ROLE_MANAGER,
+        self::ROLE_ADMIN,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

@@ -25,6 +25,7 @@ class ClientFactory extends Factory
             'city' => fake()->city(),
             'postal_code' => fake()->postcode(),
             'country' => 'België',
+            'national_registry_number' => fake()->randomNumber(9),
         ];
     }
 }
