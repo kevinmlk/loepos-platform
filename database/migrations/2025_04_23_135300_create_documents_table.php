@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(\App\Models\Dossier::class);
+            $table->enum('type', ['factuur', 'herinnering', 'identiteit', 'overeenkomst']);
             $table->string('file_name');
             $table->string('file_path');
-            $table->string('mime_type');
             $table->json('parsed_data')->nullable();
+            $table->boolean('verified_status')->default(false);
             $table->timestamps();
         });
     }

@@ -37,7 +37,6 @@ class DocumentController extends Controller
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName();
         $filePath = $file->store('documents', 'public');
-        $fileType = $file->getMimeType();
 
         // Extract text using OpenAI API
         $fullPath = Storage::disk('public')->path($filePath);
@@ -47,7 +46,6 @@ class DocumentController extends Controller
         Document::create([
             'file_name' => $fileName,
             'file_path' => $filePath,
-            'mime_type' => $fileType,
             'parsed_data' => $parsedData
         ]);
 

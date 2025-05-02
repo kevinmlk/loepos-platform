@@ -17,7 +17,16 @@ class ClientFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'email' => $this->faker->email(),
+            'phone' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address(),
+            'city' => $this->faker->city(),
+            'zip_code' => $this->faker->postcode(),
+            'country' => $this->faker->country('België'),
+            'created_at' => $this->faker->dateTime(),
+            'updated_at' => $this->faker->dateTime(),
         ];
     }
 }
