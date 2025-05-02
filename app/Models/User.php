@@ -47,4 +47,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relations
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function dossier() {
+        return $this->hasMany(Dossier::class);
+    }
 }

@@ -9,9 +9,11 @@ class Document extends Model
     protected $fillable = [
         'file_name',
         'file_path',
-        'mime_type',
         'parsed_data',
     ];
 
-    //
+    // Relations
+    public function dossier() {
+        return $this->belongsTo(Dossier::class);
+    }
 }
