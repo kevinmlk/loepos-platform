@@ -65,7 +65,7 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
-    public function dossier() {
+    public function dossiers() {
         return $this->hasMany(Dossier::class);
     }
 }

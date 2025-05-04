@@ -5,16 +5,17 @@ use Illuminate\Support\Facades\Route;
 // Controllers
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DossierController;
 
 // Dashboard
 Route::get('/', function () {
     return view('dashboard');
 })->middleware('auth');
 
-// Post processing
-Route::get('/dossiers', function () {
-    return view('dossiers');
-})->middleware('auth');
+// Dossiers
+Route::get('/dossiers', [DossierController::class, 'index'])->middleware('auth')->name('dossiers.index');
+// Route::get('/dossiers/create', [DossierController::class, 'dossiers');
+// })->middleware('auth');
 
 // Documents - index
 Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth')->name('documents.index');
