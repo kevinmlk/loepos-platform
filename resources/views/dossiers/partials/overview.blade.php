@@ -10,6 +10,7 @@
     <tbody>
     @foreach($dossiers as $dossier)
         <x-shared.dossier-row
+            :dossierId="$dossier->id"
             :firstName="$dossier->client->first_name"
             :lastName="$dossier->client->last_name"
             :status="$dossier->status"

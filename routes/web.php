@@ -12,10 +12,12 @@ Route::get('/', function () {
     return view('dashboard');
 })->middleware('auth');
 
-// Dossiers
+// Dossiers - index
 Route::get('/dossiers', [DossierController::class, 'index'])->middleware('auth')->name('dossiers.index');
-// Route::get('/dossiers/create', [DossierController::class, 'dossiers');
-// })->middleware('auth');
+// Dossiers - show
+Route::get('/dossiers/{dossier}', [DossierController::class, 'show'])->middleware('auth')->name('dossiers.show');
+// Dossiers - create
+// Route::get('/dossiers/create', [DossierController::class, 'create'])->middleware('auth');
 
 // Documents - index
 Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth')->name('documents.index');

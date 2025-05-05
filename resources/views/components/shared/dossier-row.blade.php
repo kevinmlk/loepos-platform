@@ -1,7 +1,7 @@
 <tr class="border-b border-light-gray">
     <!-- <td class="px-4 py-2"><input type="checkbox" /></td> -->
     <td class="text-blue px-6 py-4">
-        <a href="#"  class="flex items-center gap-4">
+        <a href="/dossiers/{{ $dossierId }}"  class="flex items-center gap-4">
             <div class="bg-transparant-blue rounded-full w-10 h-10 flex justify-center items-center">
                 {{ substr($firstName, 0, 1) . substr($lastName, 0, 1) }}
             </div>

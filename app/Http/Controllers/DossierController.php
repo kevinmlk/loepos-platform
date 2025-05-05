@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Dossier;
 
 class DossierController extends Controller
 {
@@ -16,6 +17,11 @@ class DossierController extends Controller
         $dossiers = $user->dossiers()->with('client')->paginate(4);
 
         // Return the view
-        return view('dossiers.index', compact('dossiers'));
+        return view('dossiers.index', ['dossiers' => $dossiers]);
+    }
+
+    public function show(Dossier $dossier)
+    {
+        return view('dossiers.show', ['dossier' => $dossier]);
     }
 }
