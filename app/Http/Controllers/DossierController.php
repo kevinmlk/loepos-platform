@@ -13,7 +13,7 @@ class DossierController extends Controller
         $user = Auth::user();
 
         // Get the user's dossiers
-        $dossiers = $user->dossiers()->with('client')->get();
+        $dossiers = $user->dossiers()->with('client')->paginate(4);
 
         // Return the view
         return view('dossiers.index', compact('dossiers'));
