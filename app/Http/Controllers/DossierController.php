@@ -22,6 +22,9 @@ class DossierController extends Controller
 
     public function show(Dossier $dossier)
     {
+        // Eager load the documents related to the dossier
+        $dossier->load('documents');
+
         return view('dossiers.show', ['dossier' => $dossier]);
     }
 }
