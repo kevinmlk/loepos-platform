@@ -6,24 +6,38 @@
             {{ $dossier->client->address }}
         </x-slot:subText>
     </x-header>
-    <div class="container">
-        <h2>Documents</h2>
-        <p><strong>Client Name:</strong> {{ $dossier->client->first_name }} {{ $dossier->client->last_name }}</p>
-            <p><strong>Status:</strong> {{ $dossier->status }}</p>
-            <p><strong>Phone:</strong> {{ $dossier->client->phone }}</p>
-            <p><strong>Email:</strong> {{ $dossier->client->email }}</p>
 
-            <h2>Documents</h2>
-            <ul class="">
-                @if ($dossier->documents->isEmpty())
-                    <li>No documents found.</li>
-                @else
-                    @foreach ($dossier->documents as $document)
-                        <li>
-                            <a href="{{ asset('storage/' . $document->file_path )}}" target="_blank">{{ $document->file_name }}</a>
-                        </li>
-                    @endforeach
-                @endif
-            </ul>
+    {{-- Tab navigation --}}
+    <div class="flex border-b mb-4">
+        <a
+            href="{{ route(Route::currentRouteName(), ['dossier' => $dossier['id'], 'tab' => 'overview']) }}"
+            class="px-4 py-2 {{ request('tab', 'overview') === 'overview' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500' }}"
+        >
+            Overzicht
+        </a>
+
+        <a
+            href="{{ route(Route::currentRouteName(), ['dossier' => $dossier['id'], 'tab' => 'documents']) }}"
+            class="px-4 py-2 {{ request('tab') === 'documents' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500' }}"
+        >
+            Documenten
+        </a>
+
+        <a
+            href="{{ route(Route::currentRouteName(), ['dossier' => $dossier['id'], 'tab' => 'details   ']) }}"
+            class="px-4 py-2 {{ request('tab') === 'details' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500' }}"
+        >
+            Dossiergegevens
+        </a>
+    </div>
+
+    <div class="container">
+        @if (request('tab', 'overview') === 'overview')
+            @include('dossiers.partials.details.overview')
+        @elseif (request('tab') === 'documents')
+            @include('dossiers.partials.details.documents')
+        @elseif (request('tab') === 'details')
+            @include('dossiers.partials.details.details')
+        @endif
     </div>
 </x-layout>
