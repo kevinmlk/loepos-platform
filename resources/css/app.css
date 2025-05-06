@@ -53,6 +53,11 @@
   --color-yellow: #ffc107;
 }
 
+::selection {
+  background-color: var(--color-light-blue);
+  color: var(--color-white);
+}
+
 h2 {
   font-size: var(--text-header-2);
   font-weight: var(--font-weight-semibold);
