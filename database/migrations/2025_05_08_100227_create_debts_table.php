@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Dossier::class);
             $table->string('creditor');
             $table->decimal('amount', 10, 5);
-            // $table->enum('status', )
+            // $table->enum('status', );
             $table->timestamps();
         });
     }

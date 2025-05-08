@@ -9,4 +9,7 @@ class Debt extends Model
 {
     /** @use HasFactory<\Database\Factories\DebtFactory> */
     use HasFactory;
+
+    // ENUM values
+    // const STATUS_OPEN;
 }
