@@ -9,4 +9,9 @@ class Client extends Model
 {
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use HasFactory;
+
+    // Relations
+    public function dossier() {
+        return $this->hasMany(Dossier::class);
+    }
 }

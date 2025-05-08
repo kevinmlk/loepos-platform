@@ -14,7 +14,7 @@
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter text-black bg-white flex max-h-screen ">
+    <body class="font-inter text-black bg-white flex max-h-screen">
         {{-- Navigation --}}
         <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
             <div class="flex flex-col items-start gap-6">

@@ -12,6 +12,17 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // ENUM values
+    const ROLE_EMPLOYEE = 'epmloyee';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_SUPERADMIN = 'superadmin';
+
+    public const ROLES = [
+        self::ROLE_EMPLOYEE,
+        self::ROLE_ADMIN,
+        self::ROLE_SUPERADMIN,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +33,7 @@ class User extends Authenticatable
         'last_name',
         'email',
         'password',
+        'organization_id'
     ];
 
     /**
@@ -45,5 +57,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relations
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function dossiers() {
+        return $this->hasMany(Dossier::class);
     }
 }

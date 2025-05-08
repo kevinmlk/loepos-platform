@@ -9,4 +9,10 @@ class Organization extends Model
 {
     /** @use HasFactory<\Database\Factories\OrganizationFactory> */
     use HasFactory;
+
+    // Relations
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

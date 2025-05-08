@@ -46,10 +46,16 @@
   --color-dark-blue: #176087;
   --color-blue: #1d84b5;
   --color-light-blue: #53a2be;
+  --color-transparant-blue: #C6E0EC;
 
   --color-green: #28a745;
   --color-red: #dc3545;
   --color-yellow: #ffc107;
+}
+
+::selection {
+  background-color: var(--color-light-blue);
+  color: var(--color-white);
 }
 
 h2 {

@@ -16,8 +16,8 @@
         />
         <!-- <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank">{{ $document->file_name }}</a>
         ({{ $document->mime_type }}) -->
-    </tbody>
     @endforeach
+    </tbody>
 </table>
 
 <div class="mt-2">

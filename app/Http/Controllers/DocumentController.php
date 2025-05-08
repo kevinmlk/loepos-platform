@@ -37,7 +37,6 @@ class DocumentController extends Controller
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName();
         $filePath = $file->store('documents', 'public');
-        $fileType = $file->getMimeType();
 
         // Extract text using OpenAI API
         $fullPath = Storage::disk('public')->path($filePath);
@@ -45,10 +44,11 @@ class DocumentController extends Controller
 
         // Create a new document record
         Document::create([
+            'dossier_id' => 1,
+            'type' => Document::TYPE_BILL,
             'file_name' => $fileName,
             'file_path' => $filePath,
-            'mime_type' => $fileType,
-            'parsed_data' => $parsedData
+            'parsed_data' => $parsedData,
         ]);
 
         // Redirect user with a success message
