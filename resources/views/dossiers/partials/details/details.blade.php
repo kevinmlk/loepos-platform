@@ -2,7 +2,7 @@
     <div class="grid grid-cols-2 gap-8">
         <article class="border-2 rounded-xl border-light-gray p-6 flex flex-col gap-5">
             <h2>Dossier gegevens</h2>
-            <div class="flex flex-wrap gap-x-48 gap-y-6">
+            <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Huidige status</span>
                     <p class="text-body-default">{{ $dossier->status }}</p>
@@ -28,10 +28,10 @@
         </article>
     </div>
 
-    <div>
-        <article class="border-2 rounded-xl border-light-gray p-6 flex flex-col gap-5">
+    <div class="grid grid-cols-2 gap-8">
+        <article class="border-2 rounded-xl border-light-gray p-6 flex flex-col gap-5 h-55">
             <h2>Financiële informatie</h2>
-            <div class="flex flex-wrap gap-x-48 gap-y-6">
+            <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Huidige status</span>
                     <p class="text-body-default">{{ $dossier->status }}</p>
@@ -51,7 +51,7 @@
 
         <article class="border-2 rounded-xl border-light-gray p-6 flex flex-col gap-5">
             <h2>Persoonlijke informatie</h2>
-            <div class="flex flex-wrap gap-x-48 gap-y-6">
+            <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Voornaam</span>
                     <p class="text-body-default">{{ $dossier->client->first_name }}</p>
