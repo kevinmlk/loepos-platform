@@ -13,14 +13,14 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     // ENUM values
-    const ROLE_EMPLOYEE = 'medewerker';
-    const ROLE_MANAGER = 'manager';
+    const ROLE_EMPLOYEE = 'epmloyee';
     const ROLE_ADMIN = 'admin';
+    const ROLE_SUPERADMIN = 'superadmin';
 
     public const ROLES = [
         self::ROLE_EMPLOYEE,
-        self::ROLE_MANAGER,
         self::ROLE_ADMIN,
+        self::ROLE_SUPERADMIN,
     ];
 
     /**
