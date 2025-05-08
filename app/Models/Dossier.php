@@ -12,13 +12,13 @@ class Dossier extends Model
     use HasFactory;
 
     // ENUM Values
-    const STATUS_ACTIVE = 'actief';
-    const STATUS_IN_PROGRESS = 'in uitvoering';
-    const STATUS_CLOSED = 'afgesloten';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_IN_PROCESS = 'in process';
+    const STATUS_CLOSED = 'closed';
 
     public const STATUS = [
         self::STATUS_ACTIVE,
-        self::STATUS_IN_PROGRESS,
+        self::STATUS_IN_PROCESS,
         self::STATUS_CLOSED,
     ];
 
@@ -33,5 +33,9 @@ class Dossier extends Model
 
     public function documents() {
         return $this->hasMany(Document::class);
+    }
+
+    public function debts() {
+        return $this->hasMany(Debt::class);
     }
 }

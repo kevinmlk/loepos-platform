@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Dossier;
+use App\Models\Debt;
 
 return new class extends Migration
 {
@@ -17,7 +18,8 @@ return new class extends Migration
             $table->foreignIdFor(Dossier::class);
             $table->string('creditor');
             $table->decimal('amount', 10, 5);
-            // $table->enum('status', );
+            $table->enum('status', Debt::STATUS)->default(Debt::STATUS_OPEN);
+            $table->timestamp('due_date')->nullable();
             $table->timestamps();
         });
     }
