@@ -33,18 +33,25 @@
             <h2>Financiële informatie</h2>
             <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Huidige status</span>
-                    <p class="text-body-default">{{ $dossier->status }}</p>
+                    <span class="text-caption">Schulden</span>
+                    <p class="text-body-default">
+                        € {{ $dossier->debts->sum('amount') }}
+                    </p>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Type hulp</span>
-                    <p class="text-body-default">Budgetbeheer</p>
+                    <span class="text-caption">Uitgaven</span>
+                    <p class="text-body-default">€ 900</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Toegewezen medewerker</span>
-                    <p class="text-body-default">{{ $dossier->user->first_name }} {{ $dossier->user->last_name }}</p>
+                    <span class="text-caption">Inkomen</span>
+                    <p class="text-body-default">€ 1250</p>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-caption">Budgetbeheer</span>
+                    <p class="text-body-default">Sinds {{ $dossier->client->created_at->format('F Y') }}</p>
                 </div>
             </div>
         </article>

@@ -45,7 +45,7 @@ class DocumentController extends Controller
         // Create a new document record
         Document::create([
             'dossier_id' => 1,
-            'type' => Document::TYPE_BILL,
+            'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
             'parsed_data' => $parsedData,
