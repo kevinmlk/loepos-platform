@@ -14,4 +14,8 @@ class Client extends Model
     public function dossier() {
         return $this->hasMany(Dossier::class);
     }
+
+    public function financialInfo() {
+        return $this->hasOne(FinancialInfo::class);
+    }
 }
