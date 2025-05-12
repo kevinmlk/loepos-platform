@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Organization;
 
 class UserSeeder extends Seeder
 {
@@ -14,6 +13,32 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
+        // Test employee user for login
+        User::factory()->create([
+            'first_name' => 'James',
+            'last_name' => 'Doe',
+            'email' => 'james.doe@mail.be',
+            'password' => 'james123',
+            'organization_id' => 1,
+            'role' => User::ROLE_EMPLOYEE,
+        ]);
+
+        User::factory()->create([
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'jane.doe@mail.be',
+            'password' => 'jane123',
+            'organization_id' => 1,
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        User::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john.doe@mail.be',
+            'password' => 'john123',
+            'organization_id' => 1,
+            'role' => User::ROLE_SUPERADMIN,
+        ]);
     }
 }
