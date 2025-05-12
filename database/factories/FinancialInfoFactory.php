@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Ramsey\Uuid\Type\Integer;
 use App\Models\FinancialInfo;
+use App\Models\Client;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\FinancialInfo>
@@ -19,7 +19,6 @@ class FinancialInfoFactory extends Factory
     public function definition(): array
     {
         return [
-            'client_id' => 1,
             'iban' => 'BE' . fake()->numerify(str_repeat('#', 14)),
             'bank_name' => fake()->company(),
             'monthly_income' => fake()->numberBetween(0, 2100),

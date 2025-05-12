@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(Client::class);
             $table->foreignIdFor(User::class);
             $table->enum('status', Dossier::STATUS)->default(Dossier::STATUS_IN_PROCESS);
+            $table->enum('type', Dossier::TYPES);
             $table->timestamps();
         });
     }

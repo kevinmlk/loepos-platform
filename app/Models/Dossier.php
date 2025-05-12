@@ -22,6 +22,14 @@ class Dossier extends Model
         self::STATUS_CLOSED,
     ];
 
+    const TYPE_DEBT_MEDIATION = 'schuldbemiddeling';
+    const TYPE_BUDGET_MANAGEMENT = 'budgetbeheer';
+
+    public const TYPES = [
+        self::TYPE_DEBT_MEDIATION,
+        self::TYPE_BUDGET_MANAGEMENT,
+    ];
+
     // Relations
     public function client() {
         return $this->belongsTo(Client::class);

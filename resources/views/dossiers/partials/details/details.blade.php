@@ -46,7 +46,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Inkomen</span>
-                    <p class="text-body-default">€ 1250</p>
+                    <p class="text-body-default">€ {{ $dossier->client->financialInfo->monthly_income }}</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -96,7 +96,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">ID-kaartnummer</span>
-                    <p class="text-body-default">BE12 3456 7890 1234</p>
+                    <p class="text-body-default">{{ $dossier->client->financialInfo->iban }}</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
