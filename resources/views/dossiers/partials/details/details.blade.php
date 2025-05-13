@@ -10,7 +10,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Type hulp</span>
-                    <p class="text-body-default">Budgetbeheer</p>
+                    <p class="text-body-default">{{ $dossier->type }}</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -41,7 +41,11 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Uitgaven</span>
-                    <p class="text-body-default">€ 900</p>
+                    @if (!empty($dossier->client->financialInfo->monthly_expenses))
+                    <p class="text-body-default">€ {{ $dossier->client->financialInfo->monthly_expenses }}</p>
+                    @else
+                    <p class="text-body-default">Geen uitgaven</p>
+                    @endif
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -76,7 +80,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Geboortedatum en -plaats</span>
-                    <p class="text-body-default">12 MEI 1988, Rabat, Marokko</p>
+                    <p class="text-body-default">12 MEI 1988, Mechelen, België</p>
                 </div>
 
                 <div class="flex flex-col gap-1">

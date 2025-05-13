@@ -22,6 +22,7 @@ class FinancialInfoFactory extends Factory
             'iban' => 'BE' . fake()->numerify(str_repeat('#', 14)),
             'bank_name' => fake()->company(),
             'monthly_income' => fake()->numberBetween(0, 2100),
+            'monthly_expenses' => fake()->numberBetween(0, 1800),
             'employer' => fake()->company(),
             'contract' => fake()->randomElement(FinancialInfo::CONTRACTS),
             'education' => fake()->randomElement(FinancialInfo::EDUCATIONS)
