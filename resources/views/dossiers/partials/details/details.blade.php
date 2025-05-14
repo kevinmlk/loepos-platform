@@ -10,7 +10,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Type hulp</span>
-                    <p class="text-body-default">Budgetbeheer</p>
+                    <p class="text-body-default">{{ $dossier->type }}</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -33,18 +33,29 @@
             <h2>Financiële informatie</h2>
             <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Huidige status</span>
-                    <p class="text-body-default">{{ $dossier->status }}</p>
+                    <span class="text-caption">Schulden</span>
+                    <p class="text-body-default">
+                        € {{ $dossier->debts->sum('amount') }}
+                    </p>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Type hulp</span>
-                    <p class="text-body-default">Budgetbeheer</p>
+                    <span class="text-caption">Uitgaven</span>
+                    @if (!empty($dossier->client->financialInfo->monthly_expenses))
+                    <p class="text-body-default">€ {{ $dossier->client->financialInfo->monthly_expenses }}</p>
+                    @else
+                    <p class="text-body-default">Geen uitgaven</p>
+                    @endif
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="text-caption">Toegewezen medewerker</span>
-                    <p class="text-body-default">{{ $dossier->user->first_name }} {{ $dossier->user->last_name }}</p>
+                    <span class="text-caption">Inkomen</span>
+                    <p class="text-body-default">€ {{ $dossier->client->financialInfo->monthly_income }}</p>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-caption">Budgetbeheer</span>
+                    <p class="text-body-default">Sinds {{ $dossier->client->created_at->format('F Y') }}</p>
                 </div>
             </div>
         </article>
@@ -69,7 +80,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">Geboortedatum en -plaats</span>
-                    <p class="text-body-default">12 MEI 1988, Rabat, Marokko</p>
+                    <p class="text-body-default">12 MEI 1988, Mechelen, België</p>
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -89,7 +100,7 @@
 
                 <div class="flex flex-col gap-1">
                     <span class="text-caption">ID-kaartnummer</span>
-                    <p class="text-body-default">BE12 3456 7890 1234</p>
+                    <p class="text-body-default">{{ $dossier->client->financialInfo->iban }}</p>
                 </div>
 
                 <div class="flex flex-col gap-1">

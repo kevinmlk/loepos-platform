@@ -13,6 +13,34 @@ class DossierSeeder extends Seeder
      */
     public function run(): void
     {
-        Dossier::factory(20)->create();
+        Dossier::factory()->create([
+            'client_id' => 1,
+            'user_id' => 1,
+            'status' => Dossier::STATUS_ACTIVE
+        ]);
+
+        Dossier::factory()->create([
+            'client_id' => 2,
+            'user_id' => 1,
+            'status' => Dossier::STATUS_ACTIVE
+        ]);
+
+        Dossier::factory()->create([
+            'client_id' => 3,
+            'user_id' => 1,
+            'status' => Dossier::STATUS_ACTIVE
+        ]);
+
+        Dossier::factory()->create([
+            'client_id' => 4,
+            'user_id' => 1,
+            'status' => Dossier::STATUS_ACTIVE
+        ]);
+
+        Dossier::factory()->create([
+            'client_id' => 5,
+            'user_id' => 1,
+            'status' => Dossier::STATUS_ACTIVE
+        ]);
     }
 }

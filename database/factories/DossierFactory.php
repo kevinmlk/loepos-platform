@@ -23,6 +23,7 @@ class DossierFactory extends Factory
             'client_id' => Client::factory(),
             'user_id' => User::factory(),
             'status' => fake()->randomElement(Dossier::STATUS),
+            'type' => fake()->randomElement(Dossier::TYPES),
         ];
     }
 }

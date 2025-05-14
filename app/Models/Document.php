@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Document extends Model
 {
     // ENUM Values
-    const TYPE_BILL = 'factuur';
-    const TYPE_REMINDER = 'herinnering';
-    const TYPE_IDENTITY = 'identiteit';
+    const TYPE_INVOICE = 'invoice';
+    const TYPE_REMINDER = 'reminder';
+    const TYPE_IDENTITY = 'identity';
     const TYPE_AGREEMENT = 'agreement';
 
     public const TYPES = [
-        self::TYPE_BILL,
+        self::TYPE_INVOICE,
         self::TYPE_REMINDER,
         self::TYPE_IDENTITY,
         self::TYPE_AGREEMENT,

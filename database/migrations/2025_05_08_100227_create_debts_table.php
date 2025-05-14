@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Client;
-use App\Models\User;
 use App\Models\Dossier;
+use App\Models\Debt;
 
 return new class extends Migration
 {
@@ -14,12 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dossiers', function (Blueprint $table) {
+        Schema::create('debts', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Client::class);
-            $table->foreignIdFor(User::class);
-            $table->enum('status', Dossier::STATUS)->default(Dossier::STATUS_IN_PROCESS);
-            $table->enum('type', Dossier::TYPES);
+            $table->foreignIdFor(Dossier::class);
+            $table->string('creditor');
+            $table->decimal('amount', 10, 5);
+            $table->enum('status', Debt::STATUS)->default(Debt::STATUS_OPEN);
+            $table->timestamp('due_date')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dossiers');
+        Schema::dropIfExists('debts');
     }
 };
