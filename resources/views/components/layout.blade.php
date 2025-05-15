@@ -65,7 +65,7 @@
                         @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
                             <x-nav-link-container>
                                 <x-nav-link href="/admin" :active="request()->is('admin')">
-                                    <x-phosphor-question-bold class="w-6 h-6 mr-3" />
+                                    <x-phosphor-person-bold class="w-6 h-6 mr-3" />
                                     Admin
                                 </x-nav-link>
                             </x-nav-link-container> 
