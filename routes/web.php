@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Gate;
+
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 // Controllers
 use App\Http\Controllers\SessionController;
@@ -38,6 +42,9 @@ Route::get('/support', function () {
 
 // admin
 Route::get('/admin', function () {
+    if (!in_array(Auth::user()->role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN])) {
+        abort(403);
+    }
     return view('admin');
 })->middleware('auth');
 
