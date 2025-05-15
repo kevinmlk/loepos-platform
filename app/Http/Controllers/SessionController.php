@@ -41,7 +41,11 @@ class SessionController extends Controller
     // Function to logout the user
     public function destroy()
     {
-        Auth::logout();
-        return redirect("/");
+            Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect('/login')->with('status', 'U bent succesvol uitgelogd.');
     }
 }

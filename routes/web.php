@@ -36,6 +36,11 @@ Route::get('/support', function () {
     return view('support');
 })->middleware('auth');
 
+// admin
+Route::get('/admin', function () {
+    return view('admin');
+})->middleware('auth');
+
 // Login
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 // Login action
