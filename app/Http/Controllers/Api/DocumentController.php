@@ -74,26 +74,13 @@ class DocumentController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    * TODO: Add check so see if the user/client is allowed to send email
+    * for uploading documents to the AI scanner.
+    */
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    * TODO: Change the email prefix of 'post@loepos.be' to for ex:
+    * 'post+{organization_id}@loepos.be' or post+{organization_name}@loepos.be
+    * so that sended documents are linked to the right organization.
+    */
 }
