@@ -1,11 +1,11 @@
 <x-layout>
     {{-- Header --}}
-    <x-header>
+    <x-headerAdmin>
         Administratie
         <x-slot:subText>
             Beheer je organisatie en zijn clienten.
         </x-slot:subText>
-    </x-header>
+    </x-headerAdmin>
 
     {{-- Admin Tools --}}
     <div class="flex flex-wrap gap-3">
@@ -33,3 +33,4 @@
 
 
 </x-layout>
+

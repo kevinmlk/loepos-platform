@@ -1,11 +1,11 @@
 
 <x-layout>
-    <x-header>
+    <x-headerAdmin>
         Medewerkers
         <x-slot:subText>
             Beheer de medewerkers in je organisatie.
         </x-slot:subText>
-    </x-header>
+    </x-headerAdmin>
 
     <section class="flex flex-col gap-8">
 
