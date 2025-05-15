@@ -47,6 +47,16 @@ Route::get('/admin', function () {
     return view('admin');
 })->middleware('auth');
 
+// admin - routes 
+use App\Http\Controllers\AdminController;
+
+Route::middleware('auth')->prefix('admin')->group(function () {
+    Route::get('/organisation', [AdminController::class, 'organisatie'])->name('admin.organisatie');
+    Route::get('/employees', [AdminController::class, 'medewerkers'])->name('admin.medewerkers');
+    Route::get('/clients', [AdminController::class, 'clienten'])->name('admin.clienten');
+});
+
+
 // Login
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 // Login action

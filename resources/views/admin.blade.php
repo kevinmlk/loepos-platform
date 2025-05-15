@@ -1,32 +1,30 @@
 <x-layout>
     {{-- Header --}}
     <x-header>
-        Welkom terug, {{ Auth()->user()->first_name }}!
+        Administratie
         <x-slot:subText>
-            Beheer je cliënten en hun dossiers.
+            Beheer je organisatie en zijn clienten.
         </x-slot:subText>
     </x-header>
-
-    <p>Administratie pagina en enkel voor admin users pagina</p>
 
     {{-- Admin Tools --}}
     <div class="flex flex-wrap gap-3">
         @include('admin.partials.admin-card', [
-            'href' => '/admin/organisatie',
+            'href' => '/admin/organisation',
             'title' => 'Organisatie instellingen',
             'description' => 'Wijzig de instellingen voor uw organisatie zoals de naam, adres, …',
             'icon' => 'bi bi-house-door-fill'
         ])
 
         @include('admin.partials.admin-card', [
-            'href' => '/admin/medewerkers',
+            'href' => '/admin/employees',
             'title' => 'Medewerkers',
             'description' => 'Toevoegen, bewerken en toewijzen van sociale medewerkers.',
             'icon' => 'bi bi-person-badge-fill'
         ])
 
         @include('admin.partials.admin-card', [
-            'href' => '/admin/clienten',
+            'href' => '/admin/clients',
             'title' => 'Cliënten',
             'description' => 'Toevoegen, bewerken en toewijzen van cliënten.',
             'icon' => 'bi bi-people-fill'
