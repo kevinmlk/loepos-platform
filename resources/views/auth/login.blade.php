@@ -17,6 +17,7 @@
 </head>
 <body class="font-inter text-black flex min-h-screen bg-white">
 
+
   <!-- Left Side: Login Form -->
   <div class="w-full md:w-1/2 flex items-center justify-center px-6">
     <div class="w-full max-w-md space-y-6">
@@ -29,6 +30,13 @@
         <h2 class="text-4xl font-semibold mb-3">Aanmelden</h2>
         <p class="text-base text-dark-gray">Welkom terug! Voer uw gegevens in.</p>
       </div>
+
+      <!-- Flash message logged out -->
+      @if (session('status'))
+        <div class="p-4 mb-4 rounded text-sm font-medium text-dark-blue">
+          {{ session('status') }}
+        </div>
+      @endif
 
       <form method="POST" action="/login" class="space-y-5">
         @csrf
