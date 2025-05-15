@@ -95,3 +95,13 @@ h2 {
     justify-content: flex-end !important;
     gap: 10px !important;
 }
+
+.admin-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.admin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
