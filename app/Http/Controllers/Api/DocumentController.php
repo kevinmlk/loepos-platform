@@ -98,8 +98,9 @@ class DocumentController extends Controller
     }
 
     /**
-    * TODO: Change the email prefix of 'post@loepos.be' to for ex:
-    * 'post+{organization_id}@loepos.be' or post+{organization_name}@loepos.be
-    * so that sended documents are linked to the right organization.
+    * TODO: When a document is uploaded via the API, look to which client it belongs to
+    * and assigned it to that client.
     */
+
+
 }
