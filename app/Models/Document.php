@@ -32,4 +32,8 @@ class Document extends Model
     public function dossier() {
         return $this->belongsTo(Dossier::class);
     }
+
+    public function aiLogs() {
+        return $this->hasMany(AiLog::class);
+    }
 }

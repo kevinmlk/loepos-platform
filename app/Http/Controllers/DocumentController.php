@@ -7,15 +7,17 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 use App\Services\DocumentService;
+use App\Services\DossierService;
 use App\Models\Document;
 
 class DocumentController extends Controller
 {
-    protected $documentService;
+    protected $documentService, $dossierService;
 
-    public function __construct(DocumentService $documentService)
+    public function __construct(DocumentService $documentService, DossierService $dossierService)
     {
         $this->documentService = $documentService;
+        $this->dossierService = $dossierService;
     }
 
     public function index()
@@ -49,9 +51,15 @@ class DocumentController extends Controller
         $fullPath = Storage::disk('public')->path($filePath);
         $parsedData = $this->documentService->extractText($fullPath);
 
+        // Decode the parsed data to extract client information
+        $parsedDataArray = json_decode($parsedData, true);
+
+        // Determine the dossier_id using DocumentService
+        $dossierId = $this->dossierService->determineDossierId($parsedDataArray);
+
         // Create a new document record
         Document::create([
-            'dossier_id' => 1,
+            'dossier_id' => $dossierId ?? 1,
             'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
@@ -59,6 +67,6 @@ class DocumentController extends Controller
         ]);
 
         // Redirect user with a success message
-        return redirect('/documents?tab=overview');
+        return redirect('/documents');
     }
 }
