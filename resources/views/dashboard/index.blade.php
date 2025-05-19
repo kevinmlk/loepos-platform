@@ -8,7 +8,7 @@
     </x-header>
 
     <section clas="">
-        <p>Home pagina</p>
-
+        @include('dashboard.partials.analytics')
+        @include('dashboard.partials.documents')
     </section>
 </x-layout>
