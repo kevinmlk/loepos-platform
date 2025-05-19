@@ -49,8 +49,11 @@
   --color-transparant-blue: #C6E0EC;
 
   --color-green: #28a745;
+  --color-transparant-green: #D4EDDA;
   --color-red: #dc3545;
+  --color-transparant-red: #F8D7DA;
   --color-yellow: #ffc107;
+  --color-transparant-yellow: #FDF7E3;
 }
 
 ::selection {

@@ -1,7 +1,12 @@
 <div class="flex justify-between gap-6">
     <article class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4 w-full">
-        <h2>Laatst toegevoegd</h2>
-        <!-- Display uploaded documents -->
+        <div class="flex justify-between">
+            <h2>Laatst toegevoegd</h2>
+            <div class="flex gap-3">
+                <x-ui.button-small icon="phosphor-magnifying-glass-bold" type="secondary">Zoeken</x-ui.button-small>
+                <x-ui.button-small href="/documents?tab=upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
+            </div>
+        </div>
         <table>
             <thead>
                 <th class="text-start text-caption font-regular py-2">Bestandsnaam</th>
