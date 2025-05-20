@@ -20,6 +20,18 @@ class Payment extends Model
         self::METHOD_CASH,
     ];
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'document_id',
+        'debt_id',
+        'amount',
+        'method',
+    ];
+
     public function document() {
         return $this->belongsTo(Document::class);
     }
