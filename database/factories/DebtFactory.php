@@ -21,7 +21,8 @@ class DebtFactory extends Factory
         return [
             'dossier_id' => Dossier::factory(),
             'creditor' => fake()->company(),
-            'amount' => fake()->randomNumber(4),
+            'amount' => fake()->numberBetween(0, 9999),
+            'amount_paid' => fake()->numberBetween(0, 6999),
             'status' => fake()->randomElement(Debt::STATUS),
             'due_date' => fake()->date(),
         ];
