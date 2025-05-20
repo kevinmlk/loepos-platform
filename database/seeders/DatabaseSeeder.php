@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DossierSeeder::class,
             DebtSeeder::class,
-            FinancialInfoSeeder::class
+            FinancialInfoSeeder::class,
+            PaymentSeeder::class,
         ]);
     }
 }

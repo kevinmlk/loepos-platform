@@ -10,12 +10,12 @@
             <div class="w-full bg-light-gray rounded-full h-2">
                 @php
                     $totalDebt = $dossier->debts->sum('amount');
-                    $totalPaid = $dossier->debts->sum('amount_paid');
-                    $progress = $totalDebt > 0 ? ($totalPaid / $totalDebt) * 100 : 0;
+                    $totalPayments = $dossier->debts->flatMap->payments->sum('amount');
+                    $progress = $totalDebt > 0 ? ($totalPayments / $totalDebt) * 100 : 0;
                 @endphp
                 <div class="bg-yellow h-2 rounded-full" style="width: {{ $progress }}%;"></div>
             </div>
-            <p>Te betalen bedrag: € {{ $totalDebt - $totalPaid }}</p>
+            <p>Te betalen bedrag: € {{ $totalDebt - $totalPayments }}</p>
         </div>
     </article>
 

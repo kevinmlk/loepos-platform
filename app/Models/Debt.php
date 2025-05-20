@@ -25,4 +25,8 @@ class Debt extends Model
     public function dossier() {
         return $this->belongsTo(Dossier::class);
     }
+
+    public function payments() {
+        return $this->hasMany(Payment::class);
+    }
 }

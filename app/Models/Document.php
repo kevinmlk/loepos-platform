@@ -33,6 +33,10 @@ class Document extends Model
         return $this->belongsTo(Dossier::class);
     }
 
+    public function payment() {
+        return $this->hasOne(Payment::class);
+    }
+
     public function aiLogs() {
         return $this->hasMany(AiLog::class);
     }
