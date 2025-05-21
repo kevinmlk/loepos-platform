@@ -73,6 +73,28 @@ Route::get('/admin/section/{type}', function ($type) {
     return view("admin.partials.$type");
 })->middleware('auth');
 
+// admin  routes // NEW UPDATE ORGANIZATION INFORMATION
+use Illuminate\Http\Request;
+
+Route::post('/admin/organisation/update', function (Request $request) {
+    $organization = Organization::find(Auth::user()->organization_id);
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'phone' => 'nullable|string|max:255',
+        'website' => 'nullable|string|max:255',
+        'email' => 'required|email|max:255',
+        'address' => 'required|string|max:255',
+        'postal_code' => 'required|string|max:20',
+        'city' => 'required|string|max:255',
+        'country' => 'required|string|max:255',
+        'VAT' => 'nullable|string|max:255',
+    ]);
+
+    $organization->update($validated);
+
+    return response()->json(['success' => true]);
+})->middleware('auth');
 
 
 // Session

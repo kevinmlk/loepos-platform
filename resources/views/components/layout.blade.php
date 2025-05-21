@@ -17,6 +17,9 @@
         <!-- Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+        {{-- Alpine.js --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
+
     </head>
     <body class="font-inter text-black bg-white flex max-h-screen">
         {{-- Navigation --}}
