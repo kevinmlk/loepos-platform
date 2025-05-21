@@ -15,21 +15,21 @@
             @include('admin.partials.admin-card', [
                 'type' => 'organisation',
                 'title' => 'Organisatie instellingen',
-                'description' => 'Wijzig de instellingen voor uw organisatie: naam, adres, …',
+                'description' => 'Wijzig de instellingen voor uw organisatie: naam, adres,ondernemingsnummer …',
                 'icon' => 'bi bi-house-fill'
             ])
 
             @include('admin.partials.admin-card', [
                 'type' => 'employees',
                 'title' => 'Medewerkers',
-                'description' => 'Toevoegen, bewerken en toewijzen van sociale medewerkers.',
+                'description' => 'Toevoegen, bewerken en toewijzen van sociale medewerkers in je organisatie.',
                 'icon' => 'bi bi-person-square'
             ])
 
             @include('admin.partials.admin-card', [
                 'type' => 'clients',
                 'title' => 'Cliënten',
-                'description' => 'Toevoegen, bewerken en toewijzen van cliënten.',
+                'description' => 'Toevoegen, bewerken van cliënten en toewijzen aan een medewerker.',
                 'icon' => 'bi bi-people-fill'
             ])
         </div>
