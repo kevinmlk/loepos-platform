@@ -1,5 +1,5 @@
 
-<x-layout>
+
     <x-headerAdmin>
         Medewerkers
         <x-slot:subText>
@@ -10,4 +10,3 @@
     <section class="flex flex-col gap-8">
 
     </section>
-</x-layout>

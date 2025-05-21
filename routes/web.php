@@ -40,14 +40,20 @@ Route::get('/admin', function () {
     if (!in_array(Auth::user()->role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN])) {
         abort(403);
     }
-    return view('admin');
+    return view('admin.admin');
 })->middleware('auth');
 
-Route::middleware('auth')->prefix('admin')->group(function () {
-    Route::get('/organisation', [AdminController::class, 'organisatie'])->name('admin.organisatie');
-    Route::get('/employees', [AdminController::class, 'medewerkers'])->name('admin.medewerkers');
-    Route::get('/clients', [AdminController::class, 'clienten'])->name('admin.clienten');
+
+
+// amdin  routes 
+Route::get('/admin/section/{type}', function ($type) {
+    $allowed = ['clients', 'employees', 'organisation'];
+    if (in_array($type, $allowed)) {
+        return view("admin.partials.$type");
+    }
+    abort(404);
 });
+
 
 // Session
 Route::get('/login', [SessionController::class, 'create'])->name('login');

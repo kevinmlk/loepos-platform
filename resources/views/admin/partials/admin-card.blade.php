@@ -1,4 +1,4 @@
-<a href="{{ $href }}" class="text-decoration-none text-dark flex-grow-1" style="min-width: 300px; max-width: 32%;">
+<div class="text-decoration-none text-dark flex-grow-1 admin-card-trigger" data-type="{{ $type }}" style="min-width: 300px; max-width: 32%;">
     <div class="card admin-card h-80 rounded-xl bg-[var(--color-light-gray)]">
         <div class="position-relative p-4">
 
@@ -28,4 +28,4 @@
             </div> 
         </div>
     </div>
-</a>
+</div>
