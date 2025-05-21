@@ -15,7 +15,7 @@
             @include('admin.partials.admin-card', [
                 'type' => 'organisation',
                 'title' => 'Organisatie instellingen',
-                'description' => 'Wijzig de instellingen voor uw organisatie: naam, adres,ondernemingsnummer …',
+                'description' => 'Wijzig de instellingen voor uw organisatie: naam, adres, nummer, …',
                 'icon' => 'bi bi-house-fill'
             ])
 

@@ -45,14 +45,34 @@ Route::get('/admin', function () {
 
 
 
-// amdin  routes 
+// admin  routes // PREVIOUS
+//Route::get('/admin/section/{type}', function ($type) {
+    //$allowed = ['clients', 'employees', 'organisation'];
+    //if (in_array($type, $allowed)) {
+    //    return view("admin.partials.$type");
+    //}
+    //abort(404);
+//});
+
+use App\Models\Organization;
+
+// admin  routes // NEW DISPLAY ORGANIZATION
 Route::get('/admin/section/{type}', function ($type) {
     $allowed = ['clients', 'employees', 'organisation'];
-    if (in_array($type, $allowed)) {
-        return view("admin.partials.$type");
+    if (!in_array($type, $allowed)) {
+        abort(404);
     }
-    abort(404);
-});
+
+    // Special case for organisation: load organization data
+    if ($type === 'organisation') {
+        $organization = Organization::find(Auth::user()->organization_id);
+        return view("admin.partials.organisation", compact('organization'));
+    }
+
+    // For others: load partials without data
+    return view("admin.partials.$type");
+})->middleware('auth');
+
 
 
 // Session
