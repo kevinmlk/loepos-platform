@@ -8,7 +8,7 @@
     </x-headerAdmin>
 
     {{-- Admin Tools --}}
-    <section class="border-2 border-light-gray rounded-xl p-6">
+    <section id="admin-tools" class="border-2 border-light-gray rounded-xl p-6">
         <h2>Administratie tools</h2>
 
         <div class="flex flex-wrap gap-3 mt-4">
@@ -45,14 +45,36 @@
     $(function () {
         $('.admin-card-trigger').click(function () {
             const type = $(this).data('type'); // 'clients', 'employees', etc.
+
+            // Slide up admin tools
+            $('#admin-tools').slideUp();
+
+            // Show loading message
             $('#dynamic-section').html('<p>Bezig met laden...</p>');
 
-            $.get(`/admin/section/${type}`, function (data) {
-                $('#dynamic-section').html(data);
+
+            // Load the corresponding partial view
+             $.get(`/admin/section/${type}`, function (data) {
+                // Inject the back button + partial
+                $('#dynamic-section').html(`
+                    <div class="mb-4">
+                        <button id="show-admin-tools" class="btn btn-outline-secondary mb-4">
+                            ← Terug naar administratie tools
+                        </button>
+                    </div>
+                    <div>${data}</div>
+                `);
             }).fail(function () {
                 $('#dynamic-section').html('<p class="text-red-500">Laden mislukt.</p>');
             });
         });
+
+         // Handle back button click (after content is loaded)
+            $('#dynamic-section').on('click', '#show-admin-tools', function () {
+                $('#admin-tools').slideDown();          // Show admin tools again
+                $(this).parent().remove();              // Remove the back button container
+            });
+
     });
 </script>
 
