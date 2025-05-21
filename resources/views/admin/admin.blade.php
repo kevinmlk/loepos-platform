@@ -35,10 +35,20 @@
         </div>
     </section>
 
-            {{-- Loaded partial will appear here --}}
-<section id="dynamic-section" class="mt-8 border-2 border-dashed border-gray-300 p-6 rounded-xl">
-    <p>Klik op een kaart om meer te zien.</p>
-</section>
+    {{-- Back button template (hidden) --}}
+    <div id="back-button-template" class="hidden">
+        <x-ui.button href="#" class="mb-4" id="show-admin-tools" type="primary" style="width: 360px;">
+            ← Terug naar administratie tools
+        </x-ui.button>
+    </div>
+
+    {{-- Loaded partial will appear here --}}
+    <section id="dynamic-section" class="mt-8 border-2 border-dashed border-gray-300 p-6 rounded-xl">
+        <p>Klik op een kaart om meer te zien.</p>
+    </section>
+
+
+</x-layout>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -54,30 +64,26 @@
 
 
             // Load the corresponding partial view
-             $.get(`/admin/section/${type}`, function (data) {
-                // Inject the back button + partial
+            $.get(`/admin/section/${type}`, function (data) {
+                const backButton = $('#back-button-template').html(); // Load pre-rendered button
+
                 $('#dynamic-section').html(`
-                    <div class="mb-4">
-                        <button id="show-admin-tools" class="btn btn-outline-secondary mb-4">
-                            ← Terug naar administratie tools
-                        </button>
+                    <div id="dynamic-wrapper">
+                        ${backButton}
+                        <div>${data}</div>
                     </div>
-                    <div>${data}</div>
                 `);
             }).fail(function () {
                 $('#dynamic-section').html('<p class="text-red-500">Laden mislukt.</p>');
             });
         });
 
-         // Handle back button click (after content is loaded)
-            $('#dynamic-section').on('click', '#show-admin-tools', function () {
-                $('#admin-tools').slideDown();          // Show admin tools again
-                $(this).parent().remove();              // Remove the back button container
-            });
-
+        // Delegated event for back button
+        $('#dynamic-section').on('click', '#show-admin-tools', function (e) {
+            e.preventDefault(); // prevent default href
+            $('#admin-tools').slideDown();
+            $('#dynamic-wrapper').remove(); // remove back button + loaded content
+        });
     });
 </script>
-
-
-</x-layout>
 
