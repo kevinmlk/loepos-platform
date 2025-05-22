@@ -97,6 +97,35 @@ Route::post('/admin/organisation/update', function (Request $request) {
 })->middleware('auth');
 
 
+use App\Models\Client;
+
+Route::get('/admin/section/{type}', function ($type) {
+    $allowed = ['clients', 'employees', 'organisation'];
+    if (!in_array($type, $allowed)) {
+        abort(404);
+    }
+
+    if ($type === 'organisation') {
+        $organization = Organization::find(Auth::user()->organization_id);
+        return view("admin.partials.organisation", compact('organization'));
+    }
+
+    if ($type === 'employees') {
+        $users = User::all(); //where('role', 'epmloyee')->get(); // Yes, typo in DB is preserved
+        return view("admin.partials.employees", compact('users'));
+    }
+
+    if ($type === 'clients') {
+        $clients = Client::all();
+        return view("admin.partials.clients", compact('clients'));
+    }
+
+    // Fallback (shouldn’t be reached)
+    return view("admin.partials.$type");
+})->middleware('auth');
+
+
+
 // Session
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store']);
