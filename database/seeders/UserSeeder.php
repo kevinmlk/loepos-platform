@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'first_name' => 'Admin',
+            'first_name' => 'Admin 2',
             'last_name' => 'Loepos',
             'email' => 'admin2@loepos.be',
             'password' => 'admin123',
