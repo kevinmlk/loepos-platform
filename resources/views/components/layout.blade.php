@@ -24,9 +24,9 @@
 
     
     </head>
-    <body class="font-inter text-black bg-white flex max-h-screen">
+    <body class="font-inter text-black bg-white flex">
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
+        <nav class="max-w-xs h-screen fixed border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
             <div class="flex flex-col items-start gap-6">
                 <picture>
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
@@ -43,30 +43,34 @@
 
                     {{-- Post processing nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
+                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')">
+                            <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Documents nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/documents" :active="request()->is('documents')"><x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
+                        <x-nav-link href="/documents" :active="request()->is('documents')">
+                            <x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Reports nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/reports" :active="request()->is('reports')"><x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
+                        <x-nav-link href="/reports" :active="request()->is('reports')">
+                            <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Support nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/support" :active="request()->is('support')"><x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
+                        <x-nav-link href="/support" :active="request()->is('support')">
+                            <x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
                         </x-nav-link>
                     </x-nav-link-container>
 
                      {{-- Admin nav link --}}
-        
+
                     @auth
                         @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
                             <x-nav-link-container>
@@ -74,7 +78,7 @@
                                     <x-phosphor-person-bold class="w-6 h-6 mr-3" />
                                     Admin
                                 </x-nav-link>
-                            </x-nav-link-container> 
+                            </x-nav-link-container>
                         @endif
                     @endauth
                 </ul>
@@ -93,7 +97,7 @@
         </nav>
 
         {{-- Main --}}
-        <main class="py-6 px-14 w-screen flex flex-col gap-8">
+        <main class="w-full py-6 pr-12 flex flex-col gap-8 ml-64">
             {{ $slot }}
         </main>
     </body>

@@ -13,6 +13,20 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        Client::factory(20)->create();
+        Client::factory(1)->create();
+
+        Client::factory()->create([
+            'first_name' => 'Jonathan',
+            'last_name' => 'Schuermans',
+            'email' => 'jonathan.schuermans@gmail.be',
+            'phone' => '0457884936',
+            'address' => 'Stationstraat 57',
+            'city' => 'Jabbeke',
+            'postal_code' => '8490',
+            'country' => 'België',
+            'national_registry_number' => '624108359'
+        ]);
+
+        Client::factory(18)->create();
     }
 }
