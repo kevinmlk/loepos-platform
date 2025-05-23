@@ -29,12 +29,13 @@ class DashboardController extends Controller
         $startOfWeek = now()->startOfWeek(); // Monday
         $endOfWeek = now()->endOfWeek(); // Sunday
 
+        // Use a subquery to ensure compatibility with ONLY_FULL_GROUP_BY
         $dailyCounts = Document::whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->selectRaw('DAYNAME(created_at) as day, COUNT(*) as total')
-            ->groupByRaw('DAYNAME(created_at)')
+            ->selectRaw('DAYOFWEEK(created_at) as day_of_week, DAYNAME(created_at) as day_name, COUNT(*) as total')
+            ->groupByRaw('DAYOFWEEK(created_at), DAYNAME(created_at)')
             ->orderByRaw("FIELD(DAYNAME(created_at), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')")
             ->get()
-            ->pluck('total', 'day')
+            ->pluck('total', 'day_name')
             ->toArray();
 
         // Ensure all days (Monday to Friday) are present in the result
@@ -46,4 +47,5 @@ class DashboardController extends Controller
 
         return $result;
     }
+
 }
