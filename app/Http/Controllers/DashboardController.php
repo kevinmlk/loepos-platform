@@ -31,7 +31,7 @@ class DashboardController extends Controller
 
         $dailyCounts = Document::whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->selectRaw('DAYNAME(created_at) as day, COUNT(*) as total')
-            ->groupBy('day')
+            ->groupByRaw('DAYNAME(created_at)')
             ->orderByRaw("FIELD(DAYNAME(created_at), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')")
             ->get()
             ->pluck('total', 'day')
