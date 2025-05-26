@@ -7,8 +7,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
+use App\Notifications\NewTaskNotification;
+
 use App\Services\DocumentService;
 use App\Services\DossierService;
+
+use App\Models\Document;
+use App\Models\Task;
 
 class DocumentController extends Controller
 {
@@ -59,13 +64,25 @@ class DocumentController extends Controller
         $dossierId = $this->dossierService->determineDossierId($parsedDataArray);
 
         // Create a new document record
-        Document::create([
+        $document = Document::create([
             'dossier_id' => $dossierId ?? 1,
             'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
             'parsed_data' => $parsedData,
         ]);
+
+        // Create a new task
+        $task = $document->tasks()->create([
+            'description' => 'Review the uploaded document.',
+            'status' => Task::STATUS_PENDING,
+            'urgency' => Task::URGENCY_MEDIUM,
+            'due_date' => now()->addDays(3)
+        ]);
+
+        // Notify the user
+        $user = Auth::user();
+        $user->notify(new NewTaskNotification($task));
 
         // Redirect user with a success message
         return redirect('/documents');

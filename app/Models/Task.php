@@ -26,6 +26,19 @@ class Task extends Model
         self::URGENCY_HIGH
     ];
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'document_id',
+        'description',
+        'status',
+        'due_date',
+        'urgency',
+    ];
+
     public function document() {
         return $this->belongsTo(Document::class);
     }
