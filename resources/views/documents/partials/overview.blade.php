@@ -12,6 +12,7 @@
         <th class="text-start text-caption font-regular py-2">Laatst bewerkt</th>
     </thead>
     <tbody>
+
     @foreach($documents as $document)
         <x-shared.document-row
             :fileName="$document->file_name"
@@ -26,5 +27,5 @@
 </table>
 
 <div class="mt-2">
-    {{ $documents->links() }}
+    {{-- $documents->links() --}}
 </div>

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 use App\Services\DocumentService;
 use App\Services\DossierService;
+
 use App\Models\Document;
+use App\Models\Dossier;
+use App\Models\User;
 
 class DocumentController extends Controller
 {
@@ -22,8 +26,31 @@ class DocumentController extends Controller
 
     public function index()
     {
-        // Get all documents
-        $documents = Document::paginate(5);
+        $user = Auth::user();
+
+        if ($user->role === User::ROLE_ADMIN) {
+            // Admin: Get all documents belonging to the user's organization
+            $organizationId = $user->organization_id;
+
+            // Get all dossier IDs associated with the organization
+            $dossierIds = Dossier::whereHas('user', function ($query) use ($organizationId) {
+                $query->where('organization_id', $organizationId);
+            })->pluck('id');
+
+            // Get documents associated with the organization's dossiers
+            $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
+        } elseif ($user->role === User::ROLE_EMPLOYEE) {
+            // Employee: Get documents associated with the user's dossiers
+            $dossierIds = $user->dossiers()->pluck('id');
+
+            // Get documents associated with the user's dossiers
+            $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
+        } elseif ($user->role === User::ROLE_SUPERADMIN) {
+            $documents = Document::paginate(5);
+        } else {
+            // Default: No documents for other roles
+            $documents = collect(); // Empty collection
+        }
 
         // Return view
         return view('documents.index', [
