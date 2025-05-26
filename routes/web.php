@@ -6,11 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 // Controllers
-use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DossierController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TaskController;
 
 // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard.index');
@@ -19,6 +20,9 @@ Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name
 Route::get('/dossiers', [DossierController::class, 'index'])->middleware('auth')->name('dossiers.index');
 Route::get('/dossiers/{dossier}', [DossierController::class, 'show'])->middleware('auth')->name('dossiers.show');
 // Route::get('/dossiers/create', [DossierController::class, 'create'])->middleware('auth');
+
+// Tasks
+Route::get('/tasks', [TaskController::class, 'index'])->middleware('auth')->name('tasks.index');
 
 // Documents
 Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth')->name('documents.index');
