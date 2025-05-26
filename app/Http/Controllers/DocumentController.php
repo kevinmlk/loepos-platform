@@ -36,7 +36,8 @@ class DocumentController extends Controller
         return view('documents.create');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         // Validate the request data
         $request->validate([
             'file' => 'required|file|mimes:pdf,png,jpg'

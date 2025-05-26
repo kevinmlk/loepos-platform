@@ -56,14 +56,17 @@ class DocumentService
 
             // Get documents associated with the organization's dossiers
             $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
+
         } elseif ($user->role === User::ROLE_EMPLOYEE) {
             // Employee: Get documents associated with the user's dossiers
             $dossierIds = $user->dossiers()->pluck('id');
 
             // Get documents associated with the user's dossiers
             $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
+
         } elseif ($user->role === User::ROLE_SUPERADMIN) {
             $documents = Document::paginate(5);
+
         } else {
             // Default: No documents for other roles
             $documents = collect(); // Empty collection

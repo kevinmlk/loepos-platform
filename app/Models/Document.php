@@ -37,6 +37,10 @@ class Document extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function tasks() {
+        return $this->hasMany(Task::class);
+    }
+
     public function aiLogs() {
         return $this->hasMany(AiLog::class);
     }
