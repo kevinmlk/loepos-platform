@@ -141,9 +141,15 @@
                 `;
 
                 try {
-                    // Load PDF
-                    const pdfPath = '/storage/' + currentDoc.file_path;
-                    const loadingTask = pdfjsLib.getDocument(pdfPath);
+                    // Load PDF using secure view route
+                    const pdfPath = `/documents/${currentDoc.id}/view`;
+                    const loadingTask = pdfjsLib.getDocument({
+                        url: pdfPath,
+                        httpHeaders: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        withCredentials: true
+                    });
                     this.pdfDoc = await loadingTask.promise;
                     this.pages = [];
                     

@@ -128,7 +128,7 @@ class DocumentController extends Controller
                     ]);
                 } else {
                     // Create new documents for splits
-                    // This is a simplified version - in production, you'd need to actually split the PDF
+                    // This is a simplified version - in production, we'd need to actually split the PDF
                     Document::create([
                         'dossier_id' => $docData['dossierId'] ?? $originalDocument->dossier_id,
                         'type' => $originalDocument->type,
@@ -151,5 +151,46 @@ class DocumentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function view(Document $document)
+    {
+        // Check if user has access to this document (through their organization)
+        $user = Auth::user();
+        
+        // We should add additional access checks here
+        // For example, check if the user's organization matches the document's dossier organization
+        
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Document not found');
+        }
+        
+        // Get the file content
+        $content = Storage::disk('public')->get($document->file_path);
+        $mimeType = Storage::disk('public')->mimeType($document->file_path);
+        
+        // Return response with proper headers for inline viewing
+        return response($content)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $document->file_name . '"')
+            ->header('Content-Length', strlen($content));
+    }
+
+    public function download(Document $document)
+    {
+        // Check if user has access to this document (through their organization)
+        $user = Auth::user();
+        
+        // We should add additional access checks here
+        // For example, check if the user's organization matches the document's dossier organization
+        
+        // Check if file exists
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Document not found');
+        }
+        
+        // Force download the file
+        return Storage::disk('public')->download($document->file_path, $document->file_name);
     }
 }

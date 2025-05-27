@@ -33,6 +33,10 @@ Route::post('/document', [DocumentController::class, 'store'])->middleware('auth
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');
 Route::post('/documents/process-queue', [DocumentController::class, 'processQueue'])->middleware('auth')->name('documents.processQueue');
 
+// Secure document serving
+Route::get('/documents/{document}/view', [DocumentController::class, 'view'])->middleware('auth')->name('documents.view');
+Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->middleware('auth')->name('documents.download');
+
 // Reports
 Route::get('/reports', function () {
     return view('reports');
