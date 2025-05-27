@@ -6,30 +6,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use App\Notifications\NewTaskNotification;
 
 use App\Services\DocumentService;
 use App\Services\DossierService;
+use App\Services\PDFSplitService;
 
 use App\Models\Document;
 use App\Models\Task;
 
 class DocumentController extends Controller
 {
-    protected $documentService, $dossierService;
+    protected $documentService, $dossierService, $pdfSplitService;
 
-    public function __construct(DocumentService $documentService, DossierService $dossierService)
+    public function __construct(DocumentService $documentService, DossierService $dossierService, PDFSplitService $pdfSplitService)
     {
         $this->documentService = $documentService;
         $this->dossierService = $dossierService;
+        $this->pdfSplitService = $pdfSplitService;
     }
 
     public function index()
     {
         $user = Auth::user();
 
-        $documents = $this->documentService->getDocuments($user);
+        // Filter documents by user's organization
+        $documents = Document::where('organization_id', $user->organization_id)
+            ->latest()
+            ->paginate(20);
 
         return view('documents.index', [
             'documents' => $documents
@@ -60,12 +66,13 @@ class DocumentController extends Controller
         // Decode the parsed data to extract client information
         $parsedDataArray = json_decode($parsedData, true);
 
-        // Determine the dossier_id using DocumentService
-        $dossierId = $this->dossierService->determineDossierId($parsedDataArray);
+        // Get user's organization
+        $user = Auth::user();
 
-        // Create a new document record
+        // Create a new document record with organization_id
         $document = Document::create([
-            'dossier_id' => $dossierId ?? 1,
+            'organization_id' => $user->organization_id,
+            'dossier_id' => null, // Documents are not assigned to dossiers on upload
             'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
@@ -90,8 +97,11 @@ class DocumentController extends Controller
 
     public function queue()
     {
-        // Get all unverified documents
+        $user = Auth::user();
+        
+        // Get all unverified documents for the user's organization
         $documents = Document::where('verified_status', 0)
+            ->where('organization_id', $user->organization_id)
             ->with('dossier')
             ->get();
 
@@ -107,49 +117,93 @@ class DocumentController extends Controller
             'documents.*.originalDocId' => 'required|exists:documents,id',
             'documents.*.name' => 'required|string',
             'documents.*.pages' => 'required|array',
-            'documents.*.dossierId' => 'nullable|exists:dossiers,id'
+            'documents.*.dossierId' => 'nullable|exists:dossiers,id',
+            'documents.*.pageImages' => 'nullable|array' // Optional page images for fallback
         ]);
 
         try {
-            foreach ($request->documents as $docData) {
+            $user = Auth::user();
+            $documentsToVerify = [];
+            
+            // Ensure verified documents directory exists
+            $this->pdfSplitService->ensureStorageDirectoryExists();
+            
+            // Group documents by original document ID for efficient splitting
+            $documentsByOriginal = collect($request->documents)->groupBy('originalDocId');
+            
+            foreach ($documentsByOriginal as $originalDocId => $splits) {
                 // Find the original document
-                $originalDocument = Document::find($docData['originalDocId']);
+                $originalDocument = Document::find($originalDocId);
                 
                 if (!$originalDocument) {
                     continue;
                 }
-
-                // Update the original document or create new split documents
-                if (count($request->documents) === 1 && $docData['originalDocId'] === $originalDocument->id) {
-                    // If only one document and it's the original, just update it
-                    $originalDocument->update([
-                        'dossier_id' => $docData['dossierId'] ?? $originalDocument->dossier_id,
-                        'verified_status' => 1
+                
+                // Prepare splits configuration
+                $splitConfigs = $splits->map(function ($split) {
+                    return [
+                        'name' => $split['name'],
+                        'pages' => $split['pages'],
+                        'pageImages' => $split['pageImages'] ?? null
+                    ];
+                })->toArray();
+                
+                // Split the PDF
+                $splitFiles = $this->pdfSplitService->splitPDF($originalDocument->file_path, $splitConfigs);
+                
+                // Prepare document data for verification
+                foreach ($splits as $index => $docData) {
+                    $splitFile = $splitFiles[$index] ?? null;
+                    
+                    if (!$splitFile) {
+                        continue;
+                    }
+                    
+                    // Log for debugging
+                    Log::info('Preparing document for verification', [
+                        'split_file' => $splitFile,
+                        'docData' => $docData,
+                        'parsed_data' => json_decode($originalDocument->parsed_data, true)
                     ]);
-                } else {
-                    // Create new documents for splits
-                    // This is a simplified version - in production, we'd need to actually split the PDF
-                    Document::create([
-                        'dossier_id' => $docData['dossierId'] ?? $originalDocument->dossier_id,
-                        'type' => $originalDocument->type,
+                    
+                    $documentsToVerify[] = [
+                        'original_document_id' => $originalDocument->id,
                         'file_name' => $docData['name'],
-                        'file_path' => $originalDocument->file_path, // In production, create actual split PDFs
-                        'parsed_data' => json_encode([
+                        'file_path' => $splitFile['path'],
+                        'pages' => $docData['pages'],
+                        'parsed_data' => json_decode($originalDocument->parsed_data, true),
+                        'metadata' => [
                             'pages' => $docData['pages'],
-                            'original_document_id' => $originalDocument->id
-                        ]),
-                        'verified_status' => 1
-                    ]);
+                            'original_file' => $originalDocument->file_name,
+                            'split_info' => $splitFile
+                        ]
+                    ];
                 }
             }
 
-            // Mark original documents as processed
-            $processedIds = collect($request->documents)->pluck('originalDocId')->unique();
-            Document::whereIn('id', $processedIds)->update(['verified_status' => 1]);
+            // Store documents in session for verification
+            if (!empty($documentsToVerify)) {
+                $firstDocument = array_shift($documentsToVerify);
+                $request->session()->put('verify_document_data', $firstDocument);
+                $request->session()->put('remaining_documents_to_verify', $documentsToVerify);
+                
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('documents.verify.show')
+                ]);
+            }
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Error in processQueue', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => $e->getMessage(),
+                'message' => 'Failed to process documents'
+            ], 500);
         }
     }
 
@@ -192,5 +246,50 @@ class DocumentController extends Controller
         
         // Force download the file
         return Storage::disk('public')->download($document->file_path, $document->file_name);
+    }
+    
+    /**
+     * Create split PDFs from page images (used when FPDI fails due to compression)
+     */
+    public function createSplitsFromImages(Request $request)
+    {
+        $request->validate([
+            'originalDocId' => 'required|exists:documents,id',
+            'pageImages' => 'required|array',
+            'splits' => 'required|array',
+            'splits.*.name' => 'required|string',
+            'splits.*.pages' => 'required|array'
+        ]);
+        
+        try {
+            $originalDocument = Document::find($request->originalDocId);
+            $baseFileName = pathinfo($originalDocument->file_name, PATHINFO_FILENAME);
+            
+            // Ensure storage directory exists
+            $this->pdfSplitService->ensureStorageDirectoryExists();
+            
+            // Create PDFs from base64 images
+            $splitFiles = $this->pdfSplitService->createPDFsFromBase64Images(
+                $request->pageImages,
+                $baseFileName,
+                $request->splits
+            );
+            
+            return response()->json([
+                'success' => true,
+                'splitFiles' => $splitFiles
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error creating splits from images', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

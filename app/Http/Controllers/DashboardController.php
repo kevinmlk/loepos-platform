@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Document;
 
@@ -10,7 +11,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $documents = Document::latest()->take(4)->get();
+        $user = Auth::user();
+        
+        $documents = Document::where('organization_id', $user->organization_id)
+            ->latest()
+            ->take(4)
+            ->get();
+            
         $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
 
         return view('dashboard.index', [
@@ -29,8 +36,11 @@ class DashboardController extends Controller
         $startOfWeek = now()->startOfWeek(); // Monday
         $endOfWeek = now()->endOfWeek(); // Sunday
 
+        $user = Auth::user();
+        
         // Use a subquery to ensure compatibility with ONLY_FULL_GROUP_BY
-        $dailyCounts = Document::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+        $dailyCounts = Document::where('organization_id', $user->organization_id)
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, DAYNAME(created_at) as day_name, COUNT(*) as total')
             ->groupByRaw('DAYOFWEEK(created_at), DAYNAME(created_at)')
             ->orderByRaw('DAYOFWEEK(created_at)')

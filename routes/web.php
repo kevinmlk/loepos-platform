@@ -12,6 +12,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DossierController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\VerifyDocumentController;
 
 // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard.index');
@@ -32,6 +33,11 @@ Route::post('/document', [DocumentController::class, 'store'])->middleware('auth
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');
 Route::post('/documents/process-queue', [DocumentController::class, 'processQueue'])->middleware('auth')->name('documents.processQueue');
+Route::post('/documents/create-splits-from-images', [DocumentController::class, 'createSplitsFromImages'])->middleware('auth')->name('documents.create-splits-from-images');
+
+// Document Verification
+Route::get('/documents/verify', [VerifyDocumentController::class, 'show'])->middleware('auth')->name('documents.verify.show');
+Route::post('/documents/verify', [VerifyDocumentController::class, 'store'])->middleware('auth')->name('documents.verify.store');
 
 // Secure document serving
 Route::get('/documents/{document}/view', [DocumentController::class, 'view'])->middleware('auth')->name('documents.view');

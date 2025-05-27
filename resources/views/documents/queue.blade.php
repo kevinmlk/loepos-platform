@@ -673,6 +673,28 @@
                 }
             }
 
+            async convertPageImagesToBase64() {
+                const base64Images = [];
+                
+                for (const page of this.pages) {
+                    try {
+                        const blob = page.imageBlob;
+                        const reader = new FileReader();
+                        const base64 = await new Promise((resolve, reject) => {
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                        });
+                        base64Images.push(base64);
+                    } catch (error) {
+                        console.error('Error converting image to base64:', error);
+                        base64Images.push(null);
+                    }
+                }
+                
+                return base64Images;
+            }
+            
             async saveDocuments() {
                 if (this.documents.length === 0 || !this.currentDocumentId) return;
                 
@@ -702,26 +724,102 @@
                     });
                     
                     if (response.ok) {
-                        // Success - move to next document
-                        this.currentDocumentIndex++;
-                        this.documents = [];
-                        this.pages = [];
-                        this.selectedPages.clear();
-                        this.history = [];
-                        this.historyIndex = -1;
+                        const result = await response.json();
                         
-                        // Load next document or show completion
-                        await this.loadNextDocument();
+                        if (result.redirect) {
+                            // Redirect to verify page
+                            window.location.href = result.redirect;
+                        } else {
+                            // Success - move to next document
+                            this.currentDocumentIndex++;
+                            this.documents = [];
+                            this.pages = [];
+                            this.selectedPages.clear();
+                            this.history = [];
+                            this.historyIndex = -1;
+                            
+                            // Load next document or show completion
+                            await this.loadNextDocument();
+                        }
                     } else {
-                        throw new Error('Server error');
+                        const errorText = await response.text();
+                        
+                        // Check if error is due to PDF compression issue
+                        if (errorText.includes('compression technique not supported')) {
+                            console.log('PDF compression not supported, trying image-based approach...');
+                            
+                            // Convert page images to base64
+                            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Converting images...';
+                            const pageImages = await this.convertPageImagesToBase64();
+                            
+                            // Prepare splits data
+                            const splits = this.documents.map((doc, index) => ({
+                                name: doc.name,
+                                pages: doc.pages.map(p => p.pageNumber)
+                            }));
+                            
+                            // Try creating PDFs from images
+                            const imageResponse = await fetch('/documents/create-splits-from-images', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({
+                                    originalDocId: this.currentDocumentId,
+                                    pageImages: pageImages,
+                                    splits: splits
+                                })
+                            });
+                            
+                            if (imageResponse.ok) {
+                                const imageResult = await imageResponse.json();
+                                console.log('Successfully created PDFs from images:', imageResult);
+                                
+                                // Now process the queue with the created files
+                                await this.processCreatedSplits(imageResult.splitFiles);
+                            } else {
+                                throw new Error('Failed to create PDFs from images');
+                            }
+                        } else {
+                            throw new Error('Server error');
+                        }
                     }
                 } catch (error) {
                     console.error('Error saving documents:', error);
-                    alert('Er is een fout opgetreden bij het opslaan van de documenten.');
+                    
+                    // Try to get more detailed error message
+                    let errorMessage = 'Er is een fout opgetreden bij het opslaan van de documenten.';
+                    
+                    if (error.response) {
+                        try {
+                            const errorData = await error.response.json();
+                            if (errorData.error) {
+                                errorMessage += '\n\nDetails: ' + errorData.error;
+                            }
+                            if (errorData.message) {
+                                errorMessage += '\n\n' + errorData.message;
+                            }
+                        } catch (e) {
+                            errorMessage += '\n\nStatus: ' + error.response.status;
+                        }
+                    }
+                    
+                    alert(errorMessage);
                     
                     // Re-enable save button
                     saveButton.disabled = false;
                     saveButton.innerHTML = '<i class="fas fa-save mr-2"></i>Opslaan en Verwerken';
+                }
+            }
+            
+            async processCreatedSplits(splitFiles) {
+                // Store the split files info and redirect to verify page
+                const firstSplit = splitFiles[0];
+                if (firstSplit) {
+                    // We need to set up the session data properly
+                    // For now, just redirect to verify page
+                    window.location.href = '/documents/verify';
                 }
             }
         }

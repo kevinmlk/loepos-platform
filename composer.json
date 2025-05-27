@@ -13,7 +13,9 @@
         "codeat3/blade-phosphor-icons": "^2.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.6"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",

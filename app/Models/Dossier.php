@@ -31,8 +31,13 @@ class Dossier extends Model
     ];
 
     // Relations
+    public function clients() {
+        return $this->belongsToMany(Client::class, 'client_dossier')->withTimestamps();
+    }
+    
+    // Helper method to get the primary client (first client)
     public function client() {
-        return $this->belongsTo(Client::class);
+        return $this->clients()->first();
     }
 
     public function user() {
