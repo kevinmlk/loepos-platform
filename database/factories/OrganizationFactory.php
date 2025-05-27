@@ -20,6 +20,8 @@ class OrganizationFactory extends Factory
             'name' => fake()->company(),
             'email' => fake()->email(),
             'phone' => fake()->phoneNumber(),
+            'website' => fake()->url(),
+            'VAT' => fake()->numerify(str_repeat('#', 14)),
             'address' => fake()->streetAddress(),
             'city' => fake()->city(),
             'postal_code' => fake()->postcode(),

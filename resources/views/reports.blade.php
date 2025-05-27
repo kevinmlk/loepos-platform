@@ -1,9 +1,9 @@
 <x-layout>
     {{-- Header --}}
     <x-header>
-        Welkom terug, {{ Auth()->user()->first_name }}!
+        Rapporten
         <x-slot:subText>
-            Traceer en beheer je cliënten en hun dossiers.
+            TBekijk de rapporten van je binnekomende dossiers en clienten.
         </x-slot:subText>
     </x-header>
 

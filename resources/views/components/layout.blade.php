@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Loepos: Slimme oplossingen, Heldere toekomst</title>
+        
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,10 +16,35 @@
 
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+        {{-- Alpine.js --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
+
+        <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+        {{-- Additional Styles --}}
+        @stack('styles')
+    
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5SMXPL9X');</script>
+        <!-- End Google Tag Manager -->
+
     </head>
-    <body class="font-inter text-black bg-white flex max-h-screen">
+    <body class="font-inter text-black bg-white flex h-screen overflow-hidden">
+
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5SMXPL9X"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
+        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between flex-shrink-0">
             <div class="flex flex-col items-start gap-6">
                 <picture>
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
@@ -33,38 +61,42 @@
 
                     {{-- Post processing nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')"><x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
+                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')">
+                            <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Documents nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/documents" :active="request()->is('documents')"><x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
+                        <x-nav-link href="/documents" :active="request()->is('documents')">
+                            <x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Reports nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/reports" :active="request()->is('reports')"><x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
+                        <x-nav-link href="/reports" :active="request()->is('reports')">
+                            <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
                         </x-nav-link>
                     </x-nav-link-container>
 
                     {{-- Support nav link --}}
                     <x-nav-link-container>
-                        <x-nav-link href="/support" :active="request()->is('support')"><x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
+                        <x-nav-link href="/support" :active="request()->is('support')">
+                            <x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
                         </x-nav-link>
                     </x-nav-link-container>
 
                      {{-- Admin nav link --}}
-        
+
                     @auth
                         @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
                             <x-nav-link-container>
                                 <x-nav-link href="/admin" :active="request()->is('admin')">
-                                    <x-phosphor-question-bold class="w-6 h-6 mr-3" />
+                                    <x-phosphor-person-bold class="w-6 h-6 mr-3" />
                                     Admin
                                 </x-nav-link>
-                            </x-nav-link-container> 
+                            </x-nav-link-container>
                         @endif
                     @endauth
                 </ul>
@@ -83,8 +115,11 @@
         </nav>
 
         {{-- Main --}}
-        <main class="py-6 px-14 w-screen flex flex-col gap-8">
+        <main class="py-6 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden">
             {{ $slot }}
         </main>
+
+        {{-- Additional Scripts --}}
+        @stack('scripts')
     </body>
 </html>

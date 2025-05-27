@@ -8,24 +8,21 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 use App\Services\DocumentService;
+use App\Services\DossierService;
+
 use App\Models\Document;
 use App\Models\Dossier;
+use App\Models\Client;
+use App\Models\User;
 
 class DocumentController extends Controller
 {
-    protected $documentService;
+    protected $documentService, $dossierService;
 
-    public function __construct(DocumentService $documentService)
+    public function __construct(DocumentService $documentService, DossierService $dossierService)
     {
         $this->documentService = $documentService;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+        $this->dossierService = $dossierService;
     }
 
     /**
@@ -47,8 +44,9 @@ class DocumentController extends Controller
         // Store sender email from request
         $senderEmail = $request->input('sender_email');
 
-        // Check in the db if the sender email matches a client or user
-        if (!$this->isSenderEmailAllowed($senderEmail)) {
+        // Check in the db if the sender email matches a client or user and get organization
+        $organizationId = $this->getOrganizationFromSenderEmail($senderEmail);
+        if (!$organizationId) {
             return response()->json(['error' => 'Unauthorized sender email'], 403);
         }
 
@@ -61,9 +59,13 @@ class DocumentController extends Controller
         $fullPath = Storage::disk('public')->path($filePath);
         $parsedData = $this->documentService->extractText($fullPath);
 
-        // Create a new document record
+        // Decode the parsed data to extract client information
+        $parsedDataArray = json_decode($parsedData, true);
+
+        // Create a new document record with organization_id
         Document::create([
-            'dossier_id' => 1,
+            'organization_id' => $organizationId,
+            'dossier_id' => null, // Documents are not assigned to dossiers on upload
             'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
@@ -82,24 +84,26 @@ class DocumentController extends Controller
     }
 
     /**
-    * Check if the sender email is allowed.
+    * Get organization ID from sender email.
     *
     * @param string $senderEmail
-    * @return bool
+    * @return int|null
     */
-
-    private function isSenderEmailAllowed(string $senderEmail): bool
+    private function getOrganizationFromSenderEmail(string $senderEmail): ?int
     {
-        return Dossier::whereHas('client', function ($query) use ($senderEmail) {
-            $query->where('email', $senderEmail);
-        })->orWhereHas('user', function ($query) use ($senderEmail) {
-            $query->where('email', $senderEmail);
-        })->exists();
+        // Check if email belongs to a client
+        $client = Client::where('email', $senderEmail)->first();
+        if ($client) {
+            return $client->organization_id;
+        }
+
+        // Check if email belongs to a user
+        $user = User::where('email', $senderEmail)->first();
+        if ($user) {
+            return $user->organization_id;
+        }
+
+        return null;
     }
 
-    /**
-    * TODO: Change the email prefix of 'post@loepos.be' to for ex:
-    * 'post+{organization_id}@loepos.be' or post+{organization_name}@loepos.be
-    * so that sended documents are linked to the right organization.
-    */
 }

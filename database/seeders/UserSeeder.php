@@ -40,5 +40,14 @@ class UserSeeder extends Seeder
             'organization_id' => null,
             'role' => User::ROLE_SUPERADMIN,
         ]);
+
+        User::factory()->create([
+            'first_name' => 'Admin 2',
+            'last_name' => 'Loepos',
+            'email' => 'admin2@loepos.be',
+            'password' => 'admin123',
+            'organization_id' => 1,
+            'role' => User::ROLE_SUPERADMIN,
+        ]);
     }
 }

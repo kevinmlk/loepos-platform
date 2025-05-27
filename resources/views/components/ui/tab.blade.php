@@ -4,7 +4,7 @@
 ])
 
 @php
-    $active = request('tab', 'overview') === $tab;
+    $active = request('tab', 'overzicht') === $tab;
 @endphp
 
 <a

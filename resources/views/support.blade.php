@@ -1,9 +1,9 @@
 <x-layout>
     {{-- Header --}}
     <x-header>
-        Welkom terug, {{ Auth()->user()->first_name }}!
+        Ondersteuning
         <x-slot:subText>
-            Traceer en beheer je cliënten en hun dossiers.
+            Contacteer onze IT afdeling met vragen.
         </x-slot:subText>
     </x-header>
 

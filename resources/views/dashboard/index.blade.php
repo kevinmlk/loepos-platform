@@ -7,8 +7,8 @@
         </x-slot:subText>
     </x-header>
 
-    <section clas="">
-        <p>Home pagina</p>
-
+    <section class="flex flex-col gap-6">
+        @include('dashboard.partials.analytics')
+        @include('dashboard.partials.documents')
     </section>
 </x-layout>

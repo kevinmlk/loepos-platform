@@ -12,11 +12,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create organizations first
         $this->call([
+            OrganizationSeeder::class,
             UserSeeder::class,
+            ClientSeeder::class,
             DossierSeeder::class,
             DebtSeeder::class,
-            FinancialInfoSeeder::class
+            FinancialInfoSeeder::class,
+            PaymentSeeder::class,
         ]);
     }
 }

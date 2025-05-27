@@ -10,6 +10,7 @@
         <tbody>
         @foreach($dossier->documents as $document)
             <x-shared.document-row
+                :documentId="$document->id"
                 :fileName="$document->file_name"
                 :filePath="$document->file_path"
                 :createdAt="$document->created_at"

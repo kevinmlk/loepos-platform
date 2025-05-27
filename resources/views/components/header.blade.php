@@ -6,6 +6,6 @@
 
     <div class="flex  gap-3">
         <x-ui.button href="/documents?tab=upload" type="secondary" icon="phosphor-upload-simple-bold">Uploaden</x-ui.button>
-        <x-ui.button href="/dossiers" type="primary">AI queue</x-ui.button>
+        <x-ui.button href="/queue" type="primary">AI queue</x-ui.button>
     </div>
 </header>

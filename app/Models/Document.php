@@ -20,6 +20,7 @@ class Document extends Model
     ];
 
     protected $fillable = [
+        'organization_id',
         'dossier_id',
         'type',
         'file_name',
@@ -29,7 +30,23 @@ class Document extends Model
     ];
 
     // Relations
+    public function organization() {
+        return $this->belongsTo(Organization::class);
+    }
+
     public function dossier() {
         return $this->belongsTo(Dossier::class);
+    }
+
+    public function payment() {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function tasks() {
+        return $this->hasMany(Task::class);
+    }
+
+    public function aiLogs() {
+        return $this->hasMany(AiLog::class);
     }
 }
