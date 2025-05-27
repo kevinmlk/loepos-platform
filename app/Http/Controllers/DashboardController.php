@@ -12,12 +12,12 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         $documents = Document::where('organization_id', $user->organization_id)
             ->latest()
             ->take(4)
             ->get();
-            
+
         $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
 
         return view('dashboard.index', [
@@ -37,7 +37,7 @@ class DashboardController extends Controller
         $endOfWeek = now()->endOfWeek(); // Sunday
 
         $user = Auth::user();
-        
+
         // Use a subquery to ensure compatibility with ONLY_FULL_GROUP_BY
         $dailyCounts = Document::where('organization_id', $user->organization_id)
             ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
