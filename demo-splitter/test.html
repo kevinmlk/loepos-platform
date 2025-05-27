@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <script>
+        console.log('Document object:', typeof document);
+        console.log('createElement function:', typeof document.createElement);
+        
+        // Test creating an element
+        try {
+            const div = document.createElement('div');
+            div.textContent = 'Test successful!';
+            document.body.appendChild(div);
+            console.log('Element creation successful');
+        } catch (error) {
+            console.error('Error creating element:', error);
+        }
+    </script>
+</body>
+</html>

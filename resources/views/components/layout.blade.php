@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Loepos: Slimme oplossingen, Heldere toekomst</title>
+        
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,11 +25,13 @@
 
         <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
+        {{-- Additional Styles --}}
+        @stack('styles')
     
     </head>
-    <body class="font-inter text-black bg-white flex">
+    <body class="font-inter text-black bg-white flex h-screen overflow-hidden">
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen fixed border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between">
+        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between flex-shrink-0">
             <div class="flex flex-col items-start gap-6">
                 <picture>
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
@@ -97,8 +102,11 @@
         </nav>
 
         {{-- Main --}}
-        <main class="w-full py-6 pr-12 flex flex-col gap-8 ml-64">
+        <main class="py-6 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden">
             {{ $slot }}
         </main>
+
+        {{-- Additional Scripts --}}
+        @stack('scripts')
     </body>
 </html>

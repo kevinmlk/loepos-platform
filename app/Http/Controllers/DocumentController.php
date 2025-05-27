@@ -87,4 +87,69 @@ class DocumentController extends Controller
         // Redirect user with a success message
         return redirect('/documents');
     }
+
+    public function queue()
+    {
+        // Get all unverified documents
+        $documents = Document::where('verified_status', 0)
+            ->with('dossier')
+            ->get();
+
+        return view('documents.queue', [
+            'documents' => $documents
+        ]);
+    }
+
+    public function processQueue(Request $request)
+    {
+        $request->validate([
+            'documents' => 'required|array',
+            'documents.*.originalDocId' => 'required|exists:documents,id',
+            'documents.*.name' => 'required|string',
+            'documents.*.pages' => 'required|array',
+            'documents.*.dossierId' => 'nullable|exists:dossiers,id'
+        ]);
+
+        try {
+            foreach ($request->documents as $docData) {
+                // Find the original document
+                $originalDocument = Document::find($docData['originalDocId']);
+                
+                if (!$originalDocument) {
+                    continue;
+                }
+
+                // Update the original document or create new split documents
+                if (count($request->documents) === 1 && $docData['originalDocId'] === $originalDocument->id) {
+                    // If only one document and it's the original, just update it
+                    $originalDocument->update([
+                        'dossier_id' => $docData['dossierId'] ?? $originalDocument->dossier_id,
+                        'verified_status' => 1
+                    ]);
+                } else {
+                    // Create new documents for splits
+                    // This is a simplified version - in production, you'd need to actually split the PDF
+                    Document::create([
+                        'dossier_id' => $docData['dossierId'] ?? $originalDocument->dossier_id,
+                        'type' => $originalDocument->type,
+                        'file_name' => $docData['name'],
+                        'file_path' => $originalDocument->file_path, // In production, create actual split PDFs
+                        'parsed_data' => json_encode([
+                            'pages' => $docData['pages'],
+                            'original_document_id' => $originalDocument->id
+                        ]),
+                        'verified_status' => 1
+                    ]);
+                }
+            }
+
+            // Mark original documents as processed
+            $processedIds = collect($request->documents)->pluck('originalDocId')->unique();
+            Document::whereIn('id', $processedIds)->update(['verified_status' => 1]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
