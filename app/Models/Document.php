@@ -39,8 +39,16 @@ class Document extends Model
     ];
 
     // Relations
+    public function upload() {
+        return $this->belongsTo(Upload::class);
+    }
+
     public function dossier() {
         return $this->belongsTo(Dossier::class);
+    }
+
+    public function pages() {
+        return $this->hasMany(Page::class);
     }
 
     public function payment() {

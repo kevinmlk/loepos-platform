@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Client;
 use App\Models\Upload;
 
 return new class extends Migration
@@ -16,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Client::class);
             $table->string('file_name');
             $table->string('file_path');
             $table->enum('status', Upload::STATUS)->default(Upload::STATUS_IN_PROCESS);

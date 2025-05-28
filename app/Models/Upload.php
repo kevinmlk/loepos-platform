@@ -15,4 +15,8 @@ class Upload extends Model
         self::STATUS_IN_PROCESS,
         self::STATUS_UPLOADED,
     ];
+
+    public function documents() {
+        return $this->hasMany(Document::class);
+    }
 }

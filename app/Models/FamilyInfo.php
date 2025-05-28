@@ -23,4 +23,8 @@ class FamilyInfo extends Model
         self::STATUS_DIVORCED,
         self::STATUS_WIDOWED,
     ];
+
+    public function client() {
+        return $this->belongsTo(Client::class);
+    }
 }

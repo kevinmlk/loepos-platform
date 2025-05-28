@@ -28,15 +28,15 @@ class Client extends Model
     ];
 
     // Relations
-    public function organization() {
-        return $this->belongsTo(Organization::class);
-    }
-
     public function dossiers() {
         return $this->hasMany(Dossier::class);
     }
 
     public function financialInfo() {
         return $this->hasOne(FinancialInfo::class);
+    }
+
+    public function familyInfo() {
+        return $this->hasOne(FamilyInfo::class);
     }
 }
