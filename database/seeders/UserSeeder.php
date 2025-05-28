@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'role' => User::ROLE_EMPLOYEE,
         ]);
 
+        // test admin user for login
         User::factory()->create([
             'first_name' => 'Jane',
             'last_name' => 'Doe',
@@ -32,6 +33,7 @@ class UserSeeder extends Seeder
             'role' => User::ROLE_ADMIN,
         ]);
 
+        // test superadmin users for login
         User::factory()->create([
             'first_name' => 'Admin',
             'last_name' => 'Loepos',
