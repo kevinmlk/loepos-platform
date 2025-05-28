@@ -13,13 +13,6 @@ class OrganizationSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a main organization for testing
-        Organization::factory()->create([
-            'id' => 1,
-            'name' => 'Main Organization',
-            'email' => 'info@mainorg.com',
-        ]);
-        
         // Create additional organizations
         Organization::factory(9)->create();
     }
