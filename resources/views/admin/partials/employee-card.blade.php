@@ -1,6 +1,8 @@
-<div class="card text-center p-3 shadow-sm rounded" style="border: none;">
+<div class="card text-center p-3 shadow-sm rounded" style="border: none; width: 300px; height: 200px;">
     <div class="d-flex justify-content-between align-items-start">
-        <i class="bi bi-person-badge" style="font-size: 1.2rem;"></i>
+        <div>
+            <i class="bi bi-person-badge" style="font-size: 1.2rem;"></i>
+        </div>
         <div x-data="{ open: false }" class="relative text-right">
             <button @click="open = !open" class="text-gray-500 hover:text-gray-700 focus:outline-none">
                 <i class="bi bi-three-dots-vertical"></i>

@@ -4,7 +4,7 @@
         <div class="container mt-4">
             <h2 class="mb-4">Medewerkers in mijn organisatie</h2>
 
-            <div class="row">
+            <div class="flex flex-wrap gap-4">
                 @foreach ($users as $user)
                     <div class="col-md-3 mb-4">
                         @include('admin.partials.employee-card', ['user' => $user])

@@ -62,7 +62,6 @@ Route::get('/admin', function () {
 })->middleware('auth');
 
 
-
 // admin  routes // PREVIOUS
 //Route::get('/admin/section/{type}', function ($type) {
     //$allowed = ['clients', 'employees', 'organisation'];
@@ -141,6 +140,16 @@ Route::get('/admin/section/{type}', function ($type) {
     // Fallback (shouldn’t be reached)
     return view("admin.partials.$type");
 })->middleware('auth');
+
+
+use App\Http\Controllers\ClientController;
+// Admin - Clients
+Route::get('/clients', [ClientController::class, 'index']);
+
+Route::get('/clients', function () {
+    $clients = Client::with('dossiers')->get();
+    return view('clients', compact('clients'));
+});
 
 
 

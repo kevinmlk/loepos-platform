@@ -80,7 +80,7 @@
 
         // Delegated event for back button
         $('#dynamic-section').on('click', '#show-admin-tools', function (e) {
-            e.preventDefault(); // prevent default href
+            
             $('#admin-tools').slideDown();
             $('#dynamic-wrapper').remove(); // remove back button + loaded content
         });
