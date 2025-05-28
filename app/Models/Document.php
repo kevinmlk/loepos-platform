@@ -19,6 +19,16 @@ class Document extends Model
         self::TYPE_AGREEMENT,
     ];
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_VERIFIED = 'verified';
+    const STATUS_REJECTED = 'rejected';
+
+    public const STATUS = [
+        self::STATUS_PENDING,
+        self::STATUS_VERIFIED,
+        self::STATUS_REJECTED,
+    ];
+
     protected $fillable = [
         'dossier_id',
         'type',
