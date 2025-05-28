@@ -12,12 +12,11 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        $documents = Document::where('organization_id', $user->organization_id)
-            ->latest()
-            ->take(4)
-            ->get();
-            
+
+        $documents = Document::whereHas('dossier', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
+
         $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
 
         return view('dashboard.index', [
@@ -37,9 +36,11 @@ class DashboardController extends Controller
         $endOfWeek = now()->endOfWeek(); // Sunday
 
         $user = Auth::user();
-        
+
         // Use a subquery to ensure compatibility with ONLY_FULL_GROUP_BY
-        $dailyCounts = Document::where('organization_id', $user->organization_id)
+        $dailyCounts = Document::whereHas('dossier', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, DAYNAME(created_at) as day_name, COUNT(*) as total')
             ->groupByRaw('DAYOFWEEK(created_at), DAYNAME(created_at)')

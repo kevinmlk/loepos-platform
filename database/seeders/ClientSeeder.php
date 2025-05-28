@@ -13,13 +13,7 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create clients for main organization
-        Client::factory(1)->create([
-            'organization_id' => 1
-        ]);
-
         Client::factory()->create([
-            'organization_id' => 1,
             'first_name' => 'Jonathan',
             'last_name' => 'Schuermans',
             'email' => 'jonathan.schuermans@gmail.be',
@@ -31,8 +25,6 @@ class ClientSeeder extends Seeder
             'national_registry_number' => '624108359'
         ]);
 
-        Client::factory(18)->create([
-            'organization_id' => 1
-        ]);
+        // Client::factory(19)->create([]);
     }
 }

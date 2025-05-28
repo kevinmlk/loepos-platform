@@ -20,7 +20,6 @@ class Document extends Model
     ];
 
     protected $fillable = [
-        'organization_id',
         'dossier_id',
         'type',
         'file_name',
@@ -30,10 +29,6 @@ class Document extends Model
     ];
 
     // Relations
-    public function organization() {
-        return $this->belongsTo(Organization::class);
-    }
-
     public function dossier() {
         return $this->belongsTo(Dossier::class);
     }
