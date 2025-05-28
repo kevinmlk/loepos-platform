@@ -16,6 +16,7 @@ class Client extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'organization_id',
         'first_name',
         'last_name',
         'email',
@@ -33,7 +34,7 @@ class Client extends Model
     }
 
     public function dossiers() {
-        return $this->hasMany(Dossier::class);
+        return $this->belongsToMany(Dossier::class, 'client_dossier')->withTimestamps();
     }
 
     public function financialInfo() {

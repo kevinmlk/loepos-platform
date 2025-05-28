@@ -14,34 +14,22 @@ class DossierSeeder extends Seeder
      */
     public function run(): void
     {
-        Dossier::factory()->create([
-            'client_id' => 1,
-            'user_id' => 1,
-            'status' => Dossier::STATUS_ACTIVE
-        ]);
-
-        Dossier::factory()->create([
-            'client_id' => 2,
-            'user_id' => 1,
-            'status' => Dossier::STATUS_ACTIVE
-        ]);
-
-        Dossier::factory()->create([
-            'client_id' => 3,
-            'user_id' => 1,
-            'status' => Dossier::STATUS_ACTIVE
-        ]);
-
-        Dossier::factory()->create([
-            'client_id' => 4,
-            'user_id' => 1,
-            'status' => Dossier::STATUS_ACTIVE
-        ]);
-
-        Dossier::factory()->create([
-            'client_id' => 5,
-            'user_id' => 1,
-            'status' => Dossier::STATUS_ACTIVE
-        ]);
+        // Create dossiers and attach clients
+        $clients = Client::take(5)->get();
+        
+        foreach ($clients as $index => $client) {
+            $dossier = Dossier::factory()->create([
+                'user_id' => 1,
+                'status' => Dossier::STATUS_ACTIVE
+            ]);
+            
+            // Attach the client to the dossier
+            $dossier->clients()->attach($client->id);
+            
+            // For the first dossier, attach multiple clients as an example
+            if ($index === 0) {
+                $dossier->clients()->attach($clients->where('id', '>', $client->id)->take(2)->pluck('id'));
+            }
+        }
     }
 }

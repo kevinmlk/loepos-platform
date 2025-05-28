@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Dossier;
@@ -21,7 +20,6 @@ class DossierFactory extends Factory
     public function definition(): array
     {
         return [
-            'client_id' => Client::factory(),
             'user_id' => User::factory(),
             'status' => fake()->randomElement(Dossier::STATUS),
             'type' => fake()->randomElement(Dossier::TYPES),

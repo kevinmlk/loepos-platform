@@ -15,8 +15,6 @@ use App\Services\DossierService;
 use App\Services\PDFSplitService;
 
 use App\Models\Document;
-use App\Models\Dossier;
-use App\Models\User;
 use App\Models\Task;
 
 class DocumentController extends Controller
@@ -34,30 +32,10 @@ class DocumentController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === User::ROLE_ADMIN) {
-            // Admin: Get all documents belonging to the user's organization
-            $organizationId = $user->organization_id;
-
-            // Get all dossier IDs associated with the organization
-            $dossierIds = Dossier::whereHas('user', function ($query) use ($organizationId) {
-                $query->where('organization_id', $organizationId);
-            })->pluck('id');
-
-            // Get documents associated with the organization's dossiers
-            $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
-        } elseif ($user->role === User::ROLE_EMPLOYEE) {
-
-            // Employee: Get documents associated with the user's dossiers
-            $dossierIds = $user->dossiers()->pluck('id');
-
-            // Get documents associated with the user's dossiers
-            $documents = Document::whereIn('dossier_id', $dossierIds)->paginate(5);
-        } elseif ($user->role === User::ROLE_SUPERADMIN) {
-            $documents = Document::paginate(5);
-        } else {
-            // Default: No documents for other roles
-            $documents = collect(); // Empty collection
-        }
+        // Filter documents by user's organization
+        $documents = Document::where('organization_id', $user->organization_id)
+            ->latest()
+            ->paginate(20);
 
         return view('documents.index', [
             'documents' => $documents
@@ -93,7 +71,8 @@ class DocumentController extends Controller
 
         // Create a new document record with organization_id
         $document = Document::create([
-            'dossier_id' => null,
+            'organization_id' => $user->organization_id,
+            'dossier_id' => null, // Documents are not assigned to dossiers on upload
             'type' => Document::TYPE_INVOICE,
             'file_name' => $fileName,
             'file_path' => $filePath,
@@ -119,7 +98,7 @@ class DocumentController extends Controller
     public function queue()
     {
         $user = Auth::user();
-
+        
         // Get all unverified documents for the user's organization
         $documents = Document::where('verified_status', 0)
             ->where('organization_id', $user->organization_id)
@@ -145,21 +124,21 @@ class DocumentController extends Controller
         try {
             $user = Auth::user();
             $documentsToVerify = [];
-
+            
             // Ensure verified documents directory exists
             $this->pdfSplitService->ensureStorageDirectoryExists();
-
+            
             // Group documents by original document ID for efficient splitting
             $documentsByOriginal = collect($request->documents)->groupBy('originalDocId');
-
+            
             foreach ($documentsByOriginal as $originalDocId => $splits) {
                 // Find the original document
                 $originalDocument = Document::find($originalDocId);
-
+                
                 if (!$originalDocument) {
                     continue;
                 }
-
+                
                 // Prepare splits configuration
                 $splitConfigs = $splits->map(function ($split) {
                     return [
@@ -168,25 +147,25 @@ class DocumentController extends Controller
                         'pageImages' => $split['pageImages'] ?? null
                     ];
                 })->toArray();
-
+                
                 // Split the PDF
                 $splitFiles = $this->pdfSplitService->splitPDF($originalDocument->file_path, $splitConfigs);
-
+                
                 // Prepare document data for verification
                 foreach ($splits as $index => $docData) {
                     $splitFile = $splitFiles[$index] ?? null;
-
+                    
                     if (!$splitFile) {
                         continue;
                     }
-
+                    
                     // Log for debugging
                     Log::info('Preparing document for verification', [
                         'split_file' => $splitFile,
                         'docData' => $docData,
                         'parsed_data' => json_decode($originalDocument->parsed_data, true)
                     ]);
-
+                    
                     $documentsToVerify[] = [
                         'original_document_id' => $originalDocument->id,
                         'file_name' => $docData['name'],
@@ -207,7 +186,7 @@ class DocumentController extends Controller
                 $firstDocument = array_shift($documentsToVerify);
                 $request->session()->put('verify_document_data', $firstDocument);
                 $request->session()->put('remaining_documents_to_verify', $documentsToVerify);
-
+                
                 return response()->json([
                     'success' => true,
                     'redirect' => route('documents.verify.show')
@@ -220,7 +199,7 @@ class DocumentController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+            
             return response()->json([
                 'error' => $e->getMessage(),
                 'message' => 'Failed to process documents'
@@ -232,19 +211,19 @@ class DocumentController extends Controller
     {
         // Check if user has access to this document (through their organization)
         $user = Auth::user();
-
+        
         // We should add additional access checks here
         // For example, check if the user's organization matches the document's dossier organization
-
+        
         // Check if file exists
         if (!Storage::disk('public')->exists($document->file_path)) {
             abort(404, 'Document not found');
         }
-
+        
         // Get the file content
         $content = Storage::disk('public')->get($document->file_path);
         $mimeType = Storage::disk('public')->mimeType($document->file_path);
-
+        
         // Return response with proper headers for inline viewing
         return response($content)
             ->header('Content-Type', $mimeType)
@@ -256,19 +235,19 @@ class DocumentController extends Controller
     {
         // Check if user has access to this document (through their organization)
         $user = Auth::user();
-
+        
         // We should add additional access checks here
         // For example, check if the user's organization matches the document's dossier organization
-
+        
         // Check if file exists
         if (!Storage::disk('public')->exists($document->file_path)) {
             abort(404, 'Document not found');
         }
-
+        
         // Force download the file
         return Storage::disk('public')->download($document->file_path, $document->file_name);
     }
-
+    
     /**
      * Create split PDFs from page images (used when FPDI fails due to compression)
      */
@@ -281,32 +260,32 @@ class DocumentController extends Controller
             'splits.*.name' => 'required|string',
             'splits.*.pages' => 'required|array'
         ]);
-
+        
         try {
             $originalDocument = Document::find($request->originalDocId);
             $baseFileName = pathinfo($originalDocument->file_name, PATHINFO_FILENAME);
-
+            
             // Ensure storage directory exists
             $this->pdfSplitService->ensureStorageDirectoryExists();
-
+            
             // Create PDFs from base64 images
             $splitFiles = $this->pdfSplitService->createPDFsFromBase64Images(
                 $request->pageImages,
                 $baseFileName,
                 $request->splits
             );
-
+            
             return response()->json([
                 'success' => true,
                 'splitFiles' => $splitFiles
             ]);
-
+            
         } catch (\Exception $e) {
             Log::error('Error creating splits from images', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+            
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()

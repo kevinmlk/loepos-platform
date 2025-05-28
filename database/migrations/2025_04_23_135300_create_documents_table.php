@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organization_id')->constrained('organizations');
             $table->foreignIdFor(Dossier::class)->nullable();
             $table->enum('type', Document::TYPES);
             $table->string('file_name');
