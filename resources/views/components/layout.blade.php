@@ -87,24 +87,24 @@
                         </x-nav-link>
                     </x-nav-link-container>
 
-                     {{-- Admin nav link --}}
-
-                    @auth
-                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
-                            <x-nav-link-container>
-                                <x-nav-link href="/admin" :active="request()->is('admin')">
-                                    <x-phosphor-person-bold class="w-6 h-6 mr-3" />
-                                    Admin
-                                </x-nav-link>
-                            </x-nav-link-container>
-                        @endif
-                    @endauth
+                    
                 </ul>
             </div>
-
+          
             <div>
-                <x-nav-link href="/settings" :active="request()->is('settings')"><x-phosphor-gear-bold class="w-6 h-6 mr-3" />Instellingen
-                </x-nav-link>
+                {{-- Admin nav link --}}
+                <ul>
+                        @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/admin" :active="request()->is('admin')">
+                                        <x-phosphor-person-bold class="w-6 h-6 mr-3" />
+                                        Admin
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                        @endauth
+                </ul>
                 {{-- Logout button --}}
                 <form method="POST" action="/logout">
                     @csrf
