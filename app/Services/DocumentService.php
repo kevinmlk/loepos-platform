@@ -5,10 +5,12 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Document;
 use App\Models\Dossier;
 use App\Models\User;
+use App\Models\Task;
 
 class DocumentService
 {
@@ -73,5 +75,25 @@ class DocumentService
         }
 
         return $documents;
+    }
+
+    public function getFileProperties($file)
+    {
+        $fileName = $file->getClientOriginalName();
+        $filePath = $file->store('documents', 'public');
+        $fullPath = Storage::disk('public')->path($filePath);
+
+        return compact('fileName', 'filePath', 'fullPath');
+    }
+
+    public function createDocumentRecord(array $fileProperties, $parsedData)
+    {
+        return Document::create([
+            'dossier_id' => null,
+            'type' => Document::TYPE_INVOICE,
+            'file_name' => $fileProperties['fileName'],
+            'file_path' => $fileProperties['filePath'],
+            'parsed_data' => $parsedData,
+        ]);
     }
 }

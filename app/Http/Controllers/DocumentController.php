@@ -13,6 +13,7 @@ use App\Notifications\NewTaskNotification;
 use App\Services\DocumentService;
 use App\Services\DossierService;
 use App\Services\PDFSplitService;
+use App\Services\TaskService;
 
 use App\Models\Document;
 use App\Models\Dossier;
@@ -21,13 +22,18 @@ use App\Models\Task;
 
 class DocumentController extends Controller
 {
-    protected $documentService, $dossierService, $pdfSplitService;
+    protected $documentService, $dossierService, $pdfSplitService, $taskService;
 
-    public function __construct(DocumentService $documentService, DossierService $dossierService, PDFSplitService $pdfSplitService)
-    {
+    public function __construct(
+        DocumentService $documentService,
+        DossierService $dossierService,
+        PDFSplitService $pdfSplitService,
+        TaskService $taskService
+    ) {
         $this->documentService = $documentService;
         $this->dossierService = $dossierService;
         $this->pdfSplitService = $pdfSplitService;
+        $this->taskService = $taskService;
     }
 
     public function index()
@@ -48,48 +54,27 @@ class DocumentController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the request data
         $request->validate([
             'file' => 'required|file|mimes:pdf,png,jpg'
         ]);
 
-        // Get file properties
         $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
-        $filePath = $file->store('documents', 'public');
 
-        // Extract text using OpenAI API
-        $fullPath = Storage::disk('public')->path($filePath);
-        $parsedData = $this->documentService->extractText($fullPath);
+        // Get the file properties and extract the text
+        $fileProperties = $this->documentService->getFileProperties($file);
+        $parsedData = $this->documentService->extractText($fileProperties['fullPath']);
 
-        // Decode the parsed data to extract client information
+        // Decode the parsed data to extract client information-This is not being used?
         $parsedDataArray = json_decode($parsedData, true);
 
-        // Get user's organization
-        $user = Auth::user();
-
-        // Create a new document record with organization_id
-        $document = Document::create([
-            'dossier_id' => null,
-            'type' => Document::TYPE_INVOICE,
-            'file_name' => $fileName,
-            'file_path' => $filePath,
-            'parsed_data' => $parsedData,
-        ]);
-
-        // Create a new task
-        $task = $document->tasks()->create([
-            'description' => 'Review the uploaded document.',
-            'status' => Task::STATUS_PENDING,
-            'urgency' => Task::URGENCY_MEDIUM,
-            'due_date' => now()->addDays(3)
-        ]);
+        // Create document and task records
+        $document = $this->documentService->createDocumentRecord($fileProperties, $parsedData);
+        $task = $this->taskService->createTaskForDocument($document);
 
         // Notify the user
         $user = Auth::user();
         $user->notify(new NewTaskNotification($task));
 
-        // Redirect user with a success message
         return redirect('/documents');
     }
 
