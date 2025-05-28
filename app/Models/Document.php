@@ -50,8 +50,4 @@ class Document extends Model
     public function tasks() {
         return $this->hasMany(Task::class);
     }
-
-    public function aiLogs() {
-        return $this->hasMany(AiLog::class);
-    }
 }

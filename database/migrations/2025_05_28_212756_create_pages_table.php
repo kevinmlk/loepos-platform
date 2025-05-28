@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Dossier;
-use App\Models\Debt;
+use App\Models\Document;
 
 return new class extends Migration
 {
@@ -14,13 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('debts', function (Blueprint $table) {
+        Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Dossier::class);
-            $table->string('creditor');
-            $table->decimal('amount', 10, 5);
-            $table->enum('status', Debt::STATUS)->default(Debt::STATUS_OPEN);
-            $table->timestamp('due_date')->nullable();
+            $table->foreignIdFor(Document::class);
+            $table->integer('page_number');
+            $table->json('content');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('debts');
+        Schema::dropIfExists('pages');
     }
 };

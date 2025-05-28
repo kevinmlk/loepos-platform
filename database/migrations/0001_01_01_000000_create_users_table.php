@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+
 use App\Models\User;
 use App\Models\Organization;
 
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->foreignIdFor(Organization::class)->nullable();
             $table->enum('role', User::ROLES)->default(User::ROLE_EMPLOYEE);
             $table->rememberToken();
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
         });
 

@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\FamilyInfo;
 use App\Models\Client;
+use App\Models\Upload;
 
 return new class extends Migration
 {
@@ -14,14 +14,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('family_infos', function (Blueprint $table) {
+        Schema::create('uploads', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Client::class);
-            $table->enum('status', FamilyInfo::STATUS);
-            $table->integer('children');
-            $table->string('partner_name');
-            $table->decimal('partner_income');
-            $table->json('children_info')->nullable();
+            $table->string('file_name');
+            $table->string('file_path');
+            $table->enum('status', Upload::STATUS)->default(Upload::STATUS_IN_PROCESS);
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('family_infos');
+        Schema::dropIfExists('uploads');
     }
 };
