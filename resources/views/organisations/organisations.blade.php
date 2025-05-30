@@ -1,11 +1,11 @@
 <x-layout>
     {{-- Header --}}
     <x-header>
-        Rapporten
+        Organisaties
         <x-slot:subText>
-            Bekijk de rapporten van je binnekomende dossiers en clienten.
+            Beheer hier alle organisaties die zijn aangesloten bij Loepos.
         </x-slot:subText>
     </x-header>
 
-    <p>Rapporten pagina</p>
+    
 </x-layout>

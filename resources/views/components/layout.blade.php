@@ -53,41 +53,74 @@
                 </picture>
                 <ul>
                     {{-- Home nav link --}}
-                    <x-nav-link-container>
-                        <x-nav-link href="/" :active="request()->is('/')">
-                            <x-phosphor-house-bold class="w-6 h-6 mr-3" />Home
-                        </x-nav-link>
-                    </x-nav-link-container>
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/" :active="request()->is('/')">
+                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Home
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                    @endauth
 
                     {{-- Post processing nav link --}}
-                    <x-nav-link-container>
-                        <x-nav-link href="/dossiers" :active="request()->is('dossiers')">
-                            <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
-                        </x-nav-link>
-                    </x-nav-link-container>
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/dossiers" :active="request()->is('dossiers')">
+                                        <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif  
+                    @endauth
 
                     {{-- Documents nav link --}}
-                    <x-nav-link-container>
-                        <x-nav-link href="/documents" :active="request()->is('documents')">
-                            <x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
-                        </x-nav-link>
-                    </x-nav-link-container>
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/documents" :active="request()->is('documents')">
+                                        <x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif  
+                    @endauth
 
                     {{-- Reports nav link --}}
-                    <x-nav-link-container>
-                        <x-nav-link href="/reports" :active="request()->is('reports')">
-                            <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
-                        </x-nav-link>
-                    </x-nav-link-container>
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/reports" :active="request()->is('reports')">
+                                        <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                    @endauth                  
 
                     {{-- Support nav link --}}
-                    <x-nav-link-container>
-                        <x-nav-link href="/support" :active="request()->is('support')">
-                            <x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
-                        </x-nav-link>
-                    </x-nav-link-container>
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/support" :active="request()->is('support')">
+                                        <x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                    @endauth
 
-                    
+
+                    {{-- Add organisation nav link --}}
+                    @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/organisations" :active="request()->is('organisations')">
+                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Organisaties
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                    @endauth
+
+
+
                 </ul>
             </div>
           
@@ -95,7 +128,7 @@
                 {{-- Admin nav link --}}
                 <ul>
                         @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_SUPERADMIN]))
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/admin" :active="request()->is('admin')">
                                         <x-phosphor-person-bold class="w-6 h-6 mr-3" />

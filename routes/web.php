@@ -15,7 +15,14 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\VerifyDocumentController;
 
 // Dashboard
-Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard.index');
+Route::get('/', function () {
+    if (!in_array(Auth::user()->role, [User::ROLE_ADMIN, User::ROLE_EMPLOYEE, User::ROLE_SUPERADMIN])) {
+        abort(403);
+    }
+    
+    $controller = app(DashboardController::class);
+    return $controller->index();
+})->middleware('auth')->name('dashboard.index');
 
 // Dossiers
 Route::get('/dossiers', [DossierController::class, 'index'])->middleware('auth')->name('dossiers.index');
@@ -150,6 +157,22 @@ Route::get('/clients', function () {
     $clients = Client::with('dossiers')->get();
     return view('clients', compact('clients'));
 });
+
+// Super Admin routes
+
+Route::get('/super', function () {
+    if (!in_array(Auth::user()->role, [User::ROLE_SUPERADMIN])) {
+        abort(403);
+    }
+    return view('super.superdashboard');
+})->middleware('auth');
+
+Route::get('/organisations', function () {
+    if (!in_array(Auth::user()->role, [User::ROLE_SUPERADMIN])) {
+        abort(403);
+    }
+    return view('organisations.organisations');
+})->middleware('auth');
 
 
 
