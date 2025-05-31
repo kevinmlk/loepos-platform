@@ -6,6 +6,8 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 
+use App\Models\Upload;
+
 class UploadService
 {
     public function splitUpload($filePath) {
@@ -36,5 +38,18 @@ class UploadService
 
         // Return the extracted text
         return json_encode($responseData);
+    }
+
+    public function createUploadRecord(array $fileProperties, $parsedData)
+    {
+        $parsedDataArray = json_decode($parsedData, true);
+
+        return Upload::create([
+            'file_name' => $fileProperties['fileName'],
+            'file_path' => $fileProperties['fullPath'],
+            'parsed_data' => $parsedData,
+            'documents' => $parsedDataArray['totalDocuments'],
+            'status' => Upload::STATUS_UPLOADED
+        ]);
     }
 }

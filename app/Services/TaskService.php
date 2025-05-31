@@ -9,7 +9,7 @@ use App\Models\Task;
 
 class TaskService
 {
-    public function CreateTaskForDocument(Document $document)
+    public function createTaskForDocument(Document $document)
     {
         return $document->tasks()->create([
             'description' => 'Review the uploaded document.',

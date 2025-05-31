@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\Upload;
-
 use App\Services\DocumentService;
 use App\Services\UploadService;
+
+use App\Models\Upload;
 
 class UploadController extends Controller
 {
@@ -16,10 +16,16 @@ class UploadController extends Controller
     public function __construct(
         DocumentService $documentService,
         UploadService $uploadService,
-
     ) {
         $this->documentService = $documentService;
         $this->uploadService = $uploadService;
+    }
+
+    public function index($upload)
+    {
+        return view('uploads.index', [
+            'upload' => $upload
+        ]);
     }
 
     public function create()
@@ -33,23 +39,19 @@ class UploadController extends Controller
             'file' => 'required|file|mimes:pdf,png,jpg'
         ]);
 
-        // Get the file properties and extract the text
+        // Get the file properties, extract the documents and store the record
         $file = $request->file('file');
         $fileProperties = $this->documentService->getFileProperties($file);
         $parsedData = $this->uploadService->splitUpload($fileProperties['fullPath']);
+        $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData);
 
-        // Decode the parsed data to extract client information-This is not being used?
-        $parsedDataArray = json_decode($parsedData, true);
+        return redirect()->route('uploads.show', $upload);
+    }
 
-        // Create upload
-        Upload::create([
-            'file_name' => $fileProperties['fileName'],
-            'file_path' => $fileProperties['fullPath'],
-            'parsed_data' => $parsedData,
-            'documents' => $parsedDataArray['totalDocuments'],
-            'status' => Upload::STATUS_UPLOADED
+    public function show(Upload $upload)
+    {
+        return view('uploads.show', [
+            'upload' => $upload,
         ]);
-
-        return redirect('/documents');
     }
 }
