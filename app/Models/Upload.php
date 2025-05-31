@@ -16,6 +16,14 @@ class Upload extends Model
         self::STATUS_UPLOADED,
     ];
 
+    protected $fillable = [
+        'file_name',
+        'file_path',
+        'parsed_data',
+        'documents',
+        'status',
+    ];
+
     public function documents() {
         return $this->hasMany(Document::class);
     }

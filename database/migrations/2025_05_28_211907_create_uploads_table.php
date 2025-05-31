@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('file_name');
             $table->string('file_path');
+            $table->json('parsed_data');
+            $table->integer('documents');
             $table->enum('status', Upload::STATUS)->default(Upload::STATUS_IN_PROCESS);
             $table->timestamps();
         });
