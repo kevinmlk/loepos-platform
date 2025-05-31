@@ -12,7 +12,7 @@
         <table class="w-full">
             <thead>
                 <th class="text-start text-caption font-regular py-2">Naam</th>
-                <th class="text-start text-caption font-regular py-2 px-6">E-mailadres</th>
+                <th class="text-start text-caption font-regular py-2 px-6">Status</th>
                 <th class="text-start text-caption font-regular py-2 px-6">GSM-nummer</th>
                 <th class="text-start text-caption font-regular py-2 px-6">Website</th>
             </thead>

@@ -169,8 +169,14 @@ Route::get('/superdashboard', function () {
 
 use App\Http\Controllers\OrganizationController;
 
-Route::get('/organisations', [OrganizationController::class, 'index'])->middleware('auth');
+Route::get('/organisations', [OrganizationController::class, 'index'])->middleware('auth')->name('organisations.index');
 
+Route::get('/organisations/{organization}', [OrganizationController::class, 'show'])->middleware('auth')->name('organisations.show');
+
+
+Route::get('/organisations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organisations.edit')->middleware('auth');
+Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
+Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
 
 
 

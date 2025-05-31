@@ -18,7 +18,7 @@ class Organization extends Model
 
     // Protected $table = 'organizations';
     protected $fillable = [
-        'name', 'email', 'phone', 'website', 'VAT', 'address', 'postal_code', 'city', 'country',
+        'name', 'email', 'phone','status', 'website', 'VAT', 'address', 'postal_code', 'city', 'country',
     ];
 
     // Accessor for full address
