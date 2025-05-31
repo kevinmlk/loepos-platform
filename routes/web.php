@@ -120,6 +120,11 @@ Route::post('/admin/organisation/update', function (Request $request) {
     return response()->json(['success' => true]);
 })->middleware('auth');
 
+use App\Http\Controllers\EmployeeController;
+
+Route::get('/admin/employees/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
+
+
 
 use App\Models\Client;
 
@@ -158,6 +163,7 @@ Route::get('/clients', function () {
     return view('clients', compact('clients'));
 });
 
+
 // Super Admin routes
 
 Route::get('/superdashboard', function () {
@@ -177,6 +183,7 @@ Route::get('/organisations/{organization}', [OrganizationController::class, 'sho
 Route::get('/organisations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organisations.edit')->middleware('auth');
 Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
+
 
 
 
