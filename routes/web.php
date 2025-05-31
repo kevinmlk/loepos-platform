@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,7 @@ Route::get('/', function () {
     if (!in_array(Auth::user()->role, [User::ROLE_ADMIN, User::ROLE_EMPLOYEE, User::ROLE_SUPERADMIN])) {
         abort(403);
     }
-    
+
     $controller = app(DashboardController::class);
     return $controller->index();
 })->middleware('auth')->name('dashboard.index');
@@ -36,6 +37,9 @@ Route::get('/tasks', [TaskController::class, 'index'])->middleware('auth')->name
 Route::get('/documents', [DocumentController::class, 'index'])->middleware('auth')->name('documents.index');
 Route::get('/document/create', [DocumentController::class, 'create'])->middleware('auth');
 Route::post('/document', [DocumentController::class, 'store'])->middleware('auth')->name('documents.create');
+
+// Uploads
+Route::get('/upload/create', [UploadController::class, 'create'])->middleware('auth');
 
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');
