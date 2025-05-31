@@ -1,11 +1,10 @@
 <x-layout>
     {{-- Header --}}
-    <x-header>
+    <x-headerAdmin>
         Dashboard Loepos
         <x-slot:subText>
             Bij alle statistieken van de gebruikers van Loepos.
         </x-slot:subText>
-    </x-header>
-
+    </x-headerAdmin>
     
 </x-layout>

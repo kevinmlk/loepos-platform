@@ -107,17 +107,28 @@
                             @endif
                     @endauth
 
+                    {{-- Add superdashboard nav link --}}
+                     @auth
+                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
+                                <x-nav-link-container>
+                                    <x-nav-link href="/superdashboard" :active="request()->is('superdashboard')">
+                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Super
+                                    </x-nav-link>
+                                </x-nav-link-container>
+                            @endif
+                    @endauth
 
                     {{-- Add organisation nav link --}}
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/organisations" :active="request()->is('organisations')">
-                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Organisaties
+                                        <x-phosphor-buildings class="w-6 h-6 mr-3" />Organisaties
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
                     @endauth
+
 
 
 

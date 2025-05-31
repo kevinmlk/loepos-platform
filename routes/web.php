@@ -160,19 +160,17 @@ Route::get('/clients', function () {
 
 // Super Admin routes
 
-Route::get('/super', function () {
+Route::get('/superdashboard', function () {
     if (!in_array(Auth::user()->role, [User::ROLE_SUPERADMIN])) {
         abort(403);
     }
-    return view('super.superdashboard');
+    return view('superdashboard.superdashboard');
 })->middleware('auth');
 
-Route::get('/organisations', function () {
-    if (!in_array(Auth::user()->role, [User::ROLE_SUPERADMIN])) {
-        abort(403);
-    }
-    return view('organisations.organisations');
-})->middleware('auth');
+use App\Http\Controllers\OrganizationController;
+
+Route::get('/organisations', [OrganizationController::class, 'index'])->middleware('auth');
+
 
 
 
