@@ -39,4 +39,11 @@ class Client extends Model
     public function familyInfo() {
         return $this->hasOne(FamilyInfo::class);
     }
+
+    
+    // Accessor for full address
+    public function getFullAddressAttribute()
+    {
+        return "{$this->address}, {$this->postal_code} {$this->city}, {$this->country}";
+    }
 }
