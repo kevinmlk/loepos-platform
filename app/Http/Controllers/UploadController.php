@@ -21,11 +21,11 @@ class UploadController extends Controller
         $this->uploadService = $uploadService;
     }
 
-    public function index($upload)
+    public function index()
     {
-        return view('uploads.index', [
-            'upload' => $upload
-        ]);
+        $uploads = Upload::paginate(5);
+
+        return view('uploads.index', ['uploads' => $uploads]);
     }
 
     public function create()
@@ -39,13 +39,19 @@ class UploadController extends Controller
             'file' => 'required|file|mimes:pdf,png,jpg'
         ]);
 
-        // Get the file properties, extract the documents and store the record
-        $file = $request->file('file');
-        $fileProperties = $this->documentService->getFileProperties($file);
-        $parsedData = $this->uploadService->splitUpload($fileProperties['fullPath']);
-        $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData);
+        try {
+            // Get the file properties, extract the documents and store the record
+            $file = $request->file('file');
+            $fileProperties = $this->documentService->getFileProperties($file);
+            $parsedData = $this->uploadService->splitUpload($fileProperties['fullPath']);
+            $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData);
 
-        return redirect()->route('uploads.show', $upload);
+            return response()->json(['redirect' => url('/uploads/' . $upload->id)]);
+        } catch (\Exception $e) {
+            IlluminateLog::error('Error during file upload: ' . $e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred during the upload process. Please try again.']);
+        }
     }
 
     public function show(Upload $upload)
