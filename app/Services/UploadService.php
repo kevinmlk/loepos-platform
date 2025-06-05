@@ -49,7 +49,7 @@ class UploadService
             'file_path' => $fileProperties['fullPath'],
             'parsed_data' => $parsedData,
             'documents' => $parsedDataArray['totalDocuments'],
-            'status' => Upload::STATUS_UPLOADED
+            'status' => Upload::STATUS_PENDING
         ]);
     }
 }

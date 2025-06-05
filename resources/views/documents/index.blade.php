@@ -22,6 +22,14 @@
         >
             Upload
         </a>
+
+        <a
+            href="/uploads"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
+        >
+            AI queue
+        </a>
+
     </div>
 
     <section class="flex flex-col gap-8">

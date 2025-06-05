@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Upload extends Model
 {
-    const STATUS_FAILED = 'failed';
-    const STATUS_IN_PROCESS = 'in process';
-    const STATUS_UPLOADED = 'uploaded';
+    const STATUS_PENDING = 'pending';
+    const STATUS_VERIFIED = 'verified';
+    const STATUS_REJECTED = 'rejected';
 
     public const STATUS = [
-        self::STATUS_FAILED,
-        self::STATUS_IN_PROCESS,
-        self::STATUS_UPLOADED,
+        self::STATUS_PENDING,
+        self::STATUS_VERIFIED,
+        self::STATUS_REJECTED,
     ];
 
     protected $fillable = [
