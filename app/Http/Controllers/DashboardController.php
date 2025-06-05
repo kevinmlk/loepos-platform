@@ -18,7 +18,10 @@ class DashboardController extends Controller
             $query->where('user_id', $user->id);
         })->get();
 
-        $dossiers = $user->dossiers()->paginate(3);
+        // Get the dossiers that had a new document/task added to them
+        $dossiers = $user->dossiers()->with(['documents' => function($query) {
+            $query->latest()->take(3);
+        }])->paginate(3);
 
         $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
 
