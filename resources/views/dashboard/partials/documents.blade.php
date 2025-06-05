@@ -2,33 +2,36 @@
     <article class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4 w-full">
         <div class="flex justify-between">
             <h2>Laatst toegevoegd</h2>
-            <div class="flex gap-3">
+            <!-- <div class="flex gap-3">
                 <x-ui.button-small icon="phosphor-magnifying-glass-bold" type="secondary">Zoeken</x-ui.button-small>
-                <x-ui.button-small href="/documents?tab=upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
-            </div>
+            </div> -->
         </div>
         <table>
             <thead>
-                <th class="text-start text-caption font-regular py-2">Bestandsnaam</th>
-                <th class="text-start text-caption font-regular py-2">Datum geüpload</th>
-                <th class="text-start text-caption font-regular py-2">Laatst bewerkt</th>
+                <th class="text-start text-caption font-regular py-2">Dossier</th>
+                <th class="text-start text-caption font-regular py-2">Nieuwe documenten</th>
+                <th class="text-start text-caption font-regular py-2">Taken</th>
             </thead>
             <tbody>
-                @foreach($documents as $document)
-                    <x-shared.document-row
-                        :documentId="$document->id"
-                        :fileName="$document->file_name"
-                        :filePath="$document->file_path"
-                        :createdAt="$document->created_at"
-                        :updatedAt="$document->updated_at"
-                    />
+                @foreach($dossiers as $dossier)
+                    <tr>
+                        <td class="text-blue py-4">
+                            <a href="/dossiers/{{ $dossier->id }}"  class="flex items-center gap-4">
+                                <div class="bg-transparant-blue rounded-full w-10 h-10 flex justify-center items-center">
+                                    {{ substr($dossier->client->first_name, 0, 1) . substr($dossier->client->last_name, 0, 1) }}
+                                </div>
+                                <span class="text-black hover:text-blue">{{ $dossier->client->first_name . " " . $dossier->client->last_name }}</span>
+                            </a>
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
     </article>
 
     <article class="w-100 text-center border-2 border-light-gray rounded-lg p-6 flex flex-col justify-center gap-4">
-        <h1 class="text-display font-semibold">{{ count($documents) }}</h1>
-        <p class="text-caption">nieuwe document</p>
+        <h1 class="text-display font-semibold">{{ count($latestUploads) }}</h1>
+        <p class="text-caption">Nieuwe uploads</p>
+        <x-ui.button type="tertiary" class="justify-center" href="/uploads">Bekijk uploads</x-ui.button>
     </article>
 </div>

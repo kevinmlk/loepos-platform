@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Document;
+use App\Models\Upload;
 
 class DashboardController extends Controller
 {
@@ -13,14 +14,17 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $documents = Document::whereHas('dossier', function ($query) use ($user) {
+        $latestUploads = Upload::whereHas('user', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })->get();
+
+        $dossiers = $user->dossiers()->paginate(3);
 
         $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
 
         return view('dashboard.index', [
-            'documents' => $documents,
+            'dossiers' => $dossiers,
+            'latestUploads' => $latestUploads,
             'dailyUploadedDocuments' => $dailyUploadedDocuments,
         ]);
     }

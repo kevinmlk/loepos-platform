@@ -23,7 +23,7 @@ class UploadController extends Controller
 
     public function index()
     {
-        $uploads = Upload::paginate(5);
+        $uploads = Upload::where('user_id', auth()->id())->paginate(5);
 
         return view('uploads.index', ['uploads' => $uploads]);
     }

@@ -45,6 +45,7 @@ class UploadService
         $parsedDataArray = json_decode($parsedData, true);
 
         return Upload::create([
+            'user_id' => auth()->id(),
             'file_name' => $fileProperties['fileName'],
             'file_path' => $fileProperties['fullPath'],
             'parsed_data' => $parsedData,

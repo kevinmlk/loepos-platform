@@ -17,6 +17,7 @@ class Upload extends Model
     ];
 
     protected $fillable = [
+        'user_id',
         'file_name',
         'file_path',
         'parsed_data',
@@ -26,5 +27,9 @@ class Upload extends Model
 
     public function documents() {
         return $this->hasMany(Document::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 }

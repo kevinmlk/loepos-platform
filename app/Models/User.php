@@ -68,4 +68,8 @@ class User extends Authenticatable
     public function dossiers() {
         return $this->hasMany(Dossier::class);
     }
+
+    public function uploads() {
+        return $this->hasMany(Upload::class);
+    }
 }
