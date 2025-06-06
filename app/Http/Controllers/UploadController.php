@@ -24,9 +24,18 @@ class UploadController extends Controller
 
     public function index()
     {
+        // Fetch unassigned uploads for the organization
+        $organizationId = auth()->user()->organization_id;
+        $unassignedUploads = Upload::whereNull('user_id')
+            ->where('organization_id', $organizationId)
+            ->get();
+
         $uploads = Upload::where('user_id', auth()->id())->paginate(5);
 
-        return view('uploads.index', ['uploads' => $uploads]);
+        return view('uploads.index', [
+            'uploads' => $uploads,
+            'unassignedUploads' => $unassignedUploads,
+        ]);
     }
 
     public function create()

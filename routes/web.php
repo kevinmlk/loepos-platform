@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 // Controllers
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\SessionController;
@@ -43,7 +43,6 @@ Route::get('/uploads', [UploadController::class, 'index'])->middleware('auth')->
 Route::get('/upload/create', [UploadController::class, 'create'])->middleware('auth');
 Route::post('/upload', [UploadController::class, 'store'])->middleware('auth')->name('upload.create');
 Route::get('/uploads/{upload}', [UploadController::class, 'show'])->middleware('auth')->name('uploads.show');
-
 
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');

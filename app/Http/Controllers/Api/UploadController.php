@@ -10,8 +10,7 @@ use App\Services\DocumentService;
 use App\Services\UploadService;
 
 use App\Models\Dossier;
-use App\Models\Client;
-use App\Models\User;
+use App\Models\Upload;
 
 class UploadController extends Controller
 {
@@ -38,7 +37,6 @@ class UploadController extends Controller
 
         // Check in the db if the sender email matches a client or user and get organization
         $senderEmail = $request->input('sender_email');
-
         if (!$this->isSenderEmailAllowed($senderEmail)) {
             return response()->json(['error' => 'Unauthorized sender email'], 403);
         }
