@@ -42,6 +42,9 @@ class UploadController extends Controller
         }
 
         $organizationId = $this->getOrganizationId($request->input('receiver_email'));
+        if (is_null($organizationId)) {
+            return response()->json(['error' => 'Invalid receiver email format'], 422);
+        }
 
         try {
             // Get the file properties, extract the documents and store the record
@@ -68,8 +71,10 @@ class UploadController extends Controller
     {
         // Extract the number after '+' in the receiver email (e.g., post+1@loepos.be)
         if (preg_match('/\+(\d+)@/', $receiverEmail, $matches)) {
+            // Return the extracted number as organization ID
             return (int) $matches[1];
         }
+
         return null;
     }
 
