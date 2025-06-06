@@ -16,6 +16,11 @@ class Organization extends Model
         return $this->hasMany(User::class);
     }
 
+    public function uploads()
+    {
+        return $this->hasMany(Upload::class);
+    }
+
     // Protected $table = 'organizations';
     protected $fillable = [
         'name', 'email', 'phone','status', 'website', 'VAT', 'address', 'postal_code', 'city', 'country',
