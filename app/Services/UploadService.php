@@ -40,13 +40,17 @@ class UploadService
         return json_encode($responseData);
     }
 
-    public function createUploadRecord(array $fileProperties, $parsedData)
+    public function createUploadRecord(array $fileProperties, $parsedData, $organizationId = null)
     {
         $parsedDataArray = json_decode($parsedData, true);
 
+        if (is_null($organizationId)) {
+            $organizationId = auth()->user()->organization_id;
+        }
+
         return Upload::create([
             'user_id' => auth()->id(),
-            'organization_id' => auth()->user()->organization_id,
+            'organization_id' => $organizationId,
             'file_name' => $fileProperties['fileName'],
             'file_path' => $fileProperties['fullPath'],
             'parsed_data' => $parsedData,

@@ -38,16 +38,19 @@ class UploadController extends Controller
 
         // Check in the db if the sender email matches a client or user and get organization
         $senderEmail = $request->input('sender_email');
+
         if (!$this->isSenderEmailAllowed($senderEmail)) {
             return response()->json(['error' => 'Unauthorized sender email'], 403);
         }
+
+        $organizationId = $this->getOrganizationId($request->input('receiver_email'));
 
         try {
             // Get the file properties, extract the documents and store the record
             $file = $request->file('file');
             $fileProperties = $this->documentService->getFileProperties($file);
             $parsedData = $this->uploadService->splitUpload($fileProperties['fullPath']);
-            $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData);
+            $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData, $organizationId);
 
             return $this->jsonResponse($fileProperties, $parsedData, $request);
         } catch (\Exception $e) {
@@ -58,25 +61,17 @@ class UploadController extends Controller
     }
 
     /**
-    * Get organization ID from sender email.
+    * Get the organization ID from the receiver email.
     *
-    * @param string $senderEmail
+    * @param string $receiverEmail
     * @return int|null
     */
-    private function getOrganizationFromSenderEmail(string $senderEmail): ?int
+    private function getOrganizationId(string $receiverEmail): ?int
     {
-        // Check if email belongs to a client
-        $client = Client::where('email', $senderEmail)->first();
-        if ($client) {
-            return $client->organization_id;
+        // Extract the number after '+' in the receiver email (e.g., post+1@loepos.be)
+        if (preg_match('/\+(\d+)@/', $receiverEmail, $matches)) {
+            return (int) $matches[1];
         }
-
-        // Check if email belongs to a user
-        $user = User::where('email', $senderEmail)->first();
-        if ($user) {
-            return $user->organization_id;
-        }
-
         return null;
     }
 
