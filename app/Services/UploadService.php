@@ -46,6 +46,7 @@ class UploadService
 
         return Upload::create([
             'user_id' => auth()->id(),
+            'organization_id' => auth()->user()->organization_id,
             'file_name' => $fileProperties['fileName'],
             'file_path' => $fileProperties['fullPath'],
             'parsed_data' => $parsedData,

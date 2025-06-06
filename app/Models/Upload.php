@@ -18,6 +18,7 @@ class Upload extends Model
 
     protected $fillable = [
         'user_id',
+        'organization_id',
         'file_name',
         'file_path',
         'parsed_data',
