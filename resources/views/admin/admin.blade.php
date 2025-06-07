@@ -37,8 +37,12 @@
 
     {{-- Back button template (hidden) --}}
     <div id="back-button-template" class="hidden">
-        <x-ui.button href="#" class="mb-4" id="show-admin-tools" type="primary" style="width: 360px;">
+        <x-ui.button href="#" class="mb-4 w-max float-left mr-4" id="show-admin-tools" type="secondary">
             ← Terug naar administratie tools
+        </x-ui.button>
+
+        <x-ui.button href="/admin/employee" class="mb-4 w-max" type="primary">
+        Medewerker toevoegen
         </x-ui.button>
     </div>
 
@@ -80,10 +84,9 @@
 
         // Delegated event for back button
         $('#dynamic-section').on('click', '#show-admin-tools', function (e) {
-            
+
             $('#admin-tools').slideDown();
             $('#dynamic-wrapper').remove(); // remove back button + loaded content
         });
     });
 </script>
-

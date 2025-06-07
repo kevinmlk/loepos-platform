@@ -3,7 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        <meta name="description"
+            content="Loepos biedt AI-gestuurde software voor schuldbemiddeling en cliëntbeheer. Vereenvoudig uw processen en verbeter de efficiëntie van uw sociale dienst.">
+        <meta name="keywords" content="Loepos, Schuldbemiddeling, Cliëntbeheer, AI-gestuurde software, Sociale dienst, Efficiëntie, Procesoptimalisatie, Dossierbeheer, Documentbeheer, Rapportage, Ondersteuning, Organisatiebeheer">
+        <meta name="author" content="Loepos">
         <title>Loepos: Slimme oplossingen, Heldere toekomst</title>
 
         <!-- CSRF Token -->
@@ -44,7 +47,7 @@
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen border-r-2 py-6 px-4  border-light-gray flex flex-col justify-between flex-shrink-0">
+        <nav class="max-w-xs h-screen border-r-2 py-6 px-4 border-light-gray flex flex-col justify-between flex-shrink-0">
             <div class="flex flex-col items-start gap-6">
                 <picture>
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
@@ -128,26 +131,22 @@
                                 </x-nav-link-container>
                             @endif
                     @endauth
-
-
-
-
                 </ul>
             </div>
 
             <div>
                 {{-- Admin nav link --}}
                 <ul>
-                        @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN]))
-                                <x-nav-link-container>
-                                    <x-nav-link href="/admin" :active="request()->is('admin')">
-                                        <x-phosphor-person-bold class="w-6 h-6 mr-3" />
-                                        <span>Admin</span>
-                                    </x-nav-link>
-                                </x-nav-link-container>
-                            @endif
-                        @endauth
+                    @auth
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN]))
+                            <x-nav-link-container>
+                                <x-nav-link href="/admin" :active="request()->is('admin')">
+                                    <x-phosphor-person-bold class="w-6 h-6 mr-3" />
+                                    <span>Admin</span>
+                                </x-nav-link>
+                            </x-nav-link-container>
+                        @endif
+                    @endauth
                 </ul>
                 {{-- Logout button --}}
                 <form method="POST" action="/logout">

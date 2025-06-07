@@ -130,7 +130,8 @@ Route::post('/admin/organisation/update', function (Request $request) {
 use App\Http\Controllers\EmployeeController;
 
 Route::get('/admin/employees/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
-
+Route::get('/admin/employee/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
+Route::post('/admin/employee', [EmployeeController::class, 'store'])->name('admin.employees.store');
 
 
 use App\Models\Client;
