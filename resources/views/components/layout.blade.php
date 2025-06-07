@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Loepos: Slimme oplossingen, Heldere toekomst</title>
-        
+
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -27,7 +27,7 @@
 
         {{-- Additional Styles --}}
         @stack('styles')
-    
+
         <!-- Google Tag Manager -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -57,7 +57,7 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/" :active="request()->is('/')">
-                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Home
+                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" /><span>Home</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
@@ -68,10 +68,10 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/dossiers" :active="request()->is('dossiers')">
-                                        <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" />Dossiers
+                                        <x-phosphor-mailbox-bold class="w-6 h-6 mr-3" /><span>Dossiers</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
-                            @endif  
+                            @endif
                     @endauth
 
                     {{-- Documents nav link --}}
@@ -79,10 +79,10 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/documents" :active="request()->is('documents')">
-                                        <x-phosphor-folder-bold class="w-6 h-6 mr-3" />Documenten
+                                        <x-phosphor-folder-bold class="w-6 h-6 mr-3" /><span>Documenten</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
-                            @endif  
+                            @endif
                     @endauth
 
                     {{-- Reports nav link --}}
@@ -90,18 +90,18 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/reports" :active="request()->is('reports')">
-                                        <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" />Rapporten
+                                        <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" /><span>Rapporten</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
-                    @endauth                  
+                    @endauth
 
                     {{-- Support nav link --}}
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/support" :active="request()->is('support')">
-                                        <x-phosphor-question-bold class="w-6 h-6 mr-3" />Ondersteuning
+                                        <x-phosphor-question-bold class="w-6 h-6 mr-3" /><span>Ondersteuning</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
@@ -112,7 +112,7 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/superdashboard" :active="request()->is('superdashboard')">
-                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" />Dashboard
+                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" /><span>Dashboard</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
@@ -123,7 +123,7 @@
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/organisations" :active="request()->is('organisations')">
-                                        <x-phosphor-buildings-bold class="w-6 h-6 mr-3" />Organisaties
+                                        <x-phosphor-buildings-bold class="w-6 h-6 mr-3" /><span>Organisaties</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
@@ -134,7 +134,7 @@
 
                 </ul>
             </div>
-          
+
             <div>
                 {{-- Admin nav link --}}
                 <ul>
@@ -143,7 +143,7 @@
                                 <x-nav-link-container>
                                     <x-nav-link href="/admin" :active="request()->is('admin')">
                                         <x-phosphor-person-bold class="w-6 h-6 mr-3" />
-                                        Admin
+                                        <span>Admin</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif
@@ -152,7 +152,7 @@
                 {{-- Logout button --}}
                 <form method="POST" action="/logout">
                     @csrf
-                    <x-nav-link type="button"><x-phosphor-sign-out-bold class="w-6 h-6 mr-3" />Afmelden
+                    <x-nav-link type="button"><x-phosphor-sign-out-bold class="w-6 h-6 mr-3" /><span>Afmelden</span>
                     </x-nav-link>
                 </form>
             </div>

@@ -21,7 +21,7 @@
                     <thead>
                         <th class="text-start text-caption font-regular py-2">Dossier</th>
                         <th class="text-start text-caption font-regular py-2">Nieuwe documenten</th>
-                        <!-- <th class="text-start text-caption font-regular py-2">Taken</th> -->
+                        <th class="text-start text-caption font-regular py-2">Laatst bijgewerkt</th>
                     </thead>
                     <tbody>
                         @foreach($dossiers as $dossier)
@@ -36,6 +36,9 @@
                                 </td>
                                 <td>
                                     {{ count($dossier->documents) }}
+                                </td>
+                                <td>
+                                    {{ $dossier->updated_at->diffForHumans() }}
                                 </td>
                             </tr>
                         @endforeach
