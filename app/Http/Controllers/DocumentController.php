@@ -19,6 +19,7 @@ use App\Models\Document;
 use App\Models\Dossier;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\Upload;
 
 class DocumentController extends Controller
 {
@@ -82,22 +83,58 @@ class DocumentController extends Controller
     {
         $user = Auth::user();
 
-        // Get all unverified documents for the user's organization
-        $documents = Document::where('verified_status', 0)
-            ->where('organization_id', $user->organization_id)
-            ->with('dossier')
+        // Get all pending uploads for the user's organization that have parsed_data
+        $uploads = Upload::where('organization_id', $user->organization_id)
+            ->where('status', 'pending')  // Using string directly to match database
+            ->whereNotNull('parsed_data')
             ->get();
+            
+        Log::info('Queue page - Found uploads:', [
+            'count' => $uploads->count(),
+            'user_org_id' => $user->organization_id,
+            'uploads' => $uploads->map(function($u) {
+                return [
+                    'id' => $u->id,
+                    'status' => $u->status,
+                    'file_name' => $u->file_name,
+                    'has_parsed_data' => !empty($u->parsed_data)
+                ];
+            })->toArray()
+        ]);
+
+        // Transform uploads to document-like structure for the view
+        $documents = $uploads->map(function($upload) {
+            $parsedData = json_decode($upload->parsed_data, true);
+            
+            return (object) [
+                'id' => $upload->id,
+                'upload_id' => $upload->id,
+                'file_name' => $upload->file_name,
+                'file_path' => $upload->file_path,
+                'parsed_data' => $upload->parsed_data,
+                'created_at' => $upload->created_at,
+                'upload' => (object) [
+                    'id' => $upload->id,
+                    'file_name' => $upload->file_name,
+                    'file_path' => $upload->file_path,
+                    'created_at' => $upload->created_at
+                ],
+                'status' => 'pending',
+                'dossier' => null
+            ];
+        });
 
         return view('documents.queue', [
             'documents' => $documents
         ]);
     }
 
+
     public function processQueue(Request $request)
     {
         $request->validate([
             'documents' => 'required|array',
-            'documents.*.originalDocId' => 'required|exists:documents,id',
+            'documents.*.originalDocId' => 'required|exists:uploads,id',
             'documents.*.name' => 'required|string',
             'documents.*.pages' => 'required|array',
             'documents.*.dossierId' => 'nullable|exists:dossiers,id',
@@ -111,14 +148,14 @@ class DocumentController extends Controller
             // Ensure verified documents directory exists
             $this->pdfSplitService->ensureStorageDirectoryExists();
 
-            // Group documents by original document ID for efficient splitting
+            // Group documents by original upload ID for efficient splitting
             $documentsByOriginal = collect($request->documents)->groupBy('originalDocId');
 
-            foreach ($documentsByOriginal as $originalDocId => $splits) {
-                // Find the original document
-                $originalDocument = Document::find($originalDocId);
+            foreach ($documentsByOriginal as $originalUploadId => $splits) {
+                // Find the original upload
+                $originalUpload = Upload::find($originalUploadId);
 
-                if (!$originalDocument) {
+                if (!$originalUpload) {
                     continue;
                 }
 
@@ -132,7 +169,7 @@ class DocumentController extends Controller
                 })->toArray();
 
                 // Split the PDF
-                $splitFiles = $this->pdfSplitService->splitPDF($originalDocument->file_path, $splitConfigs);
+                $splitFiles = $this->pdfSplitService->splitPDF($originalUpload->file_path, $splitConfigs);
 
                 // Prepare document data for verification
                 foreach ($splits as $index => $docData) {
@@ -142,26 +179,52 @@ class DocumentController extends Controller
                         continue;
                     }
 
+                    // Create document record from the split
+                    $document = new Document();
+                    $document->upload_id = $originalUpload->id;
+                    $document->file_name = $docData['name'];
+                    $document->file_path = $splitFile['path'];
+                    $document->type = Document::TYPE_INVOICE; // Default type, can be updated later
+                    $document->status = Document::STATUS_PENDING;
+                    $document->sender = ''; // To be filled during verification
+                    $document->receiver = ''; // To be filled during verification
+                    $document->parsed_data = json_encode([
+                        'pages' => $docData['pages'],
+                        'source' => 'upload',
+                        'upload_id' => $originalUpload->id,
+                        'original_file' => $originalUpload->file_name,
+                        'split_info' => $splitFile
+                    ]);
+                    $document->save();
+
+                    // Create a task for this document
+                    $task = $this->taskService->createTaskForDocument($document);
+
                     // Log for debugging
-                    Log::info('Preparing document for verification', [
+                    Log::info('Created document from upload split', [
+                        'upload_id' => $originalUpload->id,
+                        'document_id' => $document->id,
                         'split_file' => $splitFile,
-                        'docData' => $docData,
-                        'parsed_data' => json_decode($originalDocument->parsed_data, true)
+                        'docData' => $docData
                     ]);
 
                     $documentsToVerify[] = [
-                        'original_document_id' => $originalDocument->id,
+                        'original_document_id' => $document->id,
                         'file_name' => $docData['name'],
                         'file_path' => $splitFile['path'],
                         'pages' => $docData['pages'],
-                        'parsed_data' => json_decode($originalDocument->parsed_data, true),
+                        'parsed_data' => json_decode($document->parsed_data, true),
                         'metadata' => [
                             'pages' => $docData['pages'],
-                            'original_file' => $originalDocument->file_name,
+                            'original_file' => $originalUpload->file_name,
                             'split_info' => $splitFile
                         ]
                     ];
                 }
+                
+                // Update upload status to verified after processing
+                $originalUpload->status = Upload::STATUS_VERIFIED;
+                $originalUpload->save();
             }
 
             // Store documents in session for verification

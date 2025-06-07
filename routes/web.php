@@ -43,6 +43,7 @@ Route::get('/uploads', [UploadController::class, 'index'])->middleware('auth')->
 Route::get('/upload/create', [UploadController::class, 'create'])->middleware('auth');
 Route::post('/upload', [UploadController::class, 'store'])->middleware('auth')->name('upload.create');
 Route::get('/uploads/{upload}', [UploadController::class, 'show'])->middleware('auth')->name('uploads.show');
+Route::get('/uploads/{upload}/view', [UploadController::class, 'view'])->middleware('auth')->name('uploads.view');
 
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');
@@ -192,6 +193,7 @@ Route::get('/organisations/{organization}', [OrganizationController::class, 'sho
 Route::get('/organisations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organisations.edit')->middleware('auth');
 Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
+
 
 
 

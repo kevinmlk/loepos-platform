@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Upload extends Model
 {
     const STATUS_PENDING = 'pending';
+    const STATUS_UPLOADED = 'uploaded';
     const STATUS_VERIFIED = 'verified';
     const STATUS_REJECTED = 'rejected';
 
     public const STATUS = [
         self::STATUS_PENDING,
+        self::STATUS_UPLOADED,
         self::STATUS_VERIFIED,
         self::STATUS_REJECTED,
     ];
