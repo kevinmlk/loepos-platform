@@ -48,4 +48,23 @@ class EmployeeController extends Controller
             ->route('admin.employees.show', $employee->id)
             ->with('success', 'Employee created successfully.');
     }
+
+    public function update(User $employee)
+    {
+        // Validate the request
+        $attributes = request()->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email,' . $employee->id],
+            // Do not validate password here, it can be updated separately
+        ]);
+
+        // Update the employee
+        $employee->update($attributes);
+
+        // Redirect to the employee's profile
+        return redirect()
+            ->route('admin.employees.show', $employee->id)
+            ->with('success', 'Employee updated successfully.');
+    }
 }

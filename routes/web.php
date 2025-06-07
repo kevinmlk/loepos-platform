@@ -132,6 +132,7 @@ use App\Http\Controllers\EmployeeController;
 Route::get('/admin/employees/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
 Route::get('/admin/employee/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
 Route::post('/admin/employee', [EmployeeController::class, 'store'])->name('admin.employees.store');
+Route::patch('/admin/employee/{employee}', [EmployeeController::class, 'update'])->middleware('auth');
 
 
 use App\Models\Client;
