@@ -51,7 +51,7 @@
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
                     <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-14">
                 </picture>
-                <ul>
+                <ul class="flex flex-col gap-2">
                     {{-- Home nav link --}}
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
