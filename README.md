@@ -46,7 +46,7 @@ You can use the following test accounts to explore the platform's features. Each
 
 ## Getting Started
 
-1. **Log in** using one of the test accounts above at [https://app.loepos.be/login](https://app.loepos.be/login).
+1. **Log in** using one of the test accounts above at [https://staging.loepos.be/login](https://staging.loepos.be/login).
 2. **Explore the platform** based on your user role:
    - **Medewerker:** Upload documents, create and manage dossiers.
    - **Organisatie Admin:** Manage staff and client records for your organization.
