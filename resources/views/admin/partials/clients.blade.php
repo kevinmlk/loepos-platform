@@ -1,5 +1,5 @@
 <section class="flex flex-col gap-8">
-    <div class="container mt-4">
+    <div class="container mt-4 border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4">
         <h2 class="mb-4">Cliënten in mijn organisatie</h2>
         <table>
             <thead>
@@ -9,9 +9,9 @@
             </thead>
             <tbody>
                 @foreach($clients as $client)
-                <tr>
+                <tr class="border-b border-light-gray hover:cursor-pointer transition duration-150">
                     <td class="text-blue">
-                        <a href="/admin/clients/{{ $client->id }}" class="flex items-center gap-4 py-3">
+                        <a href="/admin/client/{{ $client->id }}" class="flex items-center gap-4 py-3">
                             <div class="bg-transparant-blue rounded-full w-10 h-10 flex justify-center items-center">
                                 <x-phosphor-file-bold class="h-4 text-dark-blue" />
                             </div>

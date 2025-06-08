@@ -1,11 +1,15 @@
 <x-layout>
-    {{-- Header --}}
-    <x-header>
-        Cliënt bewerken
-        <x-slot:subText>
-            Bewerk de gegevens van een bestaande cliënt.
-        </x-slot:subText>
-    </x-header>
+    <header class="flex flex-col md:flex-row justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-bold">Cliënt bewerken</h1>
+            <p class="mt-1 text-dark-gray">Gegevens van een cliënt bewerken.</p>
+        </div>
+        <div class="flex gap-4">
+            <x-ui.button href="/admin" class="mb-4 w-max" type="secondary">
+                Terug naar overzicht
+            </x-ui.button>
+        </div>
+    </header>
 
     <section class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4 overflow-y-auto">
         <h2>Cliënt gegevens</h2>

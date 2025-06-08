@@ -1,4 +1,4 @@
-<header class="flex justify-between">
+<header class="flex flex-col md:flex-row justify-between gap-4">
     <div>
         <h1 class="text-4xl font-bold">{{ $slot }}</h1>
         <p class="mt-1 text-dark-gray">{{ $subText }}</p>

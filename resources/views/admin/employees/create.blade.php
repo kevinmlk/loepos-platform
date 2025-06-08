@@ -1,11 +1,15 @@
 <x-layout>
-    {{-- Header --}}
-    <x-header>
-        Medewerker toevoegen
-        <x-slot:subText>
-            Voeg een nieuwe medewerker toe aan uw organisatie.
-        </x-slot:subText>
-    </x-header>
+    <header class="flex flex-col md:flex-row justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-bold">Medewerker toevoegen</h1>
+            <p class="mt-1 text-dark-gray">Maak een nieuwe medewerker aan.</p>
+        </div>
+        <div class="flex gap-4">
+            <x-ui.button href="/admin" class="mb-4 w-max" type="secondary">
+                Terug naar overzicht
+            </x-ui.button>
+        </div>
+    </header>
 
     <section class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4">
         <h2>Medewerker toevoegen</h2>
