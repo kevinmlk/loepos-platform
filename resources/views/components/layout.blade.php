@@ -246,10 +246,24 @@
             </div>
         </nav>
 
+        {{-- Overlay for small screens --}}
+        <div class="fixed inset-0 z-[9999] bg-white bg-opacity-95 flex flex-col items-center justify-center text-center px-6 sm:hidden">
+            <div class="max-w-xs mx-auto">
+                <picture>
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
+                    <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-16 mb-6 mx-auto">
+                </picture>
+                <h2 class="text-2xl font-bold mb-4">Gebruik een groter scherm</h2>
+                <p class="text-lg text-dark-gray mb-2">Deze applicatie is niet beschikbaar op kleine schermen.</p>
+                <p class="text-dark-gray">Gebruik een tablet, laptop of desktop voor volledige functionaliteit.</p>
+            </div>
+        </div>
+
         {{-- Main --}}
-        <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden
+        <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 overflow-y-auto
             lg:pt-6
-            pt-[108px]">
+            pt-[94px]">
             {{ $slot }}
         </main>
 

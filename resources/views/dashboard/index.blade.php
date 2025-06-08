@@ -9,7 +9,7 @@
 
     <section class="flex flex-col gap-6">
         @include('dashboard.partials.analytics')
-        <div class="flex justify-between gap-6">
+        <div class="flex lg:flex-row flex-col justify-between gap-6">
             <article class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4 w-full">
                 <div class="flex justify-between">
                     <h2>Laatst toegevoegd</h2>
