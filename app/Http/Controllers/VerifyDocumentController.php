@@ -40,6 +40,67 @@ class VerifyDocumentController extends Controller
 
         // Prepare document data in the expected format
         $parsedData = json_decode($document->parsed_data, true) ?? [];
+        
+        Log::info('Document loaded on verify page', [
+            'document_id' => $document->id,
+            'has_parsed_data' => !empty($parsedData),
+            'parsed_data_keys' => array_keys($parsedData),
+            'current_sender' => $document->sender,
+            'current_receiver' => $document->receiver,
+            'current_type' => $document->type,
+            'current_amount' => $document->amount
+        ]);
+        
+        // Check if parsed data has the expected format
+        if (!$this->isValidParsedData($parsedData)) {
+            Log::info('Invalid parsed data format, retrying API call', [
+                'document_id' => $document->id,
+                'current_parsed_data' => $parsedData,
+                'validation_result' => [
+                    'empty' => empty($parsedData),
+                    'has_structure' => $this->hasExpectedStructure($parsedData),
+                    'has_meaningful_data' => $this->hasMeaningfulData($parsedData)
+                ]
+            ]);
+            
+            // Retry the API call
+            $newParsedData = $this->reanalyzeDocument($document);
+            
+            Log::info('Reanalysis result', [
+                'document_id' => $document->id,
+                'got_response' => !empty($newParsedData),
+                'response_keys' => !empty($newParsedData) ? array_keys($newParsedData) : [],
+                'is_valid' => !empty($newParsedData) ? $this->isValidParsedData($newParsedData) : false
+            ]);
+            
+            if (!empty($newParsedData) && $this->isValidParsedData($newParsedData)) {
+                $parsedData = $newParsedData;
+                
+                // Update the document with new parsed data
+                $document->parsed_data = json_encode($parsedData);
+                
+                // Extract and update document fields
+                $document->type = $this->detectDocumentType($parsedData) ?? $document->type;
+                $document->sender = $this->extractSender($parsedData) ?? $document->sender;
+                $document->receiver = $this->extractReceiver($parsedData) ?? $document->receiver;
+                $document->amount = $this->extractAmount($parsedData) ?? $document->amount;
+                
+                $document->save();
+                
+                Log::info('Document reanalyzed and updated', [
+                    'document_id' => $document->id,
+                    'new_type' => $document->type,
+                    'new_sender' => $document->sender,
+                    'new_receiver' => $document->receiver,
+                    'new_amount' => $document->amount
+                ]);
+            } else {
+                Log::warning('Reanalysis failed or returned invalid data', [
+                    'document_id' => $document->id,
+                    'empty_response' => empty($newParsedData)
+                ]);
+            }
+        }
 
         // If sender/receiver are already in the document, add them to parsed_data for easier access
         if ($document->sender && !data_get($parsedData, 'sender')) {
@@ -356,8 +417,15 @@ class VerifyDocumentController extends Controller
             return false;
         }
 
-        // Check for expected structure patterns
-        $hasExpectedStructure =
+        return $this->hasExpectedStructure($parsedData) && $this->hasMeaningfulData($parsedData);
+    }
+
+    /**
+     * Check if parsed data has expected structure
+     */
+    private function hasExpectedStructure($parsedData)
+    {
+        return
             // Check for standard format
             (isset($parsedData['data']) && is_array($parsedData['data'])) ||
             // Check for content.documents format
@@ -366,10 +434,25 @@ class VerifyDocumentController extends Controller
             (isset($parsedData['documents']) && is_array($parsedData['documents'])) ||
             // Check for direct fields
             (isset($parsedData['sender']) || isset($parsedData['receiver']) || isset($parsedData['documentType']));
+    }
 
-        // Also check if we have at least some meaningful data
-        $hasMeaningfulData = false;
-
+    /**
+     * Check if parsed data has meaningful data
+     */
+    private function hasMeaningfulData($parsedData)
+    {
+        // Check if we have the expected API response structure
+        if (isset($parsedData['data']) && is_array($parsedData['data'])) {
+            // Check if we have sender/receiver objects (even if values are null)
+            if (isset($parsedData['data']['sender']) || isset($parsedData['data']['receiver'])) {
+                return true;
+            }
+            // Check if we have documentDetails
+            if (isset($parsedData['data']['documentDetails']) && is_array($parsedData['data']['documentDetails'])) {
+                return true;
+            }
+        }
+        
         // Check various possible paths for sender/receiver
         $senderPaths = [
             'data.sender', 'sender', 'from', 'content.documents.0.sender',
@@ -381,23 +464,22 @@ class VerifyDocumentController extends Controller
             'documents.0.receiver', 'data.receiver.name', 'receiver.name'
         ];
 
+        // Check if sender/receiver fields exist (not checking for non-null values)
         foreach ($senderPaths as $path) {
-            if (data_get($parsedData, $path)) {
-                $hasMeaningfulData = true;
-                break;
+            // Use Arr::has to check if path exists
+            if (\Illuminate\Support\Arr::has($parsedData, $path)) {
+                return true;
             }
         }
 
-        if (!$hasMeaningfulData) {
-            foreach ($receiverPaths as $path) {
-                if (data_get($parsedData, $path)) {
-                    $hasMeaningfulData = true;
-                    break;
-                }
+        foreach ($receiverPaths as $path) {
+            // Use Arr::has to check if path exists
+            if (\Illuminate\Support\Arr::has($parsedData, $path)) {
+                return true;
             }
         }
 
-        return $hasExpectedStructure && $hasMeaningfulData;
+        return false;
     }
 
     /**
