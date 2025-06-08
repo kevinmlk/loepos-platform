@@ -87,7 +87,7 @@
                             @endif
                     @endauth
 
-                
+
                     {{-- Support nav link --}}
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
@@ -203,11 +203,11 @@
                                     <x-phosphor-folder-bold class="w-6 h-6" /> Documenten
                                 </a>
                             </li>
-                            <li>
+                            <!-- <li>
                                 <a href="/reports" @click="open = false" class="flex items-center gap-3">
                                     <x-phosphor-chart-bar-bold class="w-6 h-6" /> Rapporten
                                 </a>
-                            </li>
+                            </li> -->
                             <li>
                                 <a href="/support" @click="open = false" class="flex items-center gap-3">
                                     <x-phosphor-question-bold class="w-6 h-6" /> Ondersteuning
