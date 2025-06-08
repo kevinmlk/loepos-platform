@@ -1,4 +1,4 @@
-# LoePos Platform
+# Loepos Platform
 
 Welcome to the Loepos Platform! This platform is designed to streamline document management
 , dossier handling, and user administration for organizations. Below you'll find essential information, including platform access, test users, API resources, and instructions for getting started.
