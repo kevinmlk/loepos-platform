@@ -12,6 +12,7 @@ use App\Models\Document;
 use App\Models\Client;
 use App\Models\Dossier;
 use App\Models\Upload;
+use App\Models\FinancialInfo;
 
 class VerifyDocumentController extends Controller
 {
@@ -147,12 +148,24 @@ class VerifyDocumentController extends Controller
                 'first_name' => $validated['new_client']['first_name'],
                 'last_name' => $validated['new_client']['last_name'],
                 'email' => $validated['new_client']['email'],
-                'phone' => $validated['new_client']['phone'] ?? '',
+                'phone' => !empty($validated['new_client']['phone']) ? $validated['new_client']['phone'] : null,
                 'address' => $validated['new_client']['address'] ?? '',
                 'city' => $validated['new_client']['city'] ?? '',
                 'postal_code' => $validated['new_client']['postal_code'] ?? '',
                 'country' => 'België',
-                'national_registry_number' => $validated['new_client']['national_registry_number'] ?? ''
+                'national_registry_number' => !empty($validated['new_client']['national_registry_number']) ? $validated['new_client']['national_registry_number'] : null
+            ]);
+            
+            // Create financial info with monthly income set to 0
+            FinancialInfo::create([
+                'client_id' => $client->id,
+                'monthly_income' => 0,
+                'monthly_expenses' => 0,
+                'iban' => '',
+                'bank_name' => '',
+                'employer' => '',
+                'contract' => FinancialInfo::CONTRACT_UNEMPLOYED,
+                'education' => FinancialInfo::EDUCATION_PRIMARY
             ]);
 
             // Create new dossier for the client
