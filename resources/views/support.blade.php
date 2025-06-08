@@ -17,6 +17,20 @@
         </div>
     @endif
 
+    {{-- Error message --}}
+    @if($errors->any())
+        <div class="bg-red-50 border-2 border-red-500 text-red-800 p-4 rounded-lg">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-red-600"></i>
+                <div>
+                    @foreach($errors->all() as $error)
+                        <p class="font-medium">{{ $error }}</p>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Main content grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Contact form section (2/3 width on desktop) --}}
