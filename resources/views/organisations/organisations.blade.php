@@ -1,20 +1,24 @@
 <x-layout>
-    {{-- Header --}}
-    <x-headerAdmin>
-        Organisaties
-        <x-slot:subText>
-            Beheer hier alle organisaties die zijn aangesloten bij Loepos.
-        </x-slot:subText>
-    </x-headerAdmin>
+    <header class="flex justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">Organisaties</h1>
+            <p class="mt-1 text-dark-gray">Beheer hier alle organisaties die zijn aangesloten bij Loepos.</p>
+        </div>
+        <div class="flex gap-4">
+            <x-ui.button href="/organisation/create" class="mb-4 w-max" type="primary">
+                Organisatie toevoegen
+            </x-ui.button>
+        </div>
+    </header>
 
     <section class="border-2 border-light-gray rounded-xl p-6">
-    
+
         <table class="w-full">
             <thead>
                 <th class="text-start text-caption font-regular py-2">Naam</th>
                 <th class="text-start text-caption font-regular py-2 px-6">Status</th>
                 <th class="text-start text-caption font-regular py-2 px-6">GSM-nummer</th>
-                <th class="text-start text-caption font-regular py-2 px-6">Website</th>
+                <th class="text-start text-caption font-regular py-2 px-6">Email</th>
             </thead>
             <tbody>
                 @foreach($organizations as $organization)
@@ -32,7 +36,7 @@
         <div class="mt-2">
             {{ $organizations->links() }}
         </div>
-       
+
     </section>
-    
+
 </x-layout>

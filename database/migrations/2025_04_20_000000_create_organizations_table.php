@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('website')->unique();
-            $table->string('VAT')->unique();
+            $table->string('VAT')->unique()->nullable();
             $table->string('address');
             $table->string('postal_code');
             $table->string('city');

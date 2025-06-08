@@ -1,29 +1,12 @@
 <x-layout>
-    <x-headerAdmin>
-        Organisatie: {{ $organization->name }}
-        <x-slot:subText>
-            Details van de geselecteerde organisatie.
-        </x-slot:subText>
-    </x-headerAdmin>
+    <header class="flex justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">{{ $organization->name }}</h1>
+            <p class="mt-1 text-dark-gray">Bekijk hier alle info over de organisatie.</p>
+        </div>
+    </header>
 
     <section class="border-2 border-light-gray rounded-xl p-6">
-
-        <!-- Buttons in top-right inside the section -->
-        <div class="absolute top-6 right-6 flex gap-4">
-            <!-- Bewerken button -->
-            <a href="{{ route('organisations.edit', $organization) }}" class="px-4 py-2 bg-yellow-500 text-white rounded-lg">
-                Bewerken
-            </a>
-
-            <!-- Verwijderen button -->
-            <form action="{{ route('organisations.destroy', $organization) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je deze organisatie wilt verwijderen?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg">
-                    Verwijderen
-                </button>
-            </form>
-        </div>
 
         <!-- Organization Details -->
         <div class="mb-4">
@@ -47,10 +30,10 @@
         <div class="mb-4">
             <strong>Adres:</strong> {{ $organization->full_address }}
         </div>
-        
+
         <!-- Back to list button -->
-        <a href="{{ route('organisations.index') }}" class="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+        <x-ui.button href="{{ route('organisations.index') }}" class="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
             ← Terug naar lijst
-        </a>
+        </x-ui.button>
     </section>
 </x-layout>

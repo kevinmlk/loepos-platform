@@ -6,15 +6,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 // Controllers
-use App\Http\Controllers\UploadController;
+use App\Http\Controllers\VerifyDocumentController;
+use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DossierController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\VerifyDocumentController;
 
 // Dashboard
 Route::get('/', function () {
@@ -184,19 +185,14 @@ Route::get('/superdashboard', function () {
     return view('superdashboard.superdashboard');
 })->middleware('auth');
 
-use App\Http\Controllers\OrganizationController;
-
 Route::get('/organisations', [OrganizationController::class, 'index'])->middleware('auth')->name('organisations.index');
-
+Route::get('/organisation/create', [OrganizationController::class, 'create'])->middleware('auth')->name('organisations.create');
 Route::get('/organisations/{organization}', [OrganizationController::class, 'show'])->middleware('auth')->name('organisations.show');
-
+Route::post('/organisation', [OrganizationController::class, 'store'])->middleware('auth');
 
 Route::get('/organisations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organisations.edit')->middleware('auth');
 Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
-
-
-
 
 // Session
 Route::get('/login', [SessionController::class, 'create'])->name('login');
