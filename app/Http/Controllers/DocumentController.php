@@ -44,7 +44,7 @@ class DocumentController extends Controller
 
         $documents = $this->documentService->getDocuments($user);
         
-        // Calculate AI queue badge count
+        // Calculate Wachtrij badge count
         $queueCount = $this->calculateQueueCount($user);
 
         return view('documents.index', [

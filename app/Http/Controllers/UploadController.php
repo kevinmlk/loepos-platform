@@ -46,7 +46,7 @@ class UploadController extends Controller
     {
         $user = Auth::user();
         
-        // Calculate AI queue badge count
+        // Calculate Wachtrij badge count
         $queueCount = $this->calculateQueueCount($user);
         
         return view('uploads.create', [
@@ -148,7 +148,7 @@ class UploadController extends Controller
     }
 
     /**
-     * Calculate the total count for AI queue badge
+     * Calculate the total count for Wachtrij badge
      */
     private function calculateQueueCount($user)
     {

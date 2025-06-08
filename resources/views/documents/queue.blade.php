@@ -1,10 +1,45 @@
 <x-layout>
-    <x-header>
-        AI Queue
-        <x-slot:subText>
-            Controleer of we alles in de wachtrij juist hebben gesplitst.
-        </x-slot:subText>
-    </x-header>
+    {{-- Custom header without buttons --}}
+    <header class="flex justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">Documenten</h1>
+            <p class="mt-1 text-dark-gray">
+                Controleer of we alles in de wachtrij juist hebben gesplitst.
+                <span class="ml-4 text-sm font-normal bg-blue text-white px-3 py-1 rounded-full">
+                    Stap 1 van 2
+                </span>
+            </p>
+        </div>
+    </header>
+
+    {{-- Tab navigation --}}
+    <div class="flex gap-4">
+        <a
+            href="/documents"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
+        >
+            Overzicht
+        </a>
+
+        <a
+            href="/upload"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
+        >
+            Upload
+        </a>
+
+        <a
+            href="/queue"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium bg-blue text-white relative"
+        >
+            Wachtrij
+            @if($queueCount > 0)
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                    {{ $queueCount }}
+                </span>
+            @endif
+        </a>
+    </div>
 
     {{-- Pass documents data to JavaScript --}}
     <script>
@@ -13,13 +48,14 @@
         window.documentsFromUploads = {{ $documents->filter(function($doc) { return $doc->upload_id !== null; })->count() > 0 ? 'true' : 'false' }};
     </script>
 
-    <div class="flex-1 flex gap-0 -mx-14 -mb-6 h-[calc(100vh-6rem)]">
+    <section class="border-2 border-light-gray rounded-lg flex flex-col h-[calc(100vh-16rem)]">
+        <div class="flex-1 flex gap-0 h-full">
         {{-- Left Panel - PDF Viewer --}}
         <div class="w-1/2 bg-white border-r border-light-gray flex flex-col h-full">
             {{-- Document Info Header --}}
-            <div class="p-6 px-14 border-b border-light-gray bg-light-gray flex-shrink-0 h-[88px]">
+            <div class="p-4 px-6 border-b border-light-gray bg-light-gray flex-shrink-0">
                 <div id="currentDocumentInfo">
-                    <h3 class="text-lg font-semibold text-dark-gray mb-2">
+                    <h3 class="text-lg font-semibold text-dark-gray mb-1">
                         <span id="uploadCounter">{{ $documents->count() }}</span> {{ $documents->count() == 1 ? 'upload' : 'uploads' }} - <span id="documentCounter">0</span> <span id="documentCounterText">documenten</span>
                     </h3>
                     <p class="text-sm text-dark-gray font-medium" id="currentDocumentName">Selecteer een document om te bekijken</p>
@@ -27,7 +63,7 @@
             </div>
 
             {{-- PDF Pages Viewer --}}
-            <div class="flex-1 overflow-y-auto p-6 px-14 min-h-0" id="pdfViewer">
+            <div class="flex-1 overflow-y-auto p-4 px-6 min-h-0" id="pdfViewer">
                 <div class="flex justify-center items-center h-full">
                     <div class="text-center text-gray">
                         <i class="fas fa-spinner fa-spin text-6xl mb-4"></i>
@@ -42,7 +78,7 @@
             {{-- Top Section with fixed heights --}}
             <div class="flex flex-col h-full">
                 {{-- Toolbar --}}
-                <div class="p-6 px-14 border-b border-light-gray bg-light-gray h-[88px] flex items-center flex-shrink-0">
+                <div class="p-4 px-6 border-b border-light-gray bg-light-gray flex items-center flex-shrink-0" style="min-height: 85px;">
                     <div class="flex space-x-2">
                         <button id="undoBtn" class="p-2 bg-gray rounded hover:bg-dark-gray hover:text-white disabled:opacity-50 transition-colors" disabled title="Ongedaan maken">
                             <i class="fas fa-undo"></i>
@@ -66,7 +102,7 @@
                 </div>
 
                 {{-- Document Rows --}}
-                <div class="flex-1 overflow-y-auto p-6 px-14" style="height: calc(100% - 200px);" id="documentRows">
+                <div class="flex-1 overflow-y-auto p-4 px-6" id="documentRows">
                     <div class="text-center text-gray mt-20">
                         <i class="fas fa-layer-group text-6xl mb-4"></i>
                         <p>Verwerk een upload om documenten te splitsen</p>
@@ -74,8 +110,8 @@
                 </div>
 
                 {{-- Save Button --}}
-                <div class="px-6 px-14 pt-6 pb-8 border-t border-light-gray bg-light-gray h-[112px] flex-shrink-0">
-                    <button id="saveButton" class="w-full bg-blue text-white py-3 px-4 rounded-xl hover:bg-dark-blue disabled:bg-gray disabled:cursor-not-allowed transition-colors font-medium" disabled>
+                <div class="p-4 px-6 border-t border-light-gray bg-light-gray flex-shrink-0">
+                    <button id="saveButton" class="w-full bg-blue text-white py-2 px-4 rounded-lg hover:bg-dark-blue disabled:bg-gray disabled:cursor-not-allowed transition-colors font-medium" disabled>
                     <i class="fas fa-save mr-2"></i>
                     Opslaan en Verwerken
                 </button>
@@ -1965,5 +2001,7 @@
             new PDFSplitter();
         });
     </script>
+    </div>
+    </section>
     @endpush
 </x-layout>

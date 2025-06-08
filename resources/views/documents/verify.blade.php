@@ -1,31 +1,78 @@
 <x-layout>
-    <x-header>
-        AI Queue
-        <x-slot:subText>
-            Verifieer en koppel het document aan een client en dossier
-            @if(isset($progress))
+    {{-- Custom header without buttons --}}
+    <header class="flex justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">Documenten</h1>
+            <p class="mt-1 text-dark-gray">
+                Verifieer en koppel het document aan een client en dossier
                 <span class="ml-4 text-sm font-normal bg-blue text-white px-3 py-1 rounded-full">
-                    {{ $progress['current'] }} van {{ $progress['total'] }}
+                    Stap 2 van 2
+                </span>
+            </p>
+        </div>
+    </header>
+
+    {{-- Tab navigation --}}
+    <div class="flex gap-4">
+        <a
+            href="/documents"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
+        >
+            Overzicht
+        </a>
+
+        <a
+            href="/upload"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
+        >
+            Upload
+        </a>
+
+        <a
+            href="/queue"
+            class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium bg-blue text-white relative"
+        >
+            Wachtrij
+            @if($queueCount > 0)
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                    {{ $queueCount }}
                 </span>
             @endif
-        </x-slot:subText>
-    </x-header>
+        </a>
+    </div>
 
-    @if(!isset($documentData) || empty($documentData))
-        <div class="flex items-center justify-center h-64">
-            <div class="text-center">
-                <i class="fas fa-info-circle text-6xl text-gray mb-4"></i>
-                <p class="text-lg text-gray">Geen documenten om te verifiëren.</p>
-                <a href="{{ route('documents.queue') }}" class="mt-4 inline-block text-blue hover:underline">
-                    Terug naar de wachtrij
-                </a>
+    <section class="border-2 border-light-gray rounded-lg flex flex-col h-[calc(100vh-16rem)]">
+        @if(!isset($documentData) || empty($documentData))
+            <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <i class="fas fa-info-circle text-6xl text-gray mb-4"></i>
+                    <p class="text-lg text-gray">Geen documenten om te verifiëren.</p>
+                    <a href="{{ route('documents.queue') }}" class="mt-4 inline-block text-blue hover:underline">
+                        Terug naar de wachtrij
+                    </a>
+                </div>
             </div>
-        </div>
-    @else
-    <div class="flex gap-6 h-[calc(100vh-10rem)]">
+        @else
+        <form id="verifyForm" method="POST" action="{{ route('queue.verify.store') }}" class="flex flex-col h-full">
+        <div class="flex-1 flex gap-0 h-full">
         {{-- Left Panel - Form --}}
-        <div class="w-1/2 bg-white border border-light-gray rounded-lg p-6 overflow-y-auto">
-            <form id="verifyForm" method="POST" action="{{ route('queue.verify.store') }}">
+        <div class="w-1/2 bg-white border-r border-light-gray flex flex-col h-full">
+            {{-- Document Info Header --}}
+            <div class="p-4 px-6 border-b border-light-gray bg-light-gray flex-shrink-0">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-dark-gray mb-1">Document Verificatie</h3>
+                        <p class="text-sm text-dark-gray">Controleer en vul de gegevens aan</p>
+                    </div>
+                    @if(isset($progress))
+                        <span class="text-sm text-dark-gray">
+                            Document {{ $progress['current'] }} van {{ $progress['total'] }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+            {{-- Form Content --}}
+            <div class="flex-1 overflow-y-auto p-4 px-6" id="scrollableContent">
                 @csrf
                 
                 <input type="hidden" name="original_document_id" value="{{ $documentData['original_document_id'] ?? '' }}">
@@ -196,23 +243,7 @@
                         ], '');
                     @endphp
                 
-                <div class="space-y-6">
-                    {{-- Document Info - More compact --}}
-                    <div class="bg-blue-50 rounded-lg p-4 mb-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-lg font-semibold text-blue-900">{{ $documentData['file_name'] ?? 'Onbekend document' }}</h3>
-                                <p class="text-sm text-blue-700 mt-1">Van: <span class="font-medium">{{ $senderName ?: 'Onbekend' }}</span></p>
-                                <p class="text-sm text-blue-700">Aan: <span class="font-medium">{{ $receiverName ?: 'Onbekend' }}</span></p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm text-blue-700">Type: <span class="font-semibold">{{ ucfirst($detectedType ?: 'Niet gedetecteerd') }}</span></p>
-                                <p class="text-sm text-blue-700">Bedrag: <span class="font-semibold">€ {{ number_format((float)$amountValue, 2, ',', '.') ?: '-' }}</span></p>
-                                <p class="text-sm text-blue-700">Pagina's: {{ implode(', ', $documentData['pages'] ?? []) }}</p>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="space-y-6" id="formContent">
                     {{-- Step 1: Document Details --}}
                     <div class="border border-light-gray rounded-lg p-4">
                         <h4 class="text-lg font-semibold mb-4 text-blue flex items-center">
@@ -541,49 +572,74 @@
                         </div>
                     @endif
 
-                    {{-- Action Buttons --}}
-                    <div class="pt-4 space-y-2">
-                        <button type="submit" class="w-full flex items-center justify-center rounded-xl px-6 h-12 text-button font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer text-white bg-blue hover:bg-dark-blue focus:ring-blue-500">
-                            <i class="fas fa-check mr-2"></i>
-                            Verifieer Document
-                            @if(isset($progress) && $progress['current'] < $progress['total'])
-                                ({{ $progress['current'] }}/{{ $progress['total'] }})
-                            @endif
-                        </button>
-                        
-                        <button type="button" onclick="rejectDocument()" class="w-full flex items-center justify-center rounded-xl px-6 h-12 text-button font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer text-red-600 bg-red-100 hover:bg-red-200 focus:ring-red-500">
-                            <i class="fas fa-trash mr-2"></i>
-                            Document Weggooien
-                        </button>
-                        
-                        @if(isset($progress) && $progress['total'] > 1)
-                            <p class="text-sm text-center text-gray">
-                                Na verificatie wordt automatisch het volgende document getoond
-                            </p>
-                        @endif
-                    </div>
                 </div>
-            </form>
+            </div>
+
+            {{-- Fixed Action Buttons --}}
+            <div class="p-4 px-6 border-t border-light-gray bg-light-gray flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <button type="button" id="rejectBtn" onclick="rejectDocument()" class="text-dark-gray hover:text-red-600 text-sm transition-colors" disabled>
+                        Document weigeren
+                    </button>
+                    
+                    <button type="submit" id="submitBtn" class="bg-blue text-white py-2 px-6 rounded-lg hover:bg-dark-blue disabled:bg-gray disabled:cursor-not-allowed transition-colors font-medium" disabled>
+                        <i class="fas fa-check mr-2"></i>
+                        Verifieer Document
+                    </button>
+                </div>
+                
+                @if(isset($progress) && $progress['total'] > 1)
+                    <p class="text-xs text-center text-gray mt-2">
+                        Na verificatie wordt automatisch het volgende document getoond
+                    </p>
+                @endif
+            </div>
         </div>
 
         {{-- Right Panel - PDF Viewer --}}
-        <div class="w-1/2 bg-light-gray rounded-lg overflow-hidden">
-            @if(isset($documentData['file_path']))
-                <iframe 
-                    src="{{ asset('storage/' . $documentData['file_path']) }}"
-                    class="w-full h-full"
-                    title="Document Preview"
-                ></iframe>
-            @else
-                <div class="flex items-center justify-center h-full">
-                    <p class="text-gray">Geen document preview beschikbaar</p>
-                </div>
-            @endif
+        <div class="w-1/2 bg-white flex flex-col h-full">
+            {{-- PDF Content --}}
+            <div class="flex-1 bg-gray-100">
+                @if(isset($documentData['file_path']))
+                    <iframe 
+                        src="{{ asset('storage/' . $documentData['file_path']) }}"
+                        class="w-full h-full"
+                        title="Document Preview"
+                    ></iframe>
+                @else
+                    <div class="flex items-center justify-center h-full">
+                        <p class="text-gray">Geen document preview beschikbaar</p>
+                    </div>
+                @endif
+            </div>
         </div>
-    </div>
+        </div>
+        </form>
+        @endif
+    </section>
 
     @push('scripts')
     <script>
+        // Check if user has scrolled to bottom
+        const scrollableContent = document.getElementById('scrollableContent');
+        const submitBtn = document.getElementById('submitBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+        
+        function checkScrollPosition() {
+            const isAtBottom = scrollableContent.scrollHeight - scrollableContent.scrollTop <= scrollableContent.clientHeight + 10;
+            
+            if (isAtBottom) {
+                submitBtn.disabled = false;
+                rejectBtn.disabled = false;
+            }
+        }
+        
+        // Check on scroll
+        scrollableContent.addEventListener('scroll', checkScrollPosition);
+        
+        // Check on page load (in case content is short)
+        setTimeout(checkScrollPosition, 100);
+        
         // New client form toggle
         document.getElementById('createNewBtn').addEventListener('click', function() {
             document.getElementById('newClientForm').classList.remove('hidden');
@@ -708,5 +764,4 @@
         }
     </script>
     @endpush
-    @endif
 </x-layout>

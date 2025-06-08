@@ -88,7 +88,7 @@ class VerifyDocumentController extends Controller
                 ];
             });
 
-        // Calculate AI queue badge count
+        // Calculate Wachtrij badge count
         $queueCount = $this->calculateQueueCount($user);
 
         return view('documents.verify', [
@@ -260,7 +260,7 @@ class VerifyDocumentController extends Controller
     }
 
     /**
-     * Calculate the total count for AI queue badge
+     * Calculate the total count for Wachtrij badge
      */
     private function calculateQueueCount($user)
     {

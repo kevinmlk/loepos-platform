@@ -80,7 +80,7 @@
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
-                                    <x-nav-link href="/documents" :active="request()->is('documents')">
+                                    <x-nav-link href="/documents" :active="request()->is('documents') || request()->is('upload') || request()->is('queue') || request()->is('queue/verify')">
                                         <x-phosphor-folder-bold class="w-6 h-6 mr-3" /><span>Documenten</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
