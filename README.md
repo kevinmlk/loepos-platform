@@ -7,7 +7,7 @@ Welcome to the Loepos Platform! This platform is designed to streamline document
 
 ## Platform Access
 
-- **Web Application:** [https://app.loepos.be/login](https://app.loepos.be/login)
+- **Web Application:** [https://staging.loepos.be/login](https://staging.loepos.be/login)
 
 ---
 
