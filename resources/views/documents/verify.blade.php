@@ -612,9 +612,9 @@
         <div class="w-1/2 bg-white flex flex-col h-full">
             {{-- PDF Content --}}
             <div class="flex-1 bg-gray-100">
-                @if(isset($documentData['file_path']))
+                @if(isset($documentData['original_document_id']))
                     <iframe 
-                        src="{{ asset('storage/' . $documentData['file_path']) }}"
+                        src="{{ route('documents.view', $documentData['original_document_id']) }}"
                         class="w-full h-full"
                         title="Document Preview"
                     ></iframe>
