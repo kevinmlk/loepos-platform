@@ -47,8 +47,7 @@
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         {{-- Navigation --}}
-        <nav class="max-w-xs h-screen border-r-2 py-6 px-4 border-light-gray flex flex-col justify-between flex-shrink-0">
-            <div class="flex flex-col items-start gap-6">
+        <nav class="hidden lg:flex max-w-xs h-screen border-r-2 py-6 px-4 border-light-gray flex-col justify-between flex-shrink-0">            <div class="flex flex-col items-start gap-6">
                 <picture>
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
                     <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
@@ -147,8 +146,110 @@
             </div>
         </nav>
 
+        {{-- Mobile Navigation --}}
+        <nav x-data="{ open: false }" class="lg:hidden w-full fixed top-0 left-0 z-50">
+            <!-- Top Bar: Logo left, Hamburger right -->
+            <div class="flex items-center justify-between w-full bg-white border-b border-gray-200 px-4 py-2">
+                <picture>
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
+                    <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
+                    <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-10">
+                </picture>
+                <button @click="open = true"
+                    class="p-2 focus:outline-none"
+                    aria-label="Open menu">
+                    <i class="bi bi-list text-3xl"></i>
+                </button>
+            </div>
+
+            <!-- Fullscreen Overlay Menu -->
+            <div
+                x-show="open"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-white bg-opacity-95 flex flex-col justify-between z-50"
+                @click.away="open = false"
+                style="display: none;"
+            >
+                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                    <picture>
+                        <source srcset="{{ asset('images/Logo_LOEPOS_1.webp') }}" type="image/webp">
+                        <source srcset="{{ asset('images/Logo_LOEPOS_1.png') }}" type="image/png">
+                        <img src="{{ asset('images/Logo_LOEPOS_1.png') }}" alt="Loepos logo" class="h-10">
+                    </picture>
+                    <button @click="open = false" class="text-3xl focus:outline-none" aria-label="Close menu">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <ul class="flex flex-col gap-6 text-xl px-8 py-8 flex-1 overflow-y-auto">
+                    @auth
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                            <li>
+                                <a href="/" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-house-bold class="w-6 h-6" /> Home
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/dossiers" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-mailbox-bold class="w-6 h-6" /> Dossiers
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/documents" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-folder-bold class="w-6 h-6" /> Documenten
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/reports" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-chart-bar-bold class="w-6 h-6" /> Rapporten
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/support" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-question-bold class="w-6 h-6" /> Ondersteuning
+                                </a>
+                            </li>
+                        @endif
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
+                            <li>
+                                <a href="/superdashboard" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-house-bold class="w-6 h-6" /> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/organisations" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-buildings-bold class="w-6 h-6" /> Organisaties
+                                </a>
+                            </li>
+                        @endif
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_ADMIN]))
+                            <li>
+                                <a href="/admin" @click="open = false" class="flex items-center gap-3">
+                                    <x-phosphor-person-bold class="w-6 h-6" /> Admin
+                                </a>
+                            </li>
+                        @endif
+                        <li>
+                            <form method="POST" action="/logout" @submit="open = false">
+                                @csrf
+                                <button type="submit" class="flex items-center gap-3 w-full text-left">
+                                    <x-phosphor-sign-out-bold class="w-6 h-6" /> Afmelden
+                                </button>
+                            </form>
+                        </li>
+                    @endauth
+                </ul>
+            </div>
+        </nav>
+
         {{-- Main --}}
-        <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden">
+        <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden
+            lg:pt-6
+            pt-[108px]">
             {{ $slot }}
         </main>
 
