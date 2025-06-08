@@ -3,7 +3,7 @@
     <x-header>
         Welkom terug, {{ Auth()->user()->first_name }}!
         <x-slot:subText>
-            Traceer en beheer je cliënten en hun dossiers.
+            Traceer en beheer uw cliënten en hun dossiers.
         </x-slot:subText>
     </x-header>
 

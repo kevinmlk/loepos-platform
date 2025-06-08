@@ -2,7 +2,7 @@
     <header class="flex flex-col md:flex-row justify-between gap-4">
         <div>
             <h1 class="text-4xl font-bold">Gebruikers overzicht</h1>
-            <p class="mt-1 text-dark-gray">Beheer hier al je gebruikers.</p>
+            <p class="mt-1 text-dark-gray">Beheer hier al uw gebruikers.</p>
         </div>
         <div class="flex gap-4">
             <x-ui.button href="/user/create" class="mb-4 w-max" type="primary">
@@ -32,13 +32,13 @@
                             </a>
                         </td>
                         @if($user->organization)
-                        <td>
-                            {{ $user->organization->name }}
-                        </td>
+                            <td>
+                                {{ $user->organization->name }}
+                            </td>
                         @else
-                        <td>
-                            <span class="text-gray-500">Geen organisatie</span>
-                        </td>
+                            <td>
+                                <span class="text-gray-500">Geen organisatie</span>
+                            </td>
                         @endif
                         <td>{{ \Carbon\Carbon::parse($user->updated_at)->translatedFormat('d M Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($user->created_at)->translatedFormat('d M Y') }}</td>

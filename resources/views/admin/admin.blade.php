@@ -3,7 +3,7 @@
     <x-headerAdmin>
         Administratie
         <x-slot:subText>
-            Beheer je organisatie en zijn clienten.
+            Beheer uw organisatie en zijn clienten.
         </x-slot:subText>
     </x-headerAdmin>
 

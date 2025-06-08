@@ -3,7 +3,7 @@
     <x-header>
         Alle dossiers
         <x-slot:subText>
-            Hier vind je een overzicht van alle dossiers.
+            Hier vind u een overzicht van alle dossiers.
         </x-slot:subText>
     </x-header>
 

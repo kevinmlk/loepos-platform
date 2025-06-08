@@ -17,6 +17,22 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
+        <!-- Favicon for standard browsers -->
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+
+        <!-- Apple Touch Icon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+
+        <!-- Favicon for different sizes -->
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+
+        <!-- Android Chrome Icons -->
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('android-chrome-192x192.png') }}">
+        <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('android-chrome-512x512.png') }}">
+
+        <!-- Web App Manifest -->
+        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
