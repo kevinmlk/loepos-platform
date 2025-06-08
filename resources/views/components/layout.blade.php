@@ -99,12 +99,12 @@
                             @endif
                     @endauth
 
-                    {{-- Add superdashboard nav link --}}
+                    {{-- Add users nav link --}}
                      @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
-                                    <x-nav-link href="/" :active="request()->is('Dashboard')">
-                                        <x-phosphor-house-bold class="w-6 h-6 mr-3" /><span>Dashboard</span>
+                                    <x-nav-link href="/users" :active="request()->is('users')">
+                                        <x-phosphor-user-bold class="w-6 h-6 mr-3" /><span>Gebruikers</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
                             @endif

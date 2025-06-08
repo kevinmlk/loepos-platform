@@ -16,6 +16,7 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 
 // Dashboard
 Route::get('/', function () {
@@ -205,3 +206,10 @@ Route::post('/support/send', [SupportController::class, 'send'])->name('support.
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store']);
 Route::post('/logout', [SessionController::class, 'destroy']);
+
+// User management
+Route::get('/users', [UserController::class, 'index'])->middleware('auth')->name('users.index');
+Route::get('/user/create', [UserController::class, 'create'])->middleware('auth')->name('users.create');
+Route::get('/user/{user}', [UserController::class, 'show'])->middleware('auth')->name('users.show');
+Route::post('/user', [UserController::class, 'store'])->middleware('auth');
+Route::patch('/user/{user}', [UserController::class, 'update'])->middleware('auth');

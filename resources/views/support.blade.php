@@ -1,7 +1,7 @@
 <x-layout>
     {{-- Header --}}
     <x-header>
-        Ondersteuning
+        Ondersteunings
         <x-slot:subText>
             Contacteer onze IT afdeling met vragen.
         </x-slot:subText>
@@ -23,18 +23,18 @@
         {{-- Organisatie (readonly) --}}
         <div>
             <label for="organization" class="block font-medium">Organisatie</label>
-            <input type="text" id="organization" name="organization" 
-                   value="{{ auth()->user()->organization->name ?? '' }}" 
-                   readonly 
+            <input type="text" id="organization" name="organization"
+                   value="{{ auth()->user()->organization->name ?? '' }}"
+                   readonly
                    class="border rounded w-full p-2 bg-gray-100">
         </div>
 
         {{-- E-mailadres (readonly) --}}
         <div>
             <label for="email" class="block font-medium">E-mailadres</label>
-            <input type="email" id="email" name="email" 
-                   value="{{ auth()->user()->email }}" 
-                   readonly 
+            <input type="email" id="email" name="email"
+                   value="{{ auth()->user()->email }}"
+                   readonly
                    class="border rounded w-full p-2 bg-gray-100">
         </div>
 

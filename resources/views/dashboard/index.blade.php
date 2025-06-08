@@ -13,9 +13,9 @@
             <article class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4 w-full">
                 <div class="flex justify-between">
                     <h2>Laatst toegevoegd</h2>
-                    <!-- <div class="flex gap-3">
-                        <x-ui.button-small icon="phosphor-magnifying-glass-bold" type="secondary">Zoeken</x-ui.button-small>
-                    </div> -->
+                    <div class="flex gap-3">
+                        <x-ui.button-small href="/dossiers" type="primary">Dossiers</x-ui.button-small>
+                    </div>
                 </div>
                 <table>
                     <thead>
