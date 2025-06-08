@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client as GuzzleClient;
 
 use App\Models\Document;
 use App\Models\Client;
@@ -37,6 +39,36 @@ class VerifyDocumentController extends Controller
         
         // Prepare document data in the expected format
         $parsedData = json_decode($document->parsed_data, true) ?? [];
+        
+        // Check if parsed data has the expected format
+        if (!$this->isValidParsedData($parsedData)) {
+            Log::info('Invalid parsed data format, retrying API call', [
+                'document_id' => $document->id,
+                'current_parsed_data' => $parsedData
+            ]);
+            
+            // Retry the API call
+            $newParsedData = $this->reanalyzeDocument($document);
+            if (!empty($newParsedData)) {
+                $parsedData = $newParsedData;
+                
+                // Update the document with new parsed data
+                $document->parsed_data = json_encode($parsedData);
+                
+                // Extract and update document fields
+                $document->type = $this->detectDocumentType($parsedData) ?? $document->type;
+                $document->sender = $this->extractSender($parsedData) ?? $document->sender;
+                $document->receiver = $this->extractReceiver($parsedData) ?? $document->receiver;
+                $document->amount = $this->extractAmount($parsedData) ?? $document->amount;
+                
+                $document->save();
+                
+                Log::info('Document reanalyzed and updated', [
+                    'document_id' => $document->id,
+                    'new_parsed_data' => $parsedData
+                ]);
+            }
+        }
         
         // If sender/receiver are already in the document, add them to parsed_data for easier access
         if ($document->sender && !data_get($parsedData, 'sender')) {
@@ -326,5 +358,264 @@ class VerifyDocumentController extends Controller
             ->count();
         
         return $pendingUploadsCount + $pendingDocumentsCount;
+    }
+
+    /**
+     * Check if parsed data has the expected format
+     */
+    private function isValidParsedData($parsedData)
+    {
+        if (empty($parsedData)) {
+            return false;
+        }
+        
+        // Check for expected structure patterns
+        $hasExpectedStructure = 
+            // Check for standard format
+            (isset($parsedData['data']) && is_array($parsedData['data'])) ||
+            // Check for content.documents format
+            (isset($parsedData['content']['documents']) && is_array($parsedData['content']['documents'])) ||
+            // Check for documents array format
+            (isset($parsedData['documents']) && is_array($parsedData['documents'])) ||
+            // Check for direct fields
+            (isset($parsedData['sender']) || isset($parsedData['receiver']) || isset($parsedData['documentType']));
+        
+        // Also check if we have at least some meaningful data
+        $hasMeaningfulData = false;
+        
+        // Check various possible paths for sender/receiver
+        $senderPaths = [
+            'data.sender', 'sender', 'from', 'content.documents.0.sender',
+            'documents.0.sender', 'data.sender.name', 'sender.name'
+        ];
+        
+        $receiverPaths = [
+            'data.receiver', 'receiver', 'to', 'content.documents.0.receiver',
+            'documents.0.receiver', 'data.receiver.name', 'receiver.name'
+        ];
+        
+        foreach ($senderPaths as $path) {
+            if (data_get($parsedData, $path)) {
+                $hasMeaningfulData = true;
+                break;
+            }
+        }
+        
+        if (!$hasMeaningfulData) {
+            foreach ($receiverPaths as $path) {
+                if (data_get($parsedData, $path)) {
+                    $hasMeaningfulData = true;
+                    break;
+                }
+            }
+        }
+        
+        return $hasExpectedStructure && $hasMeaningfulData;
+    }
+
+    /**
+     * Reanalyze document using AI API
+     */
+    private function reanalyzeDocument($document)
+    {
+        try {
+            // Get the full path to the file
+            $fullPath = Storage::disk('public')->path($document->file_path);
+            
+            if (!file_exists($fullPath)) {
+                Log::error('File not found for reanalysis', ['path' => $fullPath]);
+                return [];
+            }
+            
+            $client = new GuzzleClient();
+            $APIKey = env('OPENAI_API_KEY');
+            
+            // Prepare the request payload using multipart form data
+            $response = $client->post('https://ai.loepos.be/api/analyze', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $APIKey,
+                ],
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => fopen($fullPath, 'r'),
+                        'filename' => basename($fullPath)
+                    ],
+                ],
+                'timeout' => 30
+            ]);
+            
+            // Get the JSON response
+            $responseData = json_decode($response->getBody(), true);
+            
+            Log::info('Document reanalyzed successfully', [
+                'document_id' => $document->id,
+                'file' => $document->file_path,
+                'response' => $responseData
+            ]);
+            
+            return $responseData ?? [];
+            
+        } catch (\Exception $e) {
+            Log::error('Error reanalyzing document', [
+                'document_id' => $document->id,
+                'file' => $document->file_path,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [];
+        }
+    }
+
+    /**
+     * Extract document type from parsed data
+     */
+    private function detectDocumentType($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        // Check for document type in various locations
+        $possiblePaths = [
+            'documentType',
+            'type',
+            'document_type',
+            'data.documentDetails.documentType',
+            'content.documentType',
+            'content.type',
+            'documents.0.documentDetails.documentType',
+            'documents.0.type'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && in_array(strtolower($value), array_map('strtolower', Document::TYPES))) {
+                return strtolower($value);
+            }
+        }
+        
+        // Try to detect based on content
+        $content = json_encode($parsedData);
+        if (stripos($content, 'invoice') !== false || stripos($content, 'factuur') !== false) {
+            return Document::TYPE_INVOICE;
+        }
+        if (stripos($content, 'reminder') !== false || stripos($content, 'herinnering') !== false) {
+            return Document::TYPE_REMINDER;
+        }
+        if (stripos($content, 'agreement') !== false || stripos($content, 'overeenkomst') !== false) {
+            return Document::TYPE_AGREEMENT;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract sender from parsed data
+     */
+    private function extractSender($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'sender',
+            'sender.name',
+            'from',
+            'afzender',
+            'creditor',
+            'data.sender',
+            'data.sender.name',
+            'content.sender',
+            'content.sender.name',
+            'documents.0.sender.name',
+            'documents.0.sender',
+            'content.documents.0.sender.name',
+            'content.documents.0.sender'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && is_string($value)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract receiver from parsed data
+     */
+    private function extractReceiver($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'receiver',
+            'receiver.name',
+            'to',
+            'recipient',
+            'ontvanger',
+            'debtor',
+            'clientName',
+            'data.receiver',
+            'data.receiver.name',
+            'content.receiver',
+            'content.receiver.name',
+            'documents.0.receiver.name',
+            'documents.0.receiver',
+            'content.documents.0.receiver.name',
+            'content.documents.0.receiver'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && is_string($value)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract amount from parsed data
+     */
+    private function extractAmount($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'amount',
+            'total',
+            'totalAmount',
+            'invoiceAmount',
+            'bedrag',
+            'totaal',
+            'data.documentDetails.invoiceAmount',
+            'content.amount',
+            'content.total',
+            'documents.0.documentDetails.invoiceAmount',
+            'documents.0.amount',
+            'content.documents.0.documentDetails.invoiceAmount'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value !== null) {
+                // Try to convert to float
+                if (is_numeric($value)) {
+                    return (float) $value;
+                }
+                // Handle formatted amounts like "€ 1.234,56"
+                if (is_string($value)) {
+                    $cleaned = preg_replace('/[^0-9,.-]/', '', $value);
+                    $cleaned = str_replace(',', '.', $cleaned);
+                    if (is_numeric($cleaned)) {
+                        return (float) $cleaned;
+                    }
+                }
+            }
+        }
+        
+        return null;
     }
 }
