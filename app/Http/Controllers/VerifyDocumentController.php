@@ -36,40 +36,10 @@ class VerifyDocumentController extends Controller
 
         // Get the first pending document
         $document = $pendingDocuments->first();
-        
+
         // Prepare document data in the expected format
         $parsedData = json_decode($document->parsed_data, true) ?? [];
-        
-        // Check if parsed data has the expected format
-        if (!$this->isValidParsedData($parsedData)) {
-            Log::info('Invalid parsed data format, retrying API call', [
-                'document_id' => $document->id,
-                'current_parsed_data' => $parsedData
-            ]);
-            
-            // Retry the API call
-            $newParsedData = $this->reanalyzeDocument($document);
-            if (!empty($newParsedData)) {
-                $parsedData = $newParsedData;
-                
-                // Update the document with new parsed data
-                $document->parsed_data = json_encode($parsedData);
-                
-                // Extract and update document fields
-                $document->type = $this->detectDocumentType($parsedData) ?? $document->type;
-                $document->sender = $this->extractSender($parsedData) ?? $document->sender;
-                $document->receiver = $this->extractReceiver($parsedData) ?? $document->receiver;
-                $document->amount = $this->extractAmount($parsedData) ?? $document->amount;
-                
-                $document->save();
-                
-                Log::info('Document reanalyzed and updated', [
-                    'document_id' => $document->id,
-                    'new_parsed_data' => $parsedData
-                ]);
-            }
-        }
-        
+
         // If sender/receiver are already in the document, add them to parsed_data for easier access
         if ($document->sender && !data_get($parsedData, 'sender')) {
             $parsedData['sender'] = $document->sender;
@@ -80,7 +50,7 @@ class VerifyDocumentController extends Controller
         if ($document->amount && !data_get($parsedData, 'amount')) {
             $parsedData['amount'] = $document->amount;
         }
-        
+
         $documentData = [
             'original_document_id' => $document->id,
             'file_name' => $document->file_name,
@@ -111,11 +81,11 @@ class VerifyDocumentController extends Controller
             ->map(function($dossier) {
                 return [
                     'id' => $dossier->id,
-                    'display' => $dossier->client 
-                        ? "Dossier #{$dossier->id} - {$dossier->client->last_name}, {$dossier->client->first_name}" 
+                    'display' => $dossier->client
+                        ? "Dossier #{$dossier->id} - {$dossier->client->last_name}, {$dossier->client->first_name}"
                         : "Dossier #{$dossier->id} - (Geen client)",
-                    'client_name' => $dossier->client 
-                        ? "{$dossier->client->last_name} {$dossier->client->first_name}" 
+                    'client_name' => $dossier->client
+                        ? "{$dossier->client->last_name} {$dossier->client->first_name}"
                         : null
                 ];
             });
@@ -184,7 +154,7 @@ class VerifyDocumentController extends Controller
                 'country' => 'België',
                 'national_registry_number' => $validated['new_client']['national_registry_number'] ?? ''
             ]);
-            
+
             // Create new dossier for the client
             $dossier = Dossier::create([
                 'client_id' => $client->id,
@@ -192,7 +162,7 @@ class VerifyDocumentController extends Controller
                 'type' => Dossier::TYPE_DEBT_MEDIATION, // Default type
                 'status' => Dossier::STATUS_IN_PROCESS
             ]);
-            
+
             $validated['dossier_id'] = $dossier->id;
         }
 
@@ -201,7 +171,7 @@ class VerifyDocumentController extends Controller
             $dossier = Dossier::whereHas('user', function($query) use ($user) {
                 $query->where('organization_id', $user->organization_id);
             })->find($validated['dossier_id']);
-            
+
             if (!$dossier) {
                 return back()->withErrors(['dossier_id' => 'Invalid dossier selection']);
             }
@@ -216,15 +186,15 @@ class VerifyDocumentController extends Controller
                 'new_status' => Document::STATUS_VERIFIED,
                 'dossier_id' => $validated['dossier_id']
             ]);
-            
+
             // Generate new file name based on available data
             $extension = pathinfo($document->file_name, PATHINFO_EXTENSION);
             $newFileName = $document->file_name; // Default to current name
-            
+
             // Check for description or invoice number in verified data
             $description = $validated['verified_data']['description'] ?? null;
             $invoiceNumber = $validated['verified_data']['invoiceNumber'] ?? null;
-            
+
             if ($description && $invoiceNumber) {
                 // Use format: InvoiceNumber_Description
                 $newFileName = $invoiceNumber . '_' . $description;
@@ -235,14 +205,14 @@ class VerifyDocumentController extends Controller
                 // Use just invoice number if no description
                 $newFileName = $invoiceNumber;
             }
-            
+
             // Clean the filename - remove invalid characters
             if ($newFileName !== $document->file_name) {
                 $newFileName = preg_replace('/[^a-zA-Z0-9_\-\s]/', '', $newFileName);
                 $newFileName = preg_replace('/\s+/', '_', trim($newFileName));
                 $newFileName = $newFileName . '.' . $extension;
             }
-            
+
             $document->update([
                 'dossier_id' => $validated['dossier_id'],
                 'type' => $validated['type'],
@@ -253,12 +223,16 @@ class VerifyDocumentController extends Controller
                 'file_name' => $newFileName
             ]);
 
+            if ($document->dossier_id) {
+                Dossier::where('id', $document->dossier_id)->update(['updated_at' => now()]);
+            }
+
             // Update parsed_data with verified data
             $parsedData = json_decode($document->parsed_data, true) ?? [];
             $parsedData['verified_data'] = $validated['verified_data'] ?? [];
             $parsedData['verified_by'] = $user->id;
             $parsedData['verified_at'] = now()->toIso8601String();
-            
+
             // Store date fields in parsed_data
             if (isset($validated['send_date'])) {
                 $parsedData['send_date'] = $validated['send_date'];
@@ -269,7 +243,7 @@ class VerifyDocumentController extends Controller
             if (isset($validated['due_date'])) {
                 $parsedData['due_date'] = $validated['due_date'];
             }
-            
+
             $document->parsed_data = json_encode($parsedData);
             $document->save();
         }
@@ -287,55 +261,55 @@ class VerifyDocumentController extends Controller
         }
 
         return redirect()->route('documents.queue')->with('success', 'Alle documenten zijn succesvol geverifieerd!');
-        
+
         } catch (\Exception $e) {
             \Log::error('Error in verify document store', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return back()->withErrors(['error' => 'Er is een fout opgetreden bij het verifiëren van het document: ' . $e->getMessage()]);
         }
     }
-    
+
     /**
      * Reject a document
      */
     public function reject(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         // Find the document and verify it belongs to user's organization
         $document = Document::where('id', $id)
             ->whereHas('upload', function($query) use ($user) {
                 $query->where('organization_id', $user->organization_id);
             })
             ->first();
-            
+
         if (!$document) {
             return response()->json([
                 'success' => false,
                 'message' => 'Document niet gevonden'
             ], 404);
         }
-        
+
         // Update document status to rejected
         $document->update([
             'status' => Document::STATUS_REJECTED
         ]);
-        
+
         // Check for remaining pending documents
         $remainingPendingCount = Document::where('status', Document::STATUS_PENDING)
             ->whereHas('upload', function($query) use ($user) {
                 $query->where('organization_id', $user->organization_id);
             })
             ->count();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Document is weggegooid',
-            'redirect' => $remainingPendingCount > 0 
-                ? route('queue.verify') 
+            'redirect' => $remainingPendingCount > 0
+                ? route('queue.verify')
                 : route('documents.queue')
         ]);
     }
@@ -349,14 +323,14 @@ class VerifyDocumentController extends Controller
         $pendingUploadsCount = Upload::where('organization_id', $user->organization_id)
             ->where('status', Upload::STATUS_PENDING)
             ->sum('documents');
-        
+
         // Count pending documents
         $pendingDocumentsCount = Document::where('status', Document::STATUS_PENDING)
             ->whereHas('upload', function($query) use ($user) {
                 $query->where('organization_id', $user->organization_id);
             })
             ->count();
-        
+
         return $pendingUploadsCount + $pendingDocumentsCount;
     }
 
@@ -368,9 +342,9 @@ class VerifyDocumentController extends Controller
         if (empty($parsedData)) {
             return false;
         }
-        
+
         // Check for expected structure patterns
-        $hasExpectedStructure = 
+        $hasExpectedStructure =
             // Check for standard format
             (isset($parsedData['data']) && is_array($parsedData['data'])) ||
             // Check for content.documents format
@@ -379,28 +353,28 @@ class VerifyDocumentController extends Controller
             (isset($parsedData['documents']) && is_array($parsedData['documents'])) ||
             // Check for direct fields
             (isset($parsedData['sender']) || isset($parsedData['receiver']) || isset($parsedData['documentType']));
-        
+
         // Also check if we have at least some meaningful data
         $hasMeaningfulData = false;
-        
+
         // Check various possible paths for sender/receiver
         $senderPaths = [
             'data.sender', 'sender', 'from', 'content.documents.0.sender',
             'documents.0.sender', 'data.sender.name', 'sender.name'
         ];
-        
+
         $receiverPaths = [
             'data.receiver', 'receiver', 'to', 'content.documents.0.receiver',
             'documents.0.receiver', 'data.receiver.name', 'receiver.name'
         ];
-        
+
         foreach ($senderPaths as $path) {
             if (data_get($parsedData, $path)) {
                 $hasMeaningfulData = true;
                 break;
             }
         }
-        
+
         if (!$hasMeaningfulData) {
             foreach ($receiverPaths as $path) {
                 if (data_get($parsedData, $path)) {
@@ -409,7 +383,7 @@ class VerifyDocumentController extends Controller
                 }
             }
         }
-        
+
         return $hasExpectedStructure && $hasMeaningfulData;
     }
 
@@ -421,15 +395,15 @@ class VerifyDocumentController extends Controller
         try {
             // Get the full path to the file
             $fullPath = Storage::disk('public')->path($document->file_path);
-            
+
             if (!file_exists($fullPath)) {
                 Log::error('File not found for reanalysis', ['path' => $fullPath]);
                 return [];
             }
-            
+
             $client = new GuzzleClient();
             $APIKey = env('OPENAI_API_KEY');
-            
+
             // Prepare the request payload using multipart form data
             $response = $client->post('https://ai.loepos.be/api/analyze', [
                 'headers' => [
@@ -444,18 +418,18 @@ class VerifyDocumentController extends Controller
                 ],
                 'timeout' => 30
             ]);
-            
+
             // Get the JSON response
             $responseData = json_decode($response->getBody(), true);
-            
+
             Log::info('Document reanalyzed successfully', [
                 'document_id' => $document->id,
                 'file' => $document->file_path,
                 'response' => $responseData
             ]);
-            
+
             return $responseData ?? [];
-            
+
         } catch (\Exception $e) {
             Log::error('Error reanalyzing document', [
                 'document_id' => $document->id,
@@ -473,7 +447,7 @@ class VerifyDocumentController extends Controller
     private function detectDocumentType($parsedData)
     {
         if (empty($parsedData)) return null;
-        
+
         // Check for document type in various locations
         $possiblePaths = [
             'documentType',
@@ -485,14 +459,14 @@ class VerifyDocumentController extends Controller
             'documents.0.documentDetails.documentType',
             'documents.0.type'
         ];
-        
+
         foreach ($possiblePaths as $path) {
             $value = data_get($parsedData, $path);
             if ($value && in_array(strtolower($value), array_map('strtolower', Document::TYPES))) {
                 return strtolower($value);
             }
         }
-        
+
         // Try to detect based on content
         $content = json_encode($parsedData);
         if (stripos($content, 'invoice') !== false || stripos($content, 'factuur') !== false) {
@@ -504,7 +478,7 @@ class VerifyDocumentController extends Controller
         if (stripos($content, 'agreement') !== false || stripos($content, 'overeenkomst') !== false) {
             return Document::TYPE_AGREEMENT;
         }
-        
+
         return null;
     }
 
@@ -514,7 +488,7 @@ class VerifyDocumentController extends Controller
     private function extractSender($parsedData)
     {
         if (empty($parsedData)) return null;
-        
+
         $possiblePaths = [
             'sender',
             'sender.name',
@@ -530,14 +504,14 @@ class VerifyDocumentController extends Controller
             'content.documents.0.sender.name',
             'content.documents.0.sender'
         ];
-        
+
         foreach ($possiblePaths as $path) {
             $value = data_get($parsedData, $path);
             if ($value && is_string($value)) {
                 return $value;
             }
         }
-        
+
         return null;
     }
 
@@ -547,7 +521,7 @@ class VerifyDocumentController extends Controller
     private function extractReceiver($parsedData)
     {
         if (empty($parsedData)) return null;
-        
+
         $possiblePaths = [
             'receiver',
             'receiver.name',
@@ -565,14 +539,14 @@ class VerifyDocumentController extends Controller
             'content.documents.0.receiver.name',
             'content.documents.0.receiver'
         ];
-        
+
         foreach ($possiblePaths as $path) {
             $value = data_get($parsedData, $path);
             if ($value && is_string($value)) {
                 return $value;
             }
         }
-        
+
         return null;
     }
 
@@ -582,7 +556,7 @@ class VerifyDocumentController extends Controller
     private function extractAmount($parsedData)
     {
         if (empty($parsedData)) return null;
-        
+
         $possiblePaths = [
             'amount',
             'total',
@@ -597,7 +571,7 @@ class VerifyDocumentController extends Controller
             'documents.0.amount',
             'content.documents.0.documentDetails.invoiceAmount'
         ];
-        
+
         foreach ($possiblePaths as $path) {
             $value = data_get($parsedData, $path);
             if ($value !== null) {
@@ -615,7 +589,7 @@ class VerifyDocumentController extends Controller
                 }
             }
         }
-        
+
         return null;
     }
 }
