@@ -23,16 +23,34 @@ class PDFSplitService
     {
         $splitFiles = [];
         
-        // Get the full path to the original PDF
-        $fullPath = Storage::disk('public')->path($originalPath);
+        // Handle both absolute and relative paths
+        $relativePath = $originalPath;
+        
+        if (str_starts_with($originalPath, '/')) {
+            // It's an absolute path
+            $fullPath = $originalPath;
+            
+            // Try to extract relative path for storage operations
+            $storagePath = storage_path('app/public/');
+            if (str_starts_with($originalPath, $storagePath)) {
+                $relativePath = str_replace($storagePath, '', $originalPath);
+            } else {
+                // Use basename as fallback
+                $relativePath = 'documents/' . basename($originalPath);
+            }
+        } else {
+            // It's a relative path
+            $relativePath = $originalPath;
+            $fullPath = Storage::disk('public')->path($originalPath);
+        }
         
         if (!file_exists($fullPath)) {
-            throw new \Exception("Original PDF file not found: {$originalPath}");
+            throw new \Exception("Original PDF file not found: {$fullPath}");
         }
         
         foreach ($splits as $index => $split) {
             try {
-                $splitFileName = $this->generateSplitFileName($originalPath, $index, $split);
+                $splitFileName = $this->generateSplitFileName($relativePath, $index, $split);
                 $splitPath = 'verified_documents/' . $splitFileName;
                 $fullSplitPath = Storage::disk('public')->path($splitPath);
                 
@@ -83,7 +101,15 @@ class PDFSplitService
                 
                 
                 // If splitting fails, copy the original as fallback
-                Storage::disk('public')->copy($originalPath, $splitPath);
+                try {
+                    if (file_exists($fullPath)) {
+                        copy($fullPath, $fullSplitPath);
+                    }
+                } catch (\Exception $copyError) {
+                    Log::error('Failed to copy original file as fallback', [
+                        'error' => $copyError->getMessage()
+                    ]);
+                }
                 
                 $splitFiles[] = [
                     'path' => $splitPath,
@@ -226,5 +252,4 @@ class PDFSplitService
         
         return "{$baseName}_split_{$index}_{$timestamp}_{$uniqueId}{$pageInfo}.pdf";
     }
-    
 }

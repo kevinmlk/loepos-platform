@@ -30,12 +30,16 @@ class Document extends Model
     ];
 
     protected $fillable = [
+        'upload_id',
         'dossier_id',
         'type',
         'file_name',
         'file_path',
         'parsed_data',
-        'verified_status'
+        'status',
+        'sender',
+        'receiver',
+        'amount'
     ];
 
     // Relations

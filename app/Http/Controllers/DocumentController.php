@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 
 use App\Notifications\NewTaskNotification;
 
@@ -132,6 +133,11 @@ class DocumentController extends Controller
 
     public function processQueue(Request $request)
     {
+        Log::info('ProcessQueue called', [
+            'documents_count' => count($request->input('documents', [])),
+            'first_document' => $request->input('documents.0')
+        ]);
+        
         $request->validate([
             'documents' => 'required|array',
             'documents.*.originalDocId' => 'required|exists:uploads,id',
@@ -144,6 +150,8 @@ class DocumentController extends Controller
         try {
             $user = Auth::user();
             $documentsToVerify = [];
+            $processedCount = 0;
+            $totalCount = collect($request->documents)->count();
 
             // Ensure verified documents directory exists
             $this->pdfSplitService->ensureStorageDirectoryExists();
@@ -169,9 +177,18 @@ class DocumentController extends Controller
                 })->toArray();
 
                 // Split the PDF
-                $splitFiles = $this->pdfSplitService->splitPDF($originalUpload->file_path, $splitConfigs);
+                try {
+                    $splitFiles = $this->pdfSplitService->splitPDF($originalUpload->file_path, $splitConfigs);
+                } catch (\Exception $e) {
+                    Log::error('Error splitting PDF', [
+                        'upload_id' => $originalUploadId,
+                        'file_path' => $originalUpload->file_path,
+                        'error' => $e->getMessage()
+                    ]);
+                    continue;
+                }
 
-                // Prepare document data for verification
+                // Process each split document
                 foreach ($splits as $index => $docData) {
                     $splitFile = $splitFiles[$index] ?? null;
 
@@ -179,23 +196,34 @@ class DocumentController extends Controller
                         continue;
                     }
 
+                    // Make API call to analyze the document
+                    $parsedData = $this->analyzeDocument($splitFile['path']);
+
                     // Create document record from the split
                     $document = new Document();
                     $document->upload_id = $originalUpload->id;
                     $document->file_name = $docData['name'];
                     $document->file_path = $splitFile['path'];
-                    $document->type = Document::TYPE_INVOICE; // Default type, can be updated later
+                    $document->type = $this->detectDocumentType($parsedData) ?? Document::TYPE_INVOICE;
                     $document->status = Document::STATUS_PENDING;
-                    $document->sender = ''; // To be filled during verification
-                    $document->receiver = ''; // To be filled during verification
-                    $document->parsed_data = json_encode([
+                    $document->sender = $this->extractSender($parsedData) ?? '';
+                    $document->receiver = $this->extractReceiver($parsedData) ?? '';
+                    $document->parsed_data = json_encode(array_merge($parsedData, [
                         'pages' => $docData['pages'],
                         'source' => 'upload',
                         'upload_id' => $originalUpload->id,
                         'original_file' => $originalUpload->file_name,
                         'split_info' => $splitFile
-                    ]);
+                    ]));
+                    
+                    // Set amount if available
+                    $amount = $this->extractAmount($parsedData);
+                    if ($amount !== null) {
+                        $document->amount = $amount;
+                    }
+                    
                     $document->save();
+                    $processedCount++;
 
                     // Create a task for this document
                     $task = $this->taskService->createTaskForDocument($document);
@@ -205,7 +233,8 @@ class DocumentController extends Controller
                         'upload_id' => $originalUpload->id,
                         'document_id' => $document->id,
                         'split_file' => $splitFile,
-                        'docData' => $docData
+                        'docData' => $docData,
+                        'parsed_data' => $parsedData
                     ]);
 
                     $documentsToVerify[] = [
@@ -217,7 +246,9 @@ class DocumentController extends Controller
                         'metadata' => [
                             'pages' => $docData['pages'],
                             'original_file' => $originalUpload->file_name,
-                            'split_info' => $splitFile
+                            'split_info' => $splitFile,
+                            'processed_count' => $processedCount,
+                            'total_count' => $totalCount
                         ]
                     ];
                 }
@@ -229,13 +260,22 @@ class DocumentController extends Controller
 
             // Store documents in session for verification
             if (!empty($documentsToVerify)) {
-                $firstDocument = array_shift($documentsToVerify);
-                $request->session()->put('verify_document_data', $firstDocument);
-                $request->session()->put('remaining_documents_to_verify', $documentsToVerify);
+                Log::info('Storing documents in session for verification', [
+                    'count' => count($documentsToVerify),
+                    'first_doc' => $documentsToVerify[0] ?? null
+                ]);
+                
+                $request->session()->put('documents_to_verify', $documentsToVerify);
+                $request->session()->put('verify_progress', [
+                    'current' => 1,
+                    'total' => count($documentsToVerify)
+                ]);
 
                 return response()->json([
                     'success' => true,
-                    'redirect' => route('documents.verify.show')
+                    'redirect' => route('queue.verify'),
+                    'processed' => $processedCount,
+                    'total' => $totalCount
                 ]);
             }
 
@@ -337,5 +377,198 @@ class DocumentController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Analyze document using AI API
+     */
+    private function analyzeDocument($filePath)
+    {
+        try {
+            // Get the full path to the file
+            $fullPath = Storage::disk('public')->path($filePath);
+            
+            if (!file_exists($fullPath)) {
+                Log::error('File not found for analysis', ['path' => $fullPath]);
+                return [];
+            }
+            
+            $client = new Client();
+            $APIKey = env('OPENAI_API_KEY');
+            
+            // Prepare the request payload using multipart form data
+            $response = $client->post('https://ai.loepos.be/api/analyze', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $APIKey,
+                ],
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => fopen($fullPath, 'r'),
+                        'filename' => basename($fullPath)
+                    ],
+                ],
+                'timeout' => 30
+            ]);
+            
+            // Get the JSON response
+            $responseData = json_decode($response->getBody(), true);
+            
+            Log::info('Document analyzed successfully', [
+                'file' => $filePath,
+                'response' => $responseData
+            ]);
+            
+            return $responseData ?? [];
+            
+        } catch (\Exception $e) {
+            Log::error('Error analyzing document', [
+                'file' => $filePath,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [];
+        }
+    }
+
+    /**
+     * Extract document type from parsed data
+     */
+    private function detectDocumentType($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        // Check for document type in various locations
+        $possiblePaths = [
+            'documentType',
+            'type',
+            'document_type',
+            'content.documentType',
+            'content.type',
+            'documents.0.documentDetails.documentType',
+            'documents.0.type'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && in_array(strtolower($value), array_map('strtolower', Document::TYPES))) {
+                return strtolower($value);
+            }
+        }
+        
+        // Try to detect based on content
+        $content = json_encode($parsedData);
+        if (stripos($content, 'invoice') !== false || stripos($content, 'factuur') !== false) {
+            return Document::TYPE_INVOICE;
+        }
+        if (stripos($content, 'reminder') !== false || stripos($content, 'herinnering') !== false) {
+            return Document::TYPE_REMINDER;
+        }
+        if (stripos($content, 'agreement') !== false || stripos($content, 'overeenkomst') !== false) {
+            return Document::TYPE_AGREEMENT;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract sender from parsed data
+     */
+    private function extractSender($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'sender',
+            'sender.name',
+            'from',
+            'afzender',
+            'creditor',
+            'content.sender',
+            'content.sender.name',
+            'documents.0.sender.name',
+            'documents.0.sender'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && is_string($value)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract receiver from parsed data
+     */
+    private function extractReceiver($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'receiver',
+            'receiver.name',
+            'to',
+            'recipient',
+            'ontvanger',
+            'debtor',
+            'clientName',
+            'content.receiver',
+            'content.receiver.name',
+            'documents.0.receiver.name',
+            'documents.0.receiver'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value && is_string($value)) {
+                return $value;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extract amount from parsed data
+     */
+    private function extractAmount($parsedData)
+    {
+        if (empty($parsedData)) return null;
+        
+        $possiblePaths = [
+            'amount',
+            'total',
+            'totalAmount',
+            'invoiceAmount',
+            'bedrag',
+            'totaal',
+            'content.amount',
+            'content.total',
+            'documents.0.documentDetails.invoiceAmount',
+            'documents.0.amount'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            $value = data_get($parsedData, $path);
+            if ($value !== null) {
+                // Try to convert to float
+                if (is_numeric($value)) {
+                    return (float) $value;
+                }
+                // Handle formatted amounts like "€ 1.234,56"
+                if (is_string($value)) {
+                    $cleaned = preg_replace('/[^0-9,.-]/', '', $value);
+                    $cleaned = str_replace(',', '.', $cleaned);
+                    if (is_numeric($cleaned)) {
+                        return (float) $cleaned;
+                    }
+                }
+            }
+        }
+        
+        return null;
     }
 }

@@ -6,7 +6,7 @@
 
     <div class="flex  gap-3">
         <x-ui.button href="/upload/create" type="secondary" icon="phosphor-upload-simple-bold">Uploaden</x-ui.button>
-        @if (!request()->is('queue'))
+        @if (!request()->is('queue') && !request()->is('queue/verify'))
             <x-ui.button href="/queue" type="primary">AI queue</x-ui.button>
         @endif
     </div>

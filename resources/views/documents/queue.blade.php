@@ -1387,48 +1387,53 @@
                 saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verwerken...';
                 
                 try {
-                    // Group documents by upload ID
-                    const documentsByUpload = {};
-                    this.allDocuments.forEach(doc => {
-                        if (!documentsByUpload[doc.uploadId]) {
-                            documentsByUpload[doc.uploadId] = [];
-                        }
-                        documentsByUpload[doc.uploadId].push({
-                            originalDocId: doc.uploadId,
-                            name: doc.name,
-                            pages: doc.pages.map(p => p.pageNumber),
-                            metadata: doc.metadata
-                        });
-                    });
+                    // Prepare all documents for processing
+                    const allDocumentsToProcess = this.allDocuments.map(doc => ({
+                        originalDocId: doc.uploadId,
+                        name: doc.name,
+                        pages: doc.pages.map(p => p.pageNumber),
+                        pageImages: doc.pages.map(p => p.imageData || null),
+                        metadata: doc.metadata
+                    }));
 
-                    // Process each upload separately
-                    for (const [uploadId, documents] of Object.entries(documentsByUpload)) {
-                        // Send to server
-                        const response = await fetch('/documents/process-queue', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                documents: documents
-                            })
-                        });
+                    // Send all documents to server in a single request
+                    const response = await fetch('/documents/process-queue', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            documents: allDocumentsToProcess
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Server response:', result);
                         
-                        if (response.ok) {
-                            const result = await response.json();
-                            
-                            if (result.redirect) {
-                                // Redirect to verify page
-                                window.location.href = result.redirect;
-                                return;
+                        if (result.redirect) {
+                            // Show progress message
+                            if (result.processed && result.total) {
+                                saveButton.innerHTML = `<i class="fas fa-check mr-2"></i>Verwerkt ${result.processed}/${result.total} documenten. Doorverwijzen...`;
                             }
+                            
+                            // Redirect to verify page after a short delay
+                            console.log('Redirecting to:', result.redirect);
+                            setTimeout(() => {
+                                window.location.href = result.redirect;
+                            }, 500);
+                            return;
                         } else {
-                            throw new Error('Server error processing upload ' + uploadId);
+                            console.warn('No redirect URL in response');
                         }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Server error:', errorText);
+                        throw new Error('Server error bij het verwerken van documenten');
                     }
                     
-                    // All uploads processed successfully
+                    // If no redirect, all uploads processed successfully
                     alert('Alle uploads succesvol verwerkt!');
                     
                     // Mark as saved

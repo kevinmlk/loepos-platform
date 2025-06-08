@@ -52,8 +52,9 @@ Route::post('/documents/process-queue', [DocumentController::class, 'processQueu
 Route::post('/documents/create-splits-from-images', [DocumentController::class, 'createSplitsFromImages'])->middleware('auth')->name('documents.create-splits-from-images');
 
 // Document Verification
-Route::get('/documents/verify', [VerifyDocumentController::class, 'show'])->middleware('auth')->name('documents.verify.show');
-Route::post('/documents/verify', [VerifyDocumentController::class, 'store'])->middleware('auth')->name('documents.verify.store');
+Route::get('/queue/verify', [VerifyDocumentController::class, 'show'])->middleware('auth')->name('queue.verify');
+Route::post('/queue/verify', [VerifyDocumentController::class, 'store'])->middleware('auth')->name('queue.verify.store');
+Route::post('/documents/{document}/reject', [VerifyDocumentController::class, 'reject'])->middleware('auth')->name('documents.reject');
 
 // Secure document serving
 Route::get('/documents/{document}/view', [DocumentController::class, 'view'])->middleware('auth')->name('documents.view');

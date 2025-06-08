@@ -158,7 +158,7 @@
         </nav>
 
         {{-- Main --}}
-        <main class="py-6 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden">
+        <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 h-screen overflow-hidden">
             {{ $slot }}
         </main>
 

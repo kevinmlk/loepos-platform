@@ -11,6 +11,13 @@ class Dossier extends Model
     /** @use HasFactory<\Database\Factories\DossierFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'client_id',
+        'user_id',
+        'status',
+        'type'
+    ];
+
     // ENUM Values
     const STATUS_ACTIVE = 'active';
     const STATUS_IN_PROCESS = 'in process';
