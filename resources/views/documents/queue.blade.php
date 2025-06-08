@@ -105,7 +105,7 @@
                 <div class="flex-1 overflow-y-auto p-4 px-6" id="documentRows">
                     <div class="text-center text-gray mt-20">
                         <i class="fas fa-layer-group text-6xl mb-4"></i>
-                        <p>Verwerk een upload om documenten te splitsen</p>
+                        <p>Er zijn geen documenten in de wachtrij.</p>
                     </div>
                 </div>
 

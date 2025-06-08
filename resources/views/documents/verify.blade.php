@@ -454,7 +454,7 @@
                             
                             {{-- Amount --}}
                             <div>
-                                <x-form.label for="amount">Bedrag</x-form.label>
+                                <x-form.label for="amount">Bedrag (in €)</x-form.label>
                                 <x-form.input 
                                     type="number" 
                                     name="amount" 
