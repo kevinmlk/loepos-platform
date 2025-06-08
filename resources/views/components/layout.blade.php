@@ -103,7 +103,7 @@
                      @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
-                                    <x-nav-link href="/users" :active="request()->is('users')">
+                                    <x-nav-link href="/users" :active="request()->is(['users', 'user/*'])">
                                         <x-phosphor-user-bold class="w-6 h-6 mr-3" /><span>Gebruikers</span>
                                     </x-nav-link>
                                 </x-nav-link-container>

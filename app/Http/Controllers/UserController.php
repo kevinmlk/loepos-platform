@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\Organization;
 
 class UserController extends Controller
 {
@@ -23,62 +24,85 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('users.create');
+        $organizations = Organization::all();
+        $roles = User::ROLES;
+
+        return view('users.create', [
+            'organizations' => $organizations,
+            'roles' => $roles,
+        ]);
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        $employee = User::findOrFail($id);
-
-        if (request()->ajax()) {
-            return view('admin.partials.employee-show', compact('employee'));
-        }
-
-        return view('admin.employees.show', compact('employee'));
+        $organizations = Organization::all();
+        $roles = User::ROLES;
+        return view('users.show', [
+            'user' => $user,
+            'organizations' => $organizations,
+            'roles' => $roles,
+        ]);
     }
 
     public function store()
     {
-        $organizationId = auth()->user()->organization_id;
-
         // Validate the request
         $attributes = request()->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            // Do not validate role and organization_id here
+            'organization' => ['required', 'exists:organizations,id'],
+            'role_select' => ['required', 'in:' . implode(',', User::ROLES)],
         ]);
 
-        // Set the role and organization_id explicitly
-        $attributes['role'] = User::ROLE_EMPLOYEE;
-        $attributes['organization_id'] = $organizationId;
+        // Set the role and organization_id from the form
+        $attributes['role'] = $attributes['role_select'];
+        $attributes['organization_id'] = $attributes['organization'];
+        unset($attributes['role_select'], $attributes['organization']);
 
         // Create the employee
         $employee = User::create($attributes);
 
         // Redirect to the employee's profile
         return redirect()
-            ->route('admin.employees.show', $employee->id)
-            ->with('success', 'Employee created successfully.');
+            ->route('users.show', $employee->id)
+            ->with('success', 'User created successfully.');
     }
 
-    public function update(User $employee)
+    public function update(User $user)
     {
-        // Validate the request
+        // Validate only the fields present in the request
         $attributes = request()->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $employee->id],
-            // Do not validate password here, it can be updated separately
+            'first_name' => ['sometimes', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'email', 'unique:users,email,' . $user->id],
+            'password' => ['sometimes', 'string', 'min:8', 'confirmed'],
+            'organization' => ['sometimes', 'exists:organizations,id'],
+            'role_select' => ['sometimes', 'in:' . implode(',', User::ROLES)],
         ]);
 
-        // Update the employee
-        $employee->update($attributes);
+        // If organization is present, set organization_id
+        if (array_key_exists('organization', $attributes)) {
+            $attributes['organization_id'] = $attributes['organization'];
+            unset($attributes['organization']);
+        }
 
-        // Redirect to the employee's profile
+        // If role_select is present, set role
+        if (array_key_exists('role_select', $attributes)) {
+            $attributes['role'] = $attributes['role_select'];
+            unset($attributes['role_select']);
+        }
+
+        // If password is not present, don't update it
+        if (empty($attributes['password'])) {
+            unset($attributes['password']);
+        }
+
+        $user->update($attributes);
+
         return redirect()
-            ->route('admin.employees.show', $employee->id)
-            ->with('success', 'Employee updated successfully.');
+            ->route('users.show', $user->id)
+            ->with('success', 'User updated successfully.');
     }
 }
