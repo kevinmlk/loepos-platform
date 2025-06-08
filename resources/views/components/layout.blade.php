@@ -56,13 +56,11 @@
                 <ul class="flex flex-col gap-2">
                     {{-- Home nav link --}}
                     @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
                                 <x-nav-link-container>
                                     <x-nav-link href="/" :active="request()->is('/')">
                                         <x-phosphor-house-bold class="w-6 h-6 mr-3" /><span>Home</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
-                            @endif
                     @endauth
 
                     {{-- Post processing nav link --}}

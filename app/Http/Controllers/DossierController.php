@@ -10,13 +10,23 @@ class DossierController extends Controller
 {
     public function index()
     {
-        // Get the current authenticated user
         $user = Auth::user();
 
-        // Get the user's dossiers
-        $dossiers = $user->dossiers()->with('client')->paginate(4);
+        if ($user->role === 'employee') {
+            // Employee: only their own dossiers
+            $dossiers = $user->dossiers()->with('client')->paginate(4);
+        } elseif ($user->role === 'admin') {
+            // Admin: all dossiers in their organization (via user)
+            $dossiers = Dossier::whereHas('user', function ($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->with('client')
+            ->paginate(4);
+        } else {
+            // Superadmin: all dossiers
+            $dossiers = Dossier::with('client')->paginate(4);
+        }
 
-        // Return the view
         return view('dossiers.index', ['dossiers' => $dossiers]);
     }
 

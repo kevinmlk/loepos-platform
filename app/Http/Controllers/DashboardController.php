@@ -14,16 +14,34 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $latestUploads = Upload::whereHas('user', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->get();
+        if ($user->role === 'employee') {
+            // Employee: only their own uploads and dossiers
+            $latestUploads = Upload::where('user_id', $user->id)->get();
+            $dossiers = $user->dossiers()->with(['documents' => function($query) {
+                $query->latest()->take(3);
+            }])->paginate(3);
+        } elseif ($user->role === 'admin') {
+            // Admin: uploads and dossiers for all users in their organization
+            $latestUploads = Upload::whereHas('user', function ($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })->get();
 
-        // Get the dossiers that had a new document/task added to them
-        $dossiers = $user->dossiers()->with(['documents' => function($query) {
-            $query->latest()->take(3);
-        }])->paginate(3);
+            $dossiers = \App\Models\Dossier::whereHas('user', function ($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->with(['documents' => function($query) {
+                $query->latest()->take(3);
+            }, 'client'])
+            ->paginate(3);
+        } else {
+            // Superadmin: all uploads and dossiers
+            $latestUploads = Upload::all();
+            $dossiers = \App\Models\Dossier::with(['documents' => function($query) {
+                $query->latest()->take(3);
+            }, 'client'])->paginate(3);
+        }
 
-        $dailyUploadedDocuments = $this->getDailyUploadedDocuments();
+        $dailyUploadedDocuments = $this->getDailyUploadedDocuments($user);
 
         return view('dashboard.index', [
             'dossiers' => $dossiers,
@@ -33,21 +51,32 @@ class DashboardController extends Controller
     }
 
     /**
-    * TODO: Get daily uploaded documents counts from monday to friday
+    * Get daily uploaded documents counts from monday to friday
     *
+    * @param \App\Models\User|null $user
     * @return array
     */
-    public function getDailyUploadedDocuments(): array
+    public function getDailyUploadedDocuments($user = null): array
     {
+        $user = $user ?? Auth::user();
+
         $startOfWeek = now()->startOfWeek(); // Monday
         $endOfWeek = now()->endOfWeek(); // Sunday
 
-        $user = Auth::user();
+        $documentQuery = Document::query();
 
-        // Use a subquery to ensure compatibility with ONLY_FULL_GROUP_BY
-        $dailyCounts = Document::whereHas('dossier', function ($query) use ($user) {
+        if ($user->role === 'employee') {
+            $documentQuery->whereHas('dossier', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
+            });
+        } elseif ($user->role === 'admin') {
+            $documentQuery->whereHas('dossier.user', function ($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            });
+        }
+        // else superadmin: no filter
+
+        $dailyCounts = $documentQuery
             ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, DAYNAME(created_at) as day_name, COUNT(*) as total')
             ->groupByRaw('DAYOFWEEK(created_at), DAYNAME(created_at)')
@@ -56,7 +85,6 @@ class DashboardController extends Controller
             ->pluck('total', 'day_name')
             ->toArray();
 
-        // Ensure all days (Monday to Friday) are present in the result
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         $result = [];
         foreach ($daysOfWeek as $day) {
