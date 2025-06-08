@@ -195,6 +195,13 @@ Route::get('/organisations/{organization}/edit', [OrganizationController::class,
 Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
 
+
+// Ondersteuning 
+// routes/web.php
+use App\Http\Controllers\SupportController;
+
+Route::post('/support/send', [SupportController::class, 'send'])->name('support.send');
+
 // Session
 Route::get('/login', [SessionController::class, 'create'])->name('login');
 Route::post('/login', [SessionController::class, 'store']);
