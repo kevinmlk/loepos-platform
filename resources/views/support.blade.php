@@ -13,7 +13,6 @@
         </div>
     @endif
 
-
     {{-- Info tekst --}}
     <p>Gebruik onderstaand formulier om contact op te nemen met onze IT afdeling.</p>
 
@@ -21,21 +20,30 @@
     <form method="POST" action="{{ route('support.send') }}" class="space-y-4 mt-4 max-w-lg">
         @csrf
 
+        {{-- Organisatie (readonly) --}}
         <div>
-            <label for="name" class="block font-medium">Naam</label>
-            <input type="text" id="name" name="name" required class="border rounded w-full p-2">
+            <label for="organization" class="block font-medium">Organisatie</label>
+            <input type="text" id="organization" name="organization" 
+                   value="{{ auth()->user()->organization->name ?? '' }}" 
+                   readonly 
+                   class="border rounded w-full p-2 bg-gray-100">
         </div>
 
+        {{-- E-mailadres (readonly) --}}
         <div>
             <label for="email" class="block font-medium">E-mailadres</label>
-            <input type="email" id="email" name="email" required class="border rounded w-full p-2">
+            <input type="email" id="email" name="email" 
+                   value="{{ auth()->user()->email }}" 
+                   readonly 
+                   class="border rounded w-full p-2 bg-gray-100">
         </div>
 
+        {{-- Bericht --}}
         <div>
             <label for="message" class="block font-medium">Bericht</label>
             <textarea id="message" name="message" rows="5" required class="border rounded w-full p-2"></textarea>
         </div>
 
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Verzenden</button>
+        <button type="submit" class="bg-blue text-white hover:bg-dark-blue bgtext-white px-4 py-2 rounded">Verzenden</button>
     </form>
 </x-layout>

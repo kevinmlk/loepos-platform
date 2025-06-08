@@ -4,20 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 class SupportController extends Controller
 {
     public function send(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
             'message' => 'required',
         ]);
 
+        $user = auth()->user();
+
+        $organization = $user->organization->name ?? 'Onbekende organisatie';
+
         Mail::raw(
-            "Naam: {$validated['name']}\nE-mail: {$validated['email']}\n\nBericht:\n{$validated['message']}",
-            function ($mail) use ($validated) {
+            "Organisatie: {$organization}\nNaam: {$user->name}\nE-mail: {$user->email}\n\nBericht:\n{$validated['message']}",
+            function ($mail) use ($user, $organization, $validated) {
                 $mail->to('info@loepos.be')
                      ->subject('Ondersteuningsaanvraag');
             }
