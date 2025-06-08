@@ -102,6 +102,43 @@ class VerifyDocumentController extends Controller
             }
         }
 
+        // Check if any fields are filled from the current document
+        $hasFilledFields = !empty($document->sender) || !empty($document->receiver) || 
+                          !empty($document->amount) || !empty($document->type) ||
+                          $this->hasExtractedData($parsedData);
+        
+        // If no fields are filled, try to reanalyze the document
+        if (!$hasFilledFields) {
+            Log::info('No fields filled, attempting to reanalyze document', [
+                'document_id' => $document->id
+            ]);
+            
+            // Retry the API call
+            $newParsedData = $this->reanalyzeDocument($document);
+            
+            if (!empty($newParsedData) && $this->isValidParsedData($newParsedData)) {
+                $parsedData = $newParsedData;
+                
+                // Update the document with new parsed data
+                $document->parsed_data = json_encode($parsedData);
+                
+                // Extract and update document fields
+                $document->type = $this->detectDocumentType($parsedData) ?? $document->type;
+                $document->sender = $this->extractSender($parsedData) ?? $document->sender;
+                $document->receiver = $this->extractReceiver($parsedData) ?? $document->receiver;
+                $document->amount = $this->extractAmount($parsedData) ?? $document->amount;
+                
+                $document->save();
+                
+                Log::info('Document reanalyzed due to empty fields', [
+                    'document_id' => $document->id,
+                    'new_sender' => $document->sender,
+                    'new_receiver' => $document->receiver,
+                    'new_amount' => $document->amount
+                ]);
+            }
+        }
+        
         // If sender/receiver are already in the document, add them to parsed_data for easier access
         if ($document->sender && !data_get($parsedData, 'sender')) {
             $parsedData['sender'] = $document->sender;
@@ -486,6 +523,58 @@ class VerifyDocumentController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Check if parsed data contains extracted data fields
+     */
+    private function hasExtractedData($parsedData)
+    {
+        if (empty($parsedData)) {
+            return false;
+        }
+        
+        // Check for any meaningful extracted data
+        $hasData = false;
+        
+        // Check for sender
+        if ($this->extractSender($parsedData)) {
+            $hasData = true;
+        }
+        
+        // Check for receiver
+        if ($this->extractReceiver($parsedData)) {
+            $hasData = true;
+        }
+        
+        // Check for amount
+        if ($this->extractAmount($parsedData) !== null) {
+            $hasData = true;
+        }
+        
+        // Check for document type
+        if ($this->detectDocumentType($parsedData)) {
+            $hasData = true;
+        }
+        
+        // Check for invoice number
+        $invoiceNumberPaths = [
+            'data.documentDetails.invoiceNumber',
+            'data.documentDetails.caseNumber',
+            'verified_data.invoiceNumber',
+            'invoiceNumber',
+            'documentNumber',
+            'factuurNummer'
+        ];
+        
+        foreach ($invoiceNumberPaths as $path) {
+            if (data_get($parsedData, $path)) {
+                $hasData = true;
+                break;
+            }
+        }
+        
+        return $hasData;
     }
 
     /**
