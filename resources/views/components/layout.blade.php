@@ -88,17 +88,7 @@
                             @endif
                     @endauth
 
-                    {{-- Reports nav link --}}
-                    @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
-                                <x-nav-link-container>
-                                    <x-nav-link href="/reports" :active="request()->is('reports')">
-                                        <x-phosphor-chart-bar-bold class="w-6 h-6 mr-3" /><span>Rapporten</span>
-                                    </x-nav-link>
-                                </x-nav-link-container>
-                            @endif
-                    @endauth
-
+                
                     {{-- Support nav link --}}
                     @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
