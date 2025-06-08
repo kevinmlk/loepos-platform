@@ -42,6 +42,18 @@
     </div>
 
     <section class="border-2 border-light-gray rounded-lg flex flex-col h-[calc(100vh-16rem)]">
+        {{-- Display any errors --}}
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Er zijn fouten opgetreden:</strong>
+                <ul class="mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        
         @if(!isset($documentData) || empty($documentData))
             <div class="flex items-center justify-center h-full">
                 <div class="text-center">
@@ -244,10 +256,179 @@
                     @endphp
                 
                 <div class="space-y-6" id="formContent">
-                    {{-- Step 1: Document Details --}}
+                    {{-- Step 1: Client/Dossier Assignment --}}
                     <div class="border border-light-gray rounded-lg p-4">
                         <h4 class="text-lg font-semibold mb-4 text-blue flex items-center">
                             <span class="bg-blue text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-sm">1</span>
+                            Koppel aan Client & Dossier
+                        </h4>
+                        
+                        <div class="space-y-4">
+                            {{-- Search for existing client --}}
+                            <div class="relative">
+                                <x-form.label for="client_search">Zoek bestaande client</x-form.label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="client_search" 
+                                        placeholder="Typ naam of emailadres..."
+                                        class="w-full px-3 py-2 pl-10 border border-light-gray rounded-lg focus:outline-none focus:border-blue"
+                                        autocomplete="off"
+                                    >
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray"></i>
+                                </div>
+                                <div id="search_results" class="hidden absolute z-10 w-full mt-1 bg-white border border-light-gray rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
+                            </div>
+                            
+                            {{-- Selected client display --}}
+                            <div id="selected_client" class="hidden bg-blue-50 p-3 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-blue-900" id="selected_client_name"></p>
+                                        <p class="text-sm text-blue-700" id="selected_client_info"></p>
+                                    </div>
+                                    <button type="button" id="clear_selection" class="text-blue-600 hover:text-blue-800 hover:bg-blue-100 px-2 py-1 rounded transition-colors">
+                                        <i class="fas fa-times mr-1"></i>Wissen
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="dossier_id" id="dossier_id" value="">
+                            
+                            {{-- Or create new --}}
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-light-gray"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-4 bg-white text-gray">of</span>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="createNewBtn" class="w-full text-blue border-2 border-blue rounded-lg py-2 hover:bg-blue hover:text-white transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Nieuwe client & dossier aanmaken
+                            </button>
+                        </div>
+                        
+                        {{-- New Client Form (hidden by default) --}}
+                        <div id="newClientForm" class="hidden mt-4 space-y-4">
+                            <input type="hidden" name="create_new" id="create_new" value="0">
+                            
+                            {{-- Only include new client fields when creating new --}}
+                            <div id="newClientFields">
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h5 class="font-semibold text-blue-900 mb-2">Nieuwe Client Gegevens</h5>
+                                
+                                {{-- Name fields --}}
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                        <x-form.label for="new_client_first_name">Voornaam*</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[first_name]" 
+                                            id="new_client_first_name"
+                                            value="{{ $clientFirstName ?: explode(' ', $receiverName)[0] ?? '' }}"
+                                        />
+                                    </div>
+                                    <div>
+                                        <x-form.label for="new_client_last_name">Achternaam*</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[last_name]" 
+                                            id="new_client_last_name"
+                                            value="{{ $clientLastName ?: (count(explode(' ', $receiverName)) > 1 ? implode(' ', array_slice(explode(' ', $receiverName), 1)) : '') }}"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {{-- Contact fields --}}
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                        <x-form.label for="new_client_email">Email*</x-form.label>
+                                        <x-form.input 
+                                            type="email" 
+                                            name="new_client[email]" 
+                                            id="new_client_email"
+                                            value="{{ $clientEmail }}"
+                                            placeholder="client@voorbeeld.be"
+                                        />
+                                    </div>
+                                    <div>
+                                        <x-form.label for="new_client_phone">Telefoon</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[phone]" 
+                                            id="new_client_phone"
+                                            value="{{ $clientPhone }}"
+                                            placeholder="+32 123 45 67 89"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {{-- Address --}}
+                                <div class="mb-3">
+                                    <x-form.label for="new_client_address">Adres*</x-form.label>
+                                    <x-form.input 
+                                        type="text" 
+                                        name="new_client[address]" 
+                                        id="new_client_address"
+                                        value="{{ $clientAddress }}"
+                                        placeholder="Straatnaam 123"
+                                    />
+                                </div>
+                                
+                                {{-- Location fields --}}
+                                <div class="grid grid-cols-3 gap-3 mb-3">
+                                    <div>
+                                        <x-form.label for="new_client_postal_code">Postcode*</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[postal_code]" 
+                                            id="new_client_postal_code"
+                                            value="{{ $clientPostalCode }}"
+                                            placeholder="1000"
+                                        />
+                                    </div>
+                                    <div>
+                                        <x-form.label for="new_client_city">Stad*</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[city]" 
+                                            id="new_client_city"
+                                            value="{{ $clientCity }}"
+                                            placeholder="Brussel"
+                                        />
+                                    </div>
+                                    <div>
+                                        <x-form.label for="new_client_national_registry_number">Rijksregisternummer</x-form.label>
+                                        <x-form.input 
+                                            type="text" 
+                                            name="new_client[national_registry_number]" 
+                                            id="new_client_national_registry_number"
+                                            value="{{ $clientNationalRegistryNumber }}"
+                                            placeholder="00.00.00-000.00"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div class="flex gap-2 pt-2">
+                                    <button type="button" id="cancelNewClientBtn" class="flex-1 text-dark-gray border border-gray rounded-lg py-2 hover:bg-gray hover:text-red-600 transition-colors">
+                                        <i class="fas fa-times mr-1"></i>Annuleren
+                                    </button>
+                                    <button type="button" id="confirmNewClientBtn" class="flex-1 bg-blue text-white rounded-lg py-2 hover:bg-dark-blue transition-colors">
+                                        <i class="fas fa-check mr-1"></i>Bevestigen
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Step 2: Document Details --}}
+                    <div class="border border-light-gray rounded-lg p-4">
+                        <h4 class="text-lg font-semibold mb-4 text-blue flex items-center">
+                            <span class="bg-blue text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-sm">2</span>
                             Document Gegevens
                         </h4>
                         
@@ -324,10 +505,10 @@
                         </div>
                     </div>
 
-                    {{-- Step 2: Parties --}}
+                    {{-- Step 3: Parties --}}
                     <div class="border border-light-gray rounded-lg p-4">
                         <h4 class="text-lg font-semibold mb-4 text-blue flex items-center">
-                            <span class="bg-blue text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-sm">2</span>
+                            <span class="bg-blue text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-sm">3</span>
                             Afzender & Ontvanger
                         </h4>
                         
@@ -358,170 +539,6 @@
                         </div>
                     </div>
 
-                    {{-- Step 3: Client/Dossier Assignment --}}
-                    <div class="border border-light-gray rounded-lg p-4">
-                        <h4 class="text-lg font-semibold mb-4 text-blue flex items-center">
-                            <span class="bg-blue text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-sm">3</span>
-                            Koppel aan Client & Dossier
-                        </h4>
-                        
-                        <div class="space-y-2">
-                            <select 
-                                name="dossier_id" 
-                                id="dossier_id" 
-                                class="w-full px-3 py-2 border border-light-gray rounded-lg focus:outline-none focus:border-blue"
-                            >
-                                <option value="">Selecteer een client/dossier</option>
-                                @foreach($dossiersWithClients as $option)
-                                    @php
-                                        $isSelected = false;
-                                        if (isset($receiverName) && $option['client_name']) {
-                                            // Normalize both names for comparison
-                                            $receiverNameLower = strtolower(trim($receiverName));
-                                            $clientNameLower = strtolower(trim($option['client_name']));
-                                            
-                                            // Direct match
-                                            if ($receiverNameLower === $clientNameLower) {
-                                                $isSelected = true;
-                                            } else {
-                                                // Try to match "FirstName LastName" with "LastName FirstName"
-                                                $receiverParts = explode(' ', $receiverNameLower);
-                                                $clientParts = explode(' ', $clientNameLower);
-                                                
-                                                if (count($receiverParts) >= 2 && count($clientParts) >= 2) {
-                                                    // Check if it's the same name but in different order
-                                                    $receiverReversed = implode(' ', array_reverse($receiverParts));
-                                                    if ($receiverReversed === $clientNameLower || $receiverNameLower === implode(' ', array_reverse($clientParts))) {
-                                                        $isSelected = true;
-                                                    }
-                                                }
-                                                
-                                                // Also check if one contains the other (partial match)
-                                                if (!$isSelected && (stripos($clientNameLower, $receiverNameLower) !== false || stripos($receiverNameLower, $clientNameLower) !== false)) {
-                                                    $isSelected = true;
-                                                }
-                                            }
-                                        }
-                                    @endphp
-                                    <option value="{{ $option['id'] }}" {{ $isSelected ? 'selected' : '' }}>
-                                        {{ $option['display'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <button type="button" id="createNewBtn" class="text-sm text-blue hover:underline">
-                                <i class="fas fa-plus mr-1"></i>Nieuwe client & dossier aanmaken
-                            </button>
-                        </div>
-                        <x-form.error name="dossier_id" />
-                        
-                        {{-- New Client Form (hidden by default) --}}
-                        <div id="newClientForm" class="hidden mt-4 p-4 bg-light-gray rounded-lg space-y-3">
-                            <input type="hidden" name="create_new" id="create_new" value="0">
-                            <h4 class="font-semibold mb-2 text-blue">Nieuwe Client & Dossier Aanmaken</h4>
-                            <p class="text-sm text-gray mb-3">Vul de gegevens in om een nieuwe client en dossier aan te maken. De gemarkeerde velden zijn verplicht.</p>
-                            
-                            {{-- Name fields - Pre-filled from receiver data --}}
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <x-form.label for="new_client_first_name">Voornaam*</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[first_name]" 
-                                        id="new_client_first_name"
-                                        value="{{ $clientFirstName ?: explode(' ', $receiverName)[0] ?? '' }}"
-                                    />
-                                </div>
-                                <div>
-                                    <x-form.label for="new_client_last_name">Achternaam*</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[last_name]" 
-                                        id="new_client_last_name"
-                                        value="{{ $clientLastName ?: (count(explode(' ', $receiverName)) > 1 ? implode(' ', array_slice(explode(' ', $receiverName), 1)) : '') }}"
-                                    />
-                                </div>
-                            </div>
-                            
-                            {{-- Contact fields --}}
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <x-form.label for="new_client_email">Email*</x-form.label>
-                                    <x-form.input 
-                                        type="email" 
-                                        name="new_client[email]" 
-                                        id="new_client_email"
-                                        value="{{ $clientEmail }}"
-                                        placeholder="client@voorbeeld.be"
-                                    />
-                                </div>
-                                <div>
-                                    <x-form.label for="new_client_phone">Telefoon</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[phone]" 
-                                        id="new_client_phone"
-                                        value="{{ $clientPhone }}"
-                                        placeholder="+32 123 45 67 89"
-                                    />
-                                </div>
-                            </div>
-                            
-                            {{-- Address - Pre-filled from receiver data --}}
-                            <div>
-                                <x-form.label for="new_client_address">Adres*</x-form.label>
-                                <x-form.input 
-                                    type="text" 
-                                    name="new_client[address]" 
-                                    id="new_client_address"
-                                    value="{{ $clientAddress }}"
-                                    placeholder="Straatnaam 123"
-                                />
-                            </div>
-                            
-                            {{-- Location fields --}}
-                            <div class="grid grid-cols-3 gap-3">
-                                <div>
-                                    <x-form.label for="new_client_postal_code">Postcode*</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[postal_code]" 
-                                        id="new_client_postal_code"
-                                        value="{{ $clientPostalCode }}"
-                                        placeholder="1000"
-                                    />
-                                </div>
-                                <div>
-                                    <x-form.label for="new_client_city">Stad*</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[city]" 
-                                        id="new_client_city"
-                                        value="{{ $clientCity }}"
-                                        placeholder="Brussel"
-                                    />
-                                </div>
-                                <div>
-                                    <x-form.label for="new_client_national_registry_number">Rijksregisternummer</x-form.label>
-                                    <x-form.input 
-                                        type="text" 
-                                        name="new_client[national_registry_number]" 
-                                        id="new_client_national_registry_number"
-                                        value="{{ $clientNationalRegistryNumber }}"
-                                        placeholder="00.00.00-000.00"
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2 pt-2">
-                                <button type="button" id="cancelNewClientBtn" class="flex-1 text-sm text-gray hover:text-red-600 py-2 px-4 border border-gray rounded hover:bg-red-50 transition-colors">
-                                    <i class="fas fa-times mr-1"></i>Annuleren
-                                </button>
-                                <button type="button" id="confirmNewClientBtn" class="flex-1 text-sm text-white bg-green-600 hover:bg-green-700 py-2 px-4 rounded transition-colors">
-                                    <i class="fas fa-check mr-1"></i>Bevestigen
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
 
                     {{-- Additional Fields if Available --}}
@@ -541,36 +558,31 @@
                         ], '');
                     @endphp
                     
-                    @if($invoiceNumber || $description)
-                        <div class="border border-light-gray rounded-lg p-4">
-                            <h4 class="text-md font-semibold mb-3 text-gray">Additionele Informatie</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                @if($invoiceNumber)
-                                    <div>
-                                        <x-form.label for="verified_data_invoiceNumber">Referentie/Factuurnummer</x-form.label>
-                                        <x-form.input 
-                                            type="text" 
-                                            name="verified_data[invoiceNumber]" 
-                                            id="verified_data_invoiceNumber" 
-                                            value="{{ $invoiceNumber }}"
-                                        />
-                                    </div>
-                                @endif
-                                
-                                @if($description)
-                                    <div class="{{ $invoiceNumber ? '' : 'col-span-2' }}">
-                                        <x-form.label for="verified_data_description">Omschrijving</x-form.label>
-                                        <x-form.input 
-                                            type="text" 
-                                            name="verified_data[description]" 
-                                            id="verified_data_description" 
-                                            value="{{ $description }}"
-                                        />
-                                    </div>
-                                @endif
-                            </div>
+                    {{-- Additional Fields - Always visible --}}
+                    <div class="border border-light-gray rounded-lg p-4">
+                        <h4 class="text-md font-semibold mb-3 text-gray">Additionele Informatie</h4>
+                        <div class="mb-4">
+                            <x-form.label for="verified_data_invoiceNumber">Referentie/Factuurnummer</x-form.label>
+                            <x-form.input 
+                                type="text" 
+                                name="verified_data[invoiceNumber]" 
+                                id="verified_data_invoiceNumber" 
+                                value="{{ $invoiceNumber }}"
+                                placeholder="Bijv: INV-2024-001"
+                            />
                         </div>
-                    @endif
+                        
+                        <div>
+                            <x-form.label for="verified_data_description">Omschrijving</x-form.label>
+                            <textarea 
+                                name="verified_data[description]" 
+                                id="verified_data_description" 
+                                rows="3"
+                                class="w-full px-3 py-2 border border-light-gray rounded-lg focus:outline-none focus:border-blue resize-none"
+                                placeholder="Korte omschrijving van het document"
+                            >{{ $description }}</textarea>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -583,8 +595,8 @@
                     </button>
                     
                     <button type="submit" id="submitBtn" class="bg-blue text-white py-2 px-6 rounded-lg hover:bg-dark-blue disabled:bg-gray disabled:cursor-not-allowed transition-colors font-medium" disabled>
-                        <i class="fas fa-check mr-2"></i>
-                        Verifieer Document
+                        <i class="fas fa-save mr-2"></i>
+                        Opslaan
                     </button>
                 </div>
                 
@@ -618,6 +630,10 @@
         @endif
     </section>
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @endpush
+
     @push('scripts')
     <script>
         // Check if user has scrolled to bottom
@@ -626,9 +642,19 @@
         const rejectBtn = document.getElementById('rejectBtn');
         
         function checkScrollPosition() {
-            const isAtBottom = scrollableContent.scrollHeight - scrollableContent.scrollTop <= scrollableContent.clientHeight + 10;
+            if (!scrollableContent || !submitBtn || !rejectBtn) {
+                console.error('Required elements not found for scroll check');
+                return;
+            }
             
-            if (isAtBottom) {
+            const scrollHeight = scrollableContent.scrollHeight;
+            const scrollTop = scrollableContent.scrollTop;
+            const clientHeight = scrollableContent.clientHeight;
+            const isAtBottom = scrollHeight - scrollTop <= clientHeight + 10;
+            
+            console.log('Scroll check:', { scrollHeight, scrollTop, clientHeight, isAtBottom });
+            
+            if (isAtBottom || scrollHeight <= clientHeight) {
                 submitBtn.disabled = false;
                 rejectBtn.disabled = false;
             }
@@ -637,22 +663,39 @@
         // Check on scroll
         scrollableContent.addEventListener('scroll', checkScrollPosition);
         
-        // Check on page load (in case content is short)
+        // Check on page load and after a delay
         setTimeout(checkScrollPosition, 100);
+        setTimeout(checkScrollPosition, 500);
+        
+        // Also check when window resizes
+        window.addEventListener('resize', checkScrollPosition);
         
         // New client form toggle
         document.getElementById('createNewBtn').addEventListener('click', function() {
+            // Clear any selected client first
+            if (!selectedClientDiv.classList.contains('hidden')) {
+                clearSelectionBtn.click();
+            }
+            
+            // Also clear the dossier_id value to ensure no client is connected
+            document.getElementById('dossier_id').value = '';
+            
             document.getElementById('newClientForm').classList.remove('hidden');
             document.getElementById('dossier_id').disabled = true;
             document.getElementById('create_new').value = '1';
             
-            // Add required attributes to new client fields
-            document.getElementById('new_client_first_name').setAttribute('required', 'required');
-            document.getElementById('new_client_last_name').setAttribute('required', 'required');
-            document.getElementById('new_client_email').setAttribute('required', 'required');
-            document.getElementById('new_client_address').setAttribute('required', 'required');
-            document.getElementById('new_client_postal_code').setAttribute('required', 'required');
-            document.getElementById('new_client_city').setAttribute('required', 'required');
+            // Enable and add required attributes to new client fields
+            const newClientFields = ['new_client_first_name', 'new_client_last_name', 'new_client_email', 
+                                   'new_client_address', 'new_client_postal_code', 'new_client_city'];
+            newClientFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.disabled = false;
+                    if (fieldId !== 'new_client_phone' && fieldId !== 'new_client_national_registry_number') {
+                        field.setAttribute('required', 'required');
+                    }
+                }
+            });
         });
         
         document.getElementById('cancelNewClientBtn').addEventListener('click', function() {
@@ -660,13 +703,17 @@
             document.getElementById('dossier_id').disabled = false;
             document.getElementById('create_new').value = '0';
             
-            // Remove required attributes from new client fields
-            document.getElementById('new_client_first_name').removeAttribute('required');
-            document.getElementById('new_client_last_name').removeAttribute('required');
-            document.getElementById('new_client_email').removeAttribute('required');
-            document.getElementById('new_client_address').removeAttribute('required');
-            document.getElementById('new_client_postal_code').removeAttribute('required');
-            document.getElementById('new_client_city').removeAttribute('required');
+            // Disable and remove required attributes from new client fields
+            const newClientFields = ['new_client_first_name', 'new_client_last_name', 'new_client_email', 
+                                   'new_client_address', 'new_client_postal_code', 'new_client_city', 
+                                   'new_client_phone', 'new_client_national_registry_number'];
+            newClientFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.disabled = true;
+                    field.removeAttribute('required');
+                }
+            });
         });
         
         // Confirm new client button
@@ -696,40 +743,71 @@
             document.getElementById('confirmNewClientBtn').innerHTML = '<i class="fas fa-check mr-1"></i>Bevestigd';
         });
         
-        // Auto-select dossier based on receiver name from parsed data
-        document.addEventListener('DOMContentLoaded', function() {
-            const dossierSelect = document.getElementById('dossier_id');
-            if (dossierSelect.selectedIndex === 0) { // No selection made yet
-                // Check if any option was marked as selected based on name matching
-                const selectedOption = dossierSelect.querySelector('option[selected]');
-                if (selectedOption) {
-                    dossierSelect.value = selectedOption.value;
-                }
-            }
-        });
+        // Moved below after selectClient is defined
         
-        // Form validation
-        document.getElementById('verifyForm').addEventListener('submit', function(e) {
-            const createNew = document.getElementById('create_new').value === '1';
-            const dossierSelected = document.getElementById('dossier_id').value;
-            
-            if (!createNew && !dossierSelected) {
-                e.preventDefault();
-                alert('Selecteer een client/dossier of maak een nieuwe aan.');
-                return false;
+        // Form validation - ensure form exists before adding listener
+        document.addEventListener('DOMContentLoaded', function() {
+            const verifyForm = document.getElementById('verifyForm');
+            if (!verifyForm) {
+                console.error('Verify form not found!');
+                return;
             }
             
-            if (createNew) {
-                const firstName = document.getElementById('new_client_first_name').value.trim();
-                const lastName = document.getElementById('new_client_last_name').value.trim();
-                const email = document.getElementById('new_client_email').value.trim();
+            console.log('Adding submit listener to verify form');
+            
+            verifyForm.addEventListener('submit', function(e) {
+                console.log('Form submission started');
                 
-                if (!firstName || !lastName || !email) {
+                const createNew = document.getElementById('create_new').value === '1';
+                const dossierSelected = document.getElementById('dossier_id').value;
+                
+                console.log('Form data:', {
+                    createNew: createNew,
+                    dossierSelected: dossierSelected,
+                    dossier_id: document.getElementById('dossier_id').value,
+                    type: document.getElementById('type').value,
+                    sender: document.getElementById('sender').value,
+                    receiver: document.getElementById('receiver').value,
+                    receive_date: document.getElementById('receive_date').value
+                });
+                
+                if (!createNew && !dossierSelected) {
                     e.preventDefault();
-                    alert('Vul alle verplichte velden in voor de nieuwe client (voornaam, achternaam, email).');
+                    alert('Selecteer een client/dossier of maak een nieuwe aan.');
                     return false;
                 }
-            }
+                
+                if (createNew) {
+                    const firstName = document.getElementById('new_client_first_name').value.trim();
+                    const lastName = document.getElementById('new_client_last_name').value.trim();
+                    const email = document.getElementById('new_client_email').value.trim();
+                    
+                    if (!firstName || !lastName || !email) {
+                        e.preventDefault();
+                        alert('Vul alle verplichte velden in voor de nieuwe client (voornaam, achternaam, email).');
+                        return false;
+                    }
+                }
+                
+                // Check other required fields
+                const requiredFields = ['type', 'sender', 'receiver', 'receive_date'];
+                for (const fieldId of requiredFields) {
+                    const field = document.getElementById(fieldId);
+                    if (!field || !field.value.trim()) {
+                        e.preventDefault();
+                        const fieldNames = {
+                            'type': 'Document Type',
+                            'sender': 'Afzender',
+                            'receiver': 'Ontvanger',
+                            'receive_date': 'Ontvangstdatum'
+                        };
+                        alert(`Vul het verplichte veld in: ${fieldNames[fieldId] || fieldId}`);
+                        return false;
+                    }
+                }
+                
+                console.log('Form validation passed, submitting...');
+            });
         });
         
         // Reject document function
@@ -762,6 +840,175 @@
                 alert('Er is een fout opgetreden bij het weggooien van het document.');
             });
         }
+        
+        // Client search functionality
+        const clientSearchInput = document.getElementById('client_search');
+        const searchResults = document.getElementById('search_results');
+        const selectedClientDiv = document.getElementById('selected_client');
+        const selectedClientName = document.getElementById('selected_client_name');
+        const selectedClientInfo = document.getElementById('selected_client_info');
+        const clearSelectionBtn = document.getElementById('clear_selection');
+        const dossierIdInput = document.getElementById('dossier_id');
+        
+        let searchTimeout;
+        
+        // Handle client search
+        clientSearchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.trim();
+            
+            if (searchTerm.length < 2) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                // Simulate search results - in production this would be an API call
+                // For now, let's filter the existing dossier options
+                const existingOptions = @json($dossiersWithClients);
+                const filtered = existingOptions.filter(option => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return option.display.toLowerCase().includes(searchLower);
+                });
+                
+                if (filtered.length > 0) {
+                    let resultsHtml = '';
+                    filtered.forEach(option => {
+                        resultsHtml += `
+                            <div class="px-4 py-2 hover:bg-blue hover:text-white cursor-pointer search-result-item" 
+                                 data-id="${option.id}" 
+                                 data-name="${option.client_name || ''}"
+                                 data-display="${option.display}">
+                                ${option.display}
+                            </div>
+                        `;
+                    });
+                    searchResults.innerHTML = resultsHtml;
+                    searchResults.classList.remove('hidden');
+                    
+                    // Add click handlers to results
+                    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            selectClient(this.dataset.id, this.dataset.name, this.dataset.display);
+                        });
+                    });
+                } else {
+                    searchResults.innerHTML = '<div class="px-4 py-2 text-gray">Geen resultaten gevonden</div>';
+                    searchResults.classList.remove('hidden');
+                }
+            }, 300);
+        });
+        
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#client_search') && !e.target.closest('#search_results')) {
+                searchResults.classList.add('hidden');
+            }
+        });
+        
+        // Handle client selection
+        function selectClient(id, name, display) {
+            // Make sure all elements exist
+            if (!dossierIdInput || !clientSearchInput || !selectedClientDiv) {
+                console.error('Required elements not found for selectClient');
+                return;
+            }
+            
+            // Close new client form if it's open
+            const newClientForm = document.getElementById('newClientForm');
+            if (newClientForm && !newClientForm.classList.contains('hidden')) {
+                document.getElementById('cancelNewClientBtn').click();
+            }
+            
+            dossierIdInput.value = id;
+            clientSearchInput.value = '';
+            clientSearchInput.disabled = true;
+            searchResults.classList.add('hidden');
+            
+            selectedClientName.textContent = name || display.split(' - ')[0];
+            selectedClientInfo.textContent = display;
+            selectedClientDiv.classList.remove('hidden');
+            
+            // Keep create new button enabled so user can switch
+            // const createNewBtn = document.getElementById('createNewBtn');
+            // if (createNewBtn) {
+            //     createNewBtn.disabled = true;
+            // }
+        }
+        
+        // Handle clear selection
+        clearSelectionBtn.addEventListener('click', function() {
+            dossierIdInput.value = '';
+            clientSearchInput.disabled = false;
+            clientSearchInput.value = '';
+            selectedClientDiv.classList.add('hidden');
+            // Button is always enabled now
+            // document.getElementById('createNewBtn').disabled = false;
+        });
+        
+        // Initially disable new client fields on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const newClientFields = ['new_client_first_name', 'new_client_last_name', 'new_client_email', 
+                                   'new_client_address', 'new_client_postal_code', 'new_client_city', 
+                                   'new_client_phone', 'new_client_national_registry_number'];
+            newClientFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.disabled = true;
+                }
+            });
+        });
+        
+        // Wait for DOM to be ready before auto-selecting
+        window.addEventListener('load', function() {
+            // Check if we have a receiver name to match
+            const receiverName = @json($receiverName ?? '');
+            console.log('Receiver name for auto-selection:', receiverName);
+            if (receiverName) {
+                const existingOptions = @json($dossiersWithClients);
+                
+                // Try to find a matching client
+                let matchedOption = null;
+                const receiverNameLower = receiverName.toLowerCase().trim();
+                
+                for (const option of existingOptions) {
+                    if (option.client_name) {
+                        const clientNameLower = option.client_name.toLowerCase().trim();
+                        
+                        // Direct match
+                        if (receiverNameLower === clientNameLower) {
+                            matchedOption = option;
+                            break;
+                        }
+                        
+                        // Try to match "FirstName LastName" with "LastName FirstName"
+                        const receiverParts = receiverNameLower.split(' ');
+                        const clientParts = clientNameLower.split(' ');
+                        
+                        if (receiverParts.length >= 2 && clientParts.length >= 2) {
+                            const receiverReversed = receiverParts.slice().reverse().join(' ');
+                            const clientReversed = clientParts.slice().reverse().join(' ');
+                            if (receiverReversed === clientNameLower || receiverNameLower === clientReversed) {
+                                matchedOption = option;
+                                break;
+                            }
+                        }
+                        
+                        // Partial match
+                        if (clientNameLower.includes(receiverNameLower) || receiverNameLower.includes(clientNameLower)) {
+                            matchedOption = option;
+                            // Don't break here, continue looking for exact matches
+                        }
+                    }
+                }
+                
+                // If we found a match, auto-select it
+                if (matchedOption) {
+                    console.log('Auto-selecting client:', matchedOption);
+                    selectClient(matchedOption.id, matchedOption.client_name, matchedOption.display);
+                }
+            }
+        });
     </script>
     @endpush
 </x-layout>

@@ -107,7 +107,13 @@ class VerifyDocumentController extends Controller
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
+        \Log::info('Verify document store called', [
+            'request_data' => $request->all(),
+            'user_id' => $user->id
+        ]);
+
+        try {
+            $validated = $request->validate([
             'original_document_id' => 'required|exists:documents,id',
             'dossier_id' => 'nullable|exists:dossiers,id',
             'create_new' => 'nullable|boolean',
@@ -172,13 +178,47 @@ class VerifyDocumentController extends Controller
         // Update the existing document
         $document = Document::find($validated['original_document_id']);
         if ($document) {
+            \Log::info('Updating document', [
+                'document_id' => $document->id,
+                'old_status' => $document->status,
+                'new_status' => Document::STATUS_VERIFIED,
+                'dossier_id' => $validated['dossier_id']
+            ]);
+            
+            // Generate new file name based on available data
+            $extension = pathinfo($document->file_name, PATHINFO_EXTENSION);
+            $newFileName = $document->file_name; // Default to current name
+            
+            // Check for description or invoice number in verified data
+            $description = $validated['verified_data']['description'] ?? null;
+            $invoiceNumber = $validated['verified_data']['invoiceNumber'] ?? null;
+            
+            if ($description && $invoiceNumber) {
+                // Use format: InvoiceNumber_Description
+                $newFileName = $invoiceNumber . '_' . $description;
+            } elseif ($description) {
+                // Use just description if no invoice number
+                $newFileName = $description;
+            } elseif ($invoiceNumber) {
+                // Use just invoice number if no description
+                $newFileName = $invoiceNumber;
+            }
+            
+            // Clean the filename - remove invalid characters
+            if ($newFileName !== $document->file_name) {
+                $newFileName = preg_replace('/[^a-zA-Z0-9_\-\s]/', '', $newFileName);
+                $newFileName = preg_replace('/\s+/', '_', trim($newFileName));
+                $newFileName = $newFileName . '.' . $extension;
+            }
+            
             $document->update([
                 'dossier_id' => $validated['dossier_id'],
                 'type' => $validated['type'],
                 'sender' => $validated['sender'],
                 'receiver' => $validated['receiver'],
                 'status' => Document::STATUS_VERIFIED,
-                'amount' => $validated['amount'] ?? ($validated['verified_data']['invoiceAmount'] ?? $document->amount)
+                'amount' => $validated['amount'] ?? ($validated['verified_data']['invoiceAmount'] ?? $document->amount),
+                'file_name' => $newFileName
             ]);
 
             // Update parsed_data with verified data
@@ -215,6 +255,15 @@ class VerifyDocumentController extends Controller
         }
 
         return redirect()->route('documents.queue')->with('success', 'Alle documenten zijn succesvol geverifieerd!');
+        
+        } catch (\Exception $e) {
+            \Log::error('Error in verify document store', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()->withErrors(['error' => 'Er is een fout opgetreden bij het verifiëren van het document: ' . $e->getMessage()]);
+        }
     }
     
     /**
