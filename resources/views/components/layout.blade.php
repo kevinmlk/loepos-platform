@@ -62,6 +62,7 @@
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5SMXPL9X"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
+        
         {{-- Navigation --}}
         <nav class="hidden lg:flex max-w-xs h-screen border-r-2 py-6 px-4 border-light-gray flex-col justify-between flex-shrink-0">            <div class="flex flex-col items-start gap-6">
                 <picture>
