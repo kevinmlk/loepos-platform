@@ -167,9 +167,9 @@ Route::get('/admin/section/{type}', function ($type) {
 // Admin - Clients
 Route::get('/admin/clients', [ClientController::class, 'index'])->middleware('auth');
 Route::get('/admin/client/create',[ClientController::class, 'create'])->middleware('auth')->name('admin.clients.create');
-Route::post('admin/client', [ClientController::class, 'store'])->middleware('auth');
-Route::get('admin/client/{client}', [ClientController::class, 'show'])->middleware('auth')->name('admin.clients.show');
-Route::patch('admin/client/{client}', [ClientController::class, 'update'])->middleware('auth');
+Route::post('/admin/client', [ClientController::class, 'store'])->middleware('auth');
+Route::get('/admin/client/{client}', [ClientController::class, 'show'])->middleware('auth')->name('admin.clients.show');
+Route::patch('/admin/client/{client}', [ClientController::class, 'update'])->middleware('auth');
 
 Route::get('/clients', function () {
     $clients = Client::with('dossiers')->get();
@@ -195,7 +195,7 @@ Route::put('/organisations/{organization}', [OrganizationController::class, 'upd
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
 
 
-// Ondersteuning 
+// Ondersteuning
 // routes/web.php
 use App\Http\Controllers\SupportController;
 

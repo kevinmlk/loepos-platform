@@ -5,7 +5,7 @@
             <p class="mt-1 text-dark-gray">Beheer hier alle organisaties die zijn aangesloten bij Loepos.</p>
         </div>
         <div class="flex gap-4">
-            <x-ui.button href="/organisation/create" class="mb-4 w-max" type="primary">
+            <x-ui.button href="/organisation/create" class="mb-4 w-max" type="secondary">
                 Organisatie toevoegen
             </x-ui.button>
         </div>
@@ -16,7 +16,6 @@
         <table class="w-full">
             <thead>
                 <th class="text-start text-caption font-regular py-2">Naam</th>
-                <th class="text-start text-caption font-regular py-2 px-6">Status</th>
                 <th class="text-start text-caption font-regular py-2 px-6">GSM-nummer</th>
                 <th class="text-start text-caption font-regular py-2 px-6">Email</th>
             </thead>
@@ -25,7 +24,6 @@
                     <x-shared.organisations-row
                     :organization="$organization"
                     :name="$organization->name"
-                    :status="$organization->status"
                     :phone="$organization->phone"
                     :email="$organization->email"
                 />

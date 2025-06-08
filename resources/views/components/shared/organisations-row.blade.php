@@ -7,9 +7,6 @@
             <span class="text-black hover:text-blue">{{ $organization->name }}</span>
         </div>
     </td>
-    <td class="text-caption px-6 py-4">
-        <x-shared.badge :status="$organization->status" />
-    </td>
     <td class="text-dark-gray text-body-small px-6 py-4">
         {{ $organization->phone }}
     </td>

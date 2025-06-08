@@ -13,9 +13,6 @@
             <strong>Naam:</strong> {{ $organization->name }}
         </div>
         <div class="mb-4">
-            <strong>Status:</strong> {{ $organization->status }}
-        </div>
-        <div class="mb-4">
             <strong>GSM-nummer:</strong> {{ $organization->phone }}
         </div>
         <div class="mb-4">
@@ -32,7 +29,7 @@
         </div>
 
         <!-- Back to list button -->
-        <x-ui.button href="{{ route('organisations.index') }}" class="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+        <x-ui.button href="{{ route('organisations.index') }}" type="secondary" class="w-max">
             ← Terug naar lijst
         </x-ui.button>
     </section>

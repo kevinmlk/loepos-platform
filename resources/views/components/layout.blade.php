@@ -103,7 +103,7 @@
                      @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                                 <x-nav-link-container>
-                                    <x-nav-link href="/superdashboard" :active="request()->is('superdashboard')">
+                                    <x-nav-link href="/" :active="request()->is('Dashboard')">
                                         <x-phosphor-house-bold class="w-6 h-6 mr-3" /><span>Dashboard</span>
                                     </x-nav-link>
                                 </x-nav-link-container>
@@ -216,7 +216,7 @@
                         @endif
                         @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
                             <li>
-                                <a href="/superdashboard" @click="open = false" class="flex items-center gap-3">
+                                <a href="/" @click="open = false" class="flex items-center gap-3">
                                     <x-phosphor-house-bold class="w-6 h-6" /> Dashboard
                                 </a>
                             </li>
