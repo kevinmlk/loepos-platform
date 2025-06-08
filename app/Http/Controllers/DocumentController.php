@@ -84,6 +84,17 @@ class DocumentController extends Controller
     {
         $user = Auth::user();
 
+        // First check if there are any pending documents to verify
+        $pendingDocuments = Document::where('status', Document::STATUS_PENDING)
+            ->whereHas('upload', function($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->exists();
+            
+        if ($pendingDocuments) {
+            return redirect()->route('queue.verify');
+        }
+
         // Get all pending uploads for the user's organization that have parsed_data
         $uploads = Upload::where('organization_id', $user->organization_id)
             ->where('status', 'pending')  // Using string directly to match database

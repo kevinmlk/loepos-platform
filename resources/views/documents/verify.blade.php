@@ -398,7 +398,6 @@
                                         name="new_client[first_name]" 
                                         id="new_client_first_name"
                                         value="{{ $clientFirstName ?: explode(' ', $receiverName)[0] ?? '' }}"
-                                        required
                                     />
                                 </div>
                                 <div>
@@ -408,7 +407,6 @@
                                         name="new_client[last_name]" 
                                         id="new_client_last_name"
                                         value="{{ $clientLastName ?: (count(explode(' ', $receiverName)) > 1 ? implode(' ', array_slice(explode(' ', $receiverName), 1)) : '') }}"
-                                        required
                                     />
                                 </div>
                             </div>
@@ -423,7 +421,6 @@
                                         id="new_client_email"
                                         value="{{ $clientEmail }}"
                                         placeholder="client@voorbeeld.be"
-                                        required
                                     />
                                 </div>
                                 <div>
@@ -447,7 +444,6 @@
                                     id="new_client_address"
                                     value="{{ $clientAddress }}"
                                     placeholder="Straatnaam 123"
-                                    required
                                 />
                             </div>
                             
@@ -461,7 +457,6 @@
                                         id="new_client_postal_code"
                                         value="{{ $clientPostalCode }}"
                                         placeholder="1000"
-                                        required
                                     />
                                 </div>
                                 <div>
@@ -472,7 +467,6 @@
                                         id="new_client_city"
                                         value="{{ $clientCity }}"
                                         placeholder="Brussel"
-                                        required
                                     />
                                 </div>
                                 <div>
@@ -595,12 +589,28 @@
             document.getElementById('newClientForm').classList.remove('hidden');
             document.getElementById('dossier_id').disabled = true;
             document.getElementById('create_new').value = '1';
+            
+            // Add required attributes to new client fields
+            document.getElementById('new_client_first_name').setAttribute('required', 'required');
+            document.getElementById('new_client_last_name').setAttribute('required', 'required');
+            document.getElementById('new_client_email').setAttribute('required', 'required');
+            document.getElementById('new_client_address').setAttribute('required', 'required');
+            document.getElementById('new_client_postal_code').setAttribute('required', 'required');
+            document.getElementById('new_client_city').setAttribute('required', 'required');
         });
         
         document.getElementById('cancelNewClientBtn').addEventListener('click', function() {
             document.getElementById('newClientForm').classList.add('hidden');
             document.getElementById('dossier_id').disabled = false;
             document.getElementById('create_new').value = '0';
+            
+            // Remove required attributes from new client fields
+            document.getElementById('new_client_first_name').removeAttribute('required');
+            document.getElementById('new_client_last_name').removeAttribute('required');
+            document.getElementById('new_client_email').removeAttribute('required');
+            document.getElementById('new_client_address').removeAttribute('required');
+            document.getElementById('new_client_postal_code').removeAttribute('required');
+            document.getElementById('new_client_city').removeAttribute('required');
         });
         
         // Confirm new client button
