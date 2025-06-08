@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Document;
 use App\Models\Client;
 use App\Models\Dossier;
+use App\Models\Upload;
 
 class VerifyDocumentController extends Controller
 {
@@ -87,11 +88,15 @@ class VerifyDocumentController extends Controller
                 ];
             });
 
+        // Calculate AI queue badge count
+        $queueCount = $this->calculateQueueCount($user);
+
         return view('documents.verify', [
             'documentData' => $documentData,
             'dossiersWithClients' => $dossiersWithClients,
             'documentTypes' => Document::TYPES,
-            'progress' => $progress
+            'progress' => $progress,
+            'queueCount' => $queueCount
         ]);
     }
 
@@ -252,5 +257,25 @@ class VerifyDocumentController extends Controller
                 ? route('queue.verify') 
                 : route('documents.queue')
         ]);
+    }
+
+    /**
+     * Calculate the total count for AI queue badge
+     */
+    private function calculateQueueCount($user)
+    {
+        // Count pending uploads (documents column contains number of documents in each upload)
+        $pendingUploadsCount = Upload::where('organization_id', $user->organization_id)
+            ->where('status', Upload::STATUS_PENDING)
+            ->sum('documents');
+        
+        // Count pending documents
+        $pendingDocumentsCount = Document::where('status', Document::STATUS_PENDING)
+            ->whereHas('upload', function($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->count();
+        
+        return $pendingUploadsCount + $pendingDocumentsCount;
     }
 }

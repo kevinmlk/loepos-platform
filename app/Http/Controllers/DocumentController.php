@@ -43,9 +43,13 @@ class DocumentController extends Controller
         $user = Auth::user();
 
         $documents = $this->documentService->getDocuments($user);
+        
+        // Calculate AI queue badge count
+        $queueCount = $this->calculateQueueCount($user);
 
         return view('documents.index', [
-            'documents' => $documents
+            'documents' => $documents,
+            'queueCount' => $queueCount
         ]);
     }
 
@@ -136,8 +140,12 @@ class DocumentController extends Controller
             ];
         });
 
+        // Calculate AI queue badge count
+        $queueCount = $this->calculateQueueCount($user);
+
         return view('documents.queue', [
-            'documents' => $documents
+            'documents' => $documents,
+            'queueCount' => $queueCount
         ]);
     }
 
@@ -581,5 +589,25 @@ class DocumentController extends Controller
         }
         
         return null;
+    }
+
+    /**
+     * Calculate the total count for AI queue badge
+     */
+    private function calculateQueueCount($user)
+    {
+        // Count pending uploads (documents column contains number of documents in each upload)
+        $pendingUploadsCount = Upload::where('organization_id', $user->organization_id)
+            ->where('status', Upload::STATUS_PENDING)
+            ->sum('documents');
+        
+        // Count pending documents
+        $pendingDocumentsCount = Document::where('status', Document::STATUS_PENDING)
+            ->whereHas('upload', function($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->count();
+        
+        return $pendingUploadsCount + $pendingDocumentsCount;
     }
 }
