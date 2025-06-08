@@ -12,20 +12,24 @@ class SupportController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required',
+            'subject' => 'nullable|string|max:255',
         ]);
 
         $user = auth()->user();
 
         $organization = $user->organization->name ?? 'Onbekende organisatie';
+        $subject = $validated['subject'] ?? 'Ondersteuningsaanvraag';
 
         Mail::raw(
-            "Organisatie: {$organization}\nNaam: {$user->name}\nE-mail: {$user->email}\n\nBericht:\n{$validated['message']}",
-            function ($mail) use ($user, $organization, $validated) {
+            "Organisatie: {$organization}\nNaam: {$user->name}\nE-mail: {$user->email}\n\nOnderwerp: {$subject}\n\nBericht:\n{$validated['message']}",
+            function ($mail) use ($user, $organization, $subject) {
                 $mail->to('info@loepos.be')
-                     ->subject('Ondersteuningsaanvraag');
+                     ->subject("Ondersteuning: {$subject}")
+                     ->from($user->email, $user->name)
+                     ->replyTo($user->email, $user->name);
             }
         );
 
-        return back()->with('success', 'Je bericht is succesvol verzonden.');
+        return back()->with('success', 'Uw bericht is succesvol verzonden. We nemen zo spoedig mogelijk contact met u op.');
     }
 }

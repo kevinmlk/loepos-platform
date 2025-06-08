@@ -3,22 +3,34 @@
     <x-header>
         Ondersteunings
         <x-slot:subText>
-            Contacteer onze IT afdeling met vragen.
+            Heeft u hulp nodig? Contacteer onze IT-afdeling.
         </x-slot:subText>
     </x-header>
 
+    {{-- Success message --}}
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 p-4 rounded mb-4">
-            {{ session('success') }}
+        <div class="bg-green-50 border-2 border-green-500 text-green-800 p-4 rounded-lg">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-3 text-green-600"></i>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
         </div>
     @endif
 
-    {{-- Info tekst --}}
-    <p>Gebruik onderstaand formulier om contact op te nemen met onze IT afdeling.</p>
+    {{-- Main content grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Contact form section (2/3 width on desktop) --}}
+        <section class="lg:col-span-2 border-2 border-light-gray rounded-lg">
+            <div class="p-6">
+                {{-- Introduction --}}
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-2">Contact opnemen</h2>
+                    <p class="text-dark-gray">Gebruik onderstaand formulier om contact op te nemen met onze IT-afdeling. We streven ernaar om binnen 24 uur te reageren op uw vraag.</p>
+                </div>
 
-    {{-- Formulier --}}
-    <form method="POST" action="{{ route('support.send') }}" class="space-y-4 mt-4 max-w-lg">
-        @csrf
+                {{-- Contact form --}}
+                <form method="POST" action="{{ route('support.send') }}">
+                    @csrf
 
         {{-- Organisatie (readonly) --}}
         <div>
@@ -38,12 +50,83 @@
                    class="border rounded w-full p-2 bg-gray-100">
         </div>
 
-        {{-- Bericht --}}
-        <div>
-            <label for="message" class="block font-medium">Bericht</label>
-            <textarea id="message" name="message" rows="5" required class="border rounded w-full p-2"></textarea>
-        </div>
+                            {{-- Message --}}
+                            <div>
+                                <x-form.label for="message">Bericht*</x-form.label>
+                                <textarea 
+                                    id="message" 
+                                    name="message" 
+                                    rows="6" 
+                                    required 
+                                    class="w-full px-3 py-2 border border-light-gray rounded-lg focus:outline-none focus:border-blue resize-none"
+                                    placeholder="Beschrijf uw vraag of probleem zo gedetailleerd mogelijk..."
+                                ></textarea>
+                                <p class="text-xs text-gray mt-1">* Verplicht veld</p>
+                            </div>
+                        </div>
 
-        <button type="submit" class="bg-blue text-white hover:bg-dark-blue bgtext-white px-4 py-2 rounded">Verzenden</button>
-    </form>
+                        {{-- Action buttons --}}
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+                            <div class="text-sm text-gray">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                <span class="block sm:inline">Antwoord wordt gestuurd naar:</span>
+                                <span class="block sm:inline font-medium">{{ auth()->user()->email }}</span>
+                            </div>
+                            
+                            <button type="submit" class="bg-blue text-white px-6 py-2 rounded-lg hover:bg-dark-blue transition-colors font-medium w-full sm:w-auto">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Bericht versturen
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        {{-- FAQ section (1/3 width on desktop) --}}
+        <section class="lg:col-span-1 border-2 border-light-gray rounded-lg h-fit">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-question-circle mr-2 text-blue"></i>
+                    Veelgestelde vragen
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="border-b border-light-gray pb-4">
+                        <h3 class="font-semibold text-blue mb-2 text-sm">Hoe upload ik documenten?</h3>
+                        <p class="text-dark-gray text-sm">Ga naar de Upload pagina via het hoofdmenu. U kunt documenten slepen en neerzetten of klikken om bestanden te selecteren.</p>
+                    </div>
+                    
+                    <div class="border-b border-light-gray pb-4">
+                        <h3 class="font-semibold text-blue mb-2 text-sm">Wat is de maximale bestandsgrootte?</h3>
+                        <p class="text-dark-gray text-sm">De maximale bestandsgrootte is 50 MB per document. Ondersteunde formaten zijn PDF, JPG, en PNG.</p>
+                    </div>
+                    
+                    <div class="border-b border-light-gray pb-4">
+                        <h3 class="font-semibold text-blue mb-2 text-sm">Hoe snel krijg ik antwoord?</h3>
+                        <p class="text-dark-gray text-sm">We streven ernaar om binnen 24 uur te reageren op werkdagen. Voor urgente zaken kunt u telefonisch contact opnemen.</p>
+                    </div>
+
+                    <div class="pb-4">
+                        <h3 class="font-semibold text-blue mb-2 text-sm">Kan ik meerdere bestanden tegelijk uploaden?</h3>
+                        <p class="text-dark-gray text-sm">Ja, u kunt meerdere bestanden selecteren of slepen naar het uploadvenster om ze tegelijk te uploaden.</p>
+                    </div>
+                </div>
+
+                {{-- Contact info --}}
+                <div class="mt-6 pt-4 border-t border-light-gray">
+                    <h3 class="font-semibold text-sm mb-2">Direct contact</h3>
+                    <p class="text-dark-gray text-sm">
+                        <i class="fas fa-phone mr-2 text-blue"></i>
+                        Voor urgente zaken: 
+                        <a href="tel:+32478379695" class="text-blue hover:underline">+32 478 37 96 95</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    @push('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @endpush
 </x-layout>
