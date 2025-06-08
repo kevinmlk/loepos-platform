@@ -1,6 +1,6 @@
 # LoePos Platform
 
-Welcome to the LoePos Platform! This platform is designed to streamline document management
+Welcome to the Loepos Platform! This platform is designed to streamline document management
 , dossier handling, and user administration for organizations. Below you'll find essential information, including platform access, test users, API resources, and instructions for getting started.
 
 ---
@@ -26,7 +26,7 @@ You can use the following test accounts to explore the platform's features. Each
 - **Password:** test123
 
 ### 3. Super Admin
-- **Role:** Create organizations and users, full platform access
+- **Role:** Create organizations and users
 - **Email:** superadmin@loepos.be
 - **Password:** test123
 
@@ -62,4 +62,4 @@ For questions, issues, or feedback, please contact the platform administrator or
 
 ---
 
-Enjoy exploring the LoePos Platform!
+Enjoy exploring the Loepos Platform!
