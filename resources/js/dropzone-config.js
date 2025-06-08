@@ -5,9 +5,12 @@ import 'dropzone/dist/dropzone.css';
 
 document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('document-dropzone')) {
+        // Get max upload size from window object (in bytes), convert to MB
+        const maxFileSizeMB = window.maxUploadSizeBytes ? (window.maxUploadSizeBytes / 1024 / 1024) : 2;
+        
         const dropzone = new Dropzone('#document-dropzone', {
             paramName: "file", // The name that will be used to transfer the file
-            maxFilesize: 2, // MB
+            maxFilesize: maxFileSizeMB, // MB
             acceptedFiles: ".pdf,.png,.jpg",
             autoProcessQueue: false, // Prevent automatic upload
             addRemoveLinks: true,
@@ -40,6 +43,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     const ext = file.name.split('.').pop().toLowerCase();
                     const iconClass = ext === 'pdf' ? 'phosphor-file-pdf' : 'phosphor-file-image';
                     
+                    // Format file size
+                    let fileSize = '';
+                    if (file.size >= 1024 * 1024) {
+                        fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                    } else if (file.size >= 1024) {
+                        fileSize = (file.size / 1024).toFixed(0) + ' KB';
+                    } else {
+                        fileSize = file.size + ' bytes';
+                    }
+                    
                     previewContainer.innerHTML = `
                         <div class="dz-file-info">
                             <div class="dz-file-icon">
@@ -47,7 +60,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                             <div class="dz-file-details">
                                 <h4>${file.name}</h4>
-                                <p>${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                <p class="flex items-center gap-2">
+                                    <span class="text-blue font-semibold">${fileSize}</span>
+                                    <span class="text-gray">•</span>
+                                    <span class="text-gray">${ext.toUpperCase()}</span>
+                                </p>
                             </div>
                         </div>
                         <div>

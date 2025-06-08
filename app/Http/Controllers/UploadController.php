@@ -49,15 +49,24 @@ class UploadController extends Controller
         // Calculate Wachtrij badge count
         $queueCount = $this->calculateQueueCount($user);
         
+        // Get the maximum upload size from PHP configuration
+        $maxUploadSizeBytes = $this->getMaxUploadSizeBytes();
+        $maxUploadSize = $this->formatBytes($maxUploadSizeBytes);
+        
         return view('uploads.create', [
-            'queueCount' => $queueCount
+            'queueCount' => $queueCount,
+            'maxUploadSize' => $maxUploadSize,
+            'maxUploadSizeBytes' => $maxUploadSizeBytes
         ]);
     }
 
     public function store(Request $request)
     {
+        // Get max upload size in KB for validation
+        $maxKB = min($this->parseSize(ini_get('upload_max_filesize')), $this->parseSize(ini_get('post_max_size'))) / 1024;
+        
         $request->validate([
-            'file' => 'required|file|mimes:pdf,png,jpg'
+            'file' => 'required|file|mimes:pdf,png,jpg|max:' . $maxKB
         ]);
 
         try {
@@ -165,5 +174,60 @@ class UploadController extends Controller
             ->count();
         
         return $pendingUploadsCount + $pendingDocumentsCount;
+    }
+
+    /**
+     * Get the maximum upload size in bytes
+     */
+    private function getMaxUploadSizeBytes()
+    {
+        // Get values from PHP configuration
+        $uploadMax = $this->parseSize(ini_get('upload_max_filesize'));
+        $postMax = $this->parseSize(ini_get('post_max_size'));
+        
+        // Return the smaller of the two values
+        return min($uploadMax, $postMax);
+    }
+    
+    /**
+     * Get the maximum upload size from PHP configuration
+     */
+    private function getMaxUploadSize()
+    {
+        $maxBytes = $this->getMaxUploadSizeBytes();
+        
+        // Convert to human readable format
+        return $this->formatBytes($maxBytes);
+    }
+
+    /**
+     * Parse PHP size string to bytes
+     */
+    private function parseSize($size)
+    {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
+        $size = preg_replace('/[^0-9\.]/', '', $size);
+        
+        if ($unit) {
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        } else {
+            return round($size);
+        }
+    }
+
+    /**
+     * Format bytes to human readable format
+     */
+    private function formatBytes($bytes)
+    {
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 0) . 'GB';
+        } elseif ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 0) . 'MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 0) . 'KB';
+        } else {
+            return number_format($bytes, 0) . ' bytes';
+        }
     }
 }

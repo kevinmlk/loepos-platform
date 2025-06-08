@@ -57,7 +57,7 @@
                 <x-phosphor-image-thin class="h-30 text-blue mb-4" />
                 <span class="text-lg font-medium text-gray-600 mb-2">Sleep je documenten hier</span>
                 <span class="text-sm text-gray-500">of klik om een bestand te kiezen</span>
-                <span class="text-xs text-gray-400 mt-4">Ondersteunde formaten: PDF, PNG, JPG (Max. 2MB)</span>
+                <span class="text-xs text-gray-400 mt-4">Ondersteunde formaten: PDF, PNG, JPG (Max. {{ $maxUploadSize }})</span>
             </div>
 
             <div class="dropzone-buttons flex justify-end gap-3 mt-4">
@@ -66,6 +66,10 @@
             </div>
         </form>
 
+        <script>
+            // Pass PHP max upload size to JavaScript
+            window.maxUploadSizeBytes = {{ $maxUploadSizeBytes ?? 2097152 }}; // Default to 2MB if not set
+        </script>
         @vite(['resources/js/dropzone-config.js'])
     </section>
 </x-layout>
