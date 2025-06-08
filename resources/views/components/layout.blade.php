@@ -263,7 +263,8 @@
         {{-- Main --}}
         <main class="pt-6 pb-2 px-14 flex-1 flex flex-col gap-8 overflow-y-auto
             lg:pt-6
-            pt-[94px]">
+            pt-[94px]
+            pb-[36px]">
             {{ $slot }}
         </main>
 
