@@ -261,23 +261,29 @@ class VerifyDocumentController extends Controller
                 'dossier_id' => $validated['dossier_id']
             ]);
 
-            // Generate new file name based on available data
+            // Generate new file name based on sender and document number
             $extension = pathinfo($document->file_name, PATHINFO_EXTENSION);
             $newFileName = $document->file_name; // Default to current name
 
-            // Check for description or invoice number in verified data
-            $description = $validated['verified_data']['description'] ?? null;
-            $invoiceNumber = $validated['verified_data']['invoiceNumber'] ?? null;
+            // Get sender name and document number
+            $senderName = $validated['sender'] ?? '';
+            $documentNumber = $validated['verified_data']['invoiceNumber'] ?? '';
 
-            if ($description && $invoiceNumber) {
-                // Use format: InvoiceNumber_Description
-                $newFileName = $invoiceNumber . '_' . $description;
-            } elseif ($description) {
-                // Use just description if no invoice number
-                $newFileName = $description;
-            } elseif ($invoiceNumber) {
-                // Use just invoice number if no description
-                $newFileName = $invoiceNumber;
+            // Create new filename using sender name and document number
+            if ($senderName || $documentNumber) {
+                $fileNameParts = [];
+                
+                if ($senderName) {
+                    $fileNameParts[] = $senderName;
+                }
+                
+                if ($documentNumber) {
+                    $fileNameParts[] = $documentNumber;
+                }
+                
+                if (!empty($fileNameParts)) {
+                    $newFileName = implode('_', $fileNameParts);
+                }
             }
 
             // Clean the filename - remove invalid characters
