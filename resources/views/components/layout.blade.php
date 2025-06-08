@@ -90,15 +90,14 @@
 
                     {{-- Support nav link --}}
                     @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
-                                <x-nav-link-container>
-                                    <x-nav-link href="/support" :active="request()->is('support')">
-                                        <x-phosphor-question-bold class="w-6 h-6 mr-3" /><span>Ondersteuning</span>
-                                    </x-nav-link>
-                                </x-nav-link-container>
-                            @endif
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                            <x-nav-link-container>
+                                <x-nav-link href="/support" :active="request()->is('support')">
+                                    <x-phosphor-question-bold class="w-6 h-6 mr-3" /><span>Ondersteuning</span>
+                                </x-nav-link>
+                            </x-nav-link-container>
+                        @endif
                     @endauth
-
                     {{-- Add users nav link --}}
                      @auth
                             @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
@@ -112,13 +111,13 @@
 
                     {{-- Add organisation nav link --}}
                     @auth
-                            @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
-                                <x-nav-link-container>
-                                    <x-nav-link href="/organisations" :active="request()->is('organisations')">
-                                        <x-phosphor-buildings-bold class="w-6 h-6 mr-3" /><span>Organisaties</span>
-                                    </x-nav-link>
-                                </x-nav-link-container>
-                            @endif
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_SUPERADMIN]))
+                            <x-nav-link-container>
+                                <x-nav-link href="/organisations" :active="request()->is('organisations')">
+                                    <x-phosphor-buildings-bold class="w-6 h-6 mr-3" /><span>Organisaties</span>
+                                </x-nav-link>
+                            </x-nav-link-container>
+                        @endif
                     @endauth
                 </ul>
             </div>
@@ -143,6 +142,14 @@
                     <x-nav-link type="button"><x-phosphor-sign-out-bold class="w-6 h-6 mr-3" /><span>Afmelden</span>
                     </x-nav-link>
                 </form>
+                @auth
+                    @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                        <x-nav-link href="/user/{{ auth()->user()->id }}" class="flex items-center gap-3 text-dark-gray hover:text-blue">
+                            <x-phosphor-user-bold class="w-6 h-6 mr-3" />
+                            Mijn account
+                        </x-nav-link>
+                    @endif
+                @endauth
             </div>
         </nav>
 
@@ -241,6 +248,14 @@
                                 </button>
                             </form>
                         </li>
+                    @endauth
+                    @auth
+                        @if (in_array(auth()->user()->role, [\App\Models\User::ROLE_EMPLOYEE, \App\Models\User::ROLE_ADMIN]))
+                            <a href="/user/{{ auth()->user()->id }}" class="flex items-center gap-3">
+                                <x-phosphor-user-bold class="w-6 h-6" />
+                                Mijn account
+                            </a>
+                        @endif
                     @endauth
                 </ul>
             </div>

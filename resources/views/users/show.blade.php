@@ -5,11 +5,13 @@
             <h1 class="text-4xl font-bold">Gebruiker bewerken</h1>
             <p class="mt-1 text-dark-gray">Gegevens van de gebruiker bewerken.</p>
         </div>
+        @if(auth()->user()->role === \App\Models\User::ROLE_SUPERADMIN)
         <div class="flex gap-4">
             <x-ui.button href="/users" class="mb-4 w-max" type="secondary">
                 Terug naar overzicht
             </x-ui.button>
         </div>
+        @endif
     </header>
 
     <section class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4">
@@ -74,6 +76,7 @@
                 @enderror
             </div>
 
+            @if(auth()->user()->role === \App\Models\User::ROLE_SUPERADMIN)
             <div>
                 <x-form.label for="organization">Organisatie (selecteer)</x-form.label>
                 <select id="organization" name="organization"
@@ -104,7 +107,7 @@
                     <div class="text-red-500">{{ $message }}</div>
                 @enderror
             </div>
-
+            @endif
             <div>
                 <x-ui.button type="primary">Bewerken</x-ui.button>
             </div>
