@@ -38,16 +38,30 @@
     <section class="border-2 border-light-gray rounded-lg p-6 flex flex-col gap-4">
         <h2>Documenten uploaden</h2>
 
+        {{-- Display errors if any --}}
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Er is een fout opgetreden!</strong>
+                <ul class="mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- Upload document form --}}
         <form action="/upload" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 dropzone" id="document-dropzone">
             @csrf
-            <div class="dz-message flex flex-col">
-                <x-phosphor-image-thin class="h-30 text-blue" />
-                <span>Sleep je documenten hier, <br>of klik om een bestand te kiezen.</span>
+            <div class="dz-message flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors cursor-pointer bg-gray-50 hover:bg-gray-100">
+                <x-phosphor-image-thin class="h-30 text-blue mb-4" />
+                <span class="text-lg font-medium text-gray-600 mb-2">Sleep je documenten hier</span>
+                <span class="text-sm text-gray-500">of klik om een bestand te kiezen</span>
+                <span class="text-xs text-gray-400 mt-4">Ondersteunde formaten: PDF, PNG, JPG (Max. 2MB)</span>
             </div>
 
-            <div class="dropzone-buttons">
-                <x-ui.button type="tertiary" href="/upload/create">Annuleren</x-ui.button>
+            <div class="dropzone-buttons flex justify-end gap-3 mt-4">
+                <x-ui.button type="tertiary" href="/documents">Annuleren</x-ui.button>
                 <x-ui.button type="primary" id="form-submit">Upload</x-ui.button>
             </div>
         </form>

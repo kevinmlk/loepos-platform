@@ -43,6 +43,7 @@ Route::post('/document', [DocumentController::class, 'store'])->middleware('auth
 // Upload
 Route::get('/upload', [UploadController::class, 'create'])->middleware('auth')->name('upload');
 Route::post('/upload', [UploadController::class, 'store'])->middleware('auth')->name('upload.store');
+Route::get('/uploads/{upload}/view', [UploadController::class, 'view'])->middleware('auth')->name('uploads.view');
 
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');

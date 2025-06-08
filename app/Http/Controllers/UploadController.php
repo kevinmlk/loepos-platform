@@ -67,11 +67,27 @@ class UploadController extends Controller
             $parsedData = $this->uploadService->splitUpload($fileProperties['fullPath']);
             $upload = $this->uploadService->createUploadRecord($fileProperties, $parsedData);
 
-            return response()->json(['redirect' => url('/uploads/' . $upload->id)]);
+            return response()->json(['redirect' => url('/queue')]);
         } catch (\Exception $e) {
             IlluminateLog::error('Error during file upload: ' . $e->getMessage());
+            
+            // Use the specific error message if it's a known issue
+            $errorMessage = $e->getMessage();
+            if (str_contains($errorMessage, 'PDF-bestand lijkt beschadigd') || 
+                str_contains($errorMessage, 'bad XRef entry')) {
+                $userMessage = 'Het PDF-bestand lijkt beschadigd te zijn. Probeer het bestand opnieuw op te slaan of gebruik een ander bestand.';
+            } else {
+                $userMessage = 'Er is een fout opgetreden tijdens het uploaden. Probeer het opnieuw.';
+            }
+            
+            // Return JSON error response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'error' => $userMessage
+                ], 500);
+            }
 
-            return redirect()->back()->withErrors(['error' => 'An error occurred during the upload process. Please try again.']);
+            return redirect()->back()->withErrors(['error' => $userMessage]);
         }
     }
 

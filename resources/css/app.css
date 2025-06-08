@@ -67,36 +67,93 @@ h2 {
   line-height: var(--line-height-headers);
 }
 
+/* Dropzone custom styling */
+.dropzone {
+    border: none !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+}
+
 .dropzone .dz-message {
+    margin: 0 !important;
+}
+
+/* Hide default dropzone preview template */
+.dropzone .dz-preview {
+    display: none !important;
+}
+
+/* Custom file preview styling */
+.dz-file-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 0.5rem;
+    background-color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dz-file-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dz-file-icon {
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    text-align: center;
+    background-color: var(--color-transparant-blue);
+    border-radius: 0.25rem;
 }
 
-.dropzone {
-    border: 2px dashed var(--color-dark-blue) !important; /* Dotted border */
+.dz-file-details h4 {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--text-body-default);
+    margin: 0;
 }
 
-.dropzone .dz-message .icon {
-    font-size: 48px;
-    margin-bottom: 10px;
+.dz-file-details p {
+    font-size: var(--text-body-small);
+    color: var(--color-dark-gray);
+    margin: 0;
 }
 
-.dropzone .dz-preview {
-    position: relative !important;
+.dz-remove-file {
+    color: var(--color-red);
+    text-decoration: none;
+    font-size: var(--text-body-small);
+    cursor: pointer;
 }
 
-.dropzone .dz-preview .dz-image img {
-    width: 100%;
+.dz-remove-file:hover {
+    text-decoration: underline;
 }
 
-.dropzone-buttons {
-    margin-top: 20px !important;
-    display: flex !important;
-    justify-content: flex-end !important;
-    gap: 10px !important;
+/* Error message styling */
+.dz-error-message {
+    color: var(--color-red);
+    font-size: var(--text-body-small);
+    margin-top: 0.5rem;
+}
+
+/* Upload progress bar */
+.dz-progress {
+    margin-top: 0.5rem;
+    height: 4px;
+    background-color: var(--color-light-gray);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.dz-upload {
+    height: 100%;
+    background-color: var(--color-blue);
+    transition: width 0.3s ease;
 }
 
 .admin-card {
