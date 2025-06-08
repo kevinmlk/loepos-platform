@@ -16,6 +16,7 @@ class AdminController extends Controller
     public function medewerkers()
     {
         $users = \App\Models\User::all(); // Or filter by role if needed
+        
         return view('admin.employees', compact('users'));
     }
 

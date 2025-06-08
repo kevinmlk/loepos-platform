@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use App\Models\Document;
+
 return new class extends Migration
 {
     /**
@@ -11,14 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_dossier', function (Blueprint $table) {
+        Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->foreignId('dossier_id')->constrained('dossiers')->onDelete('cascade');
+            $table->foreignIdFor(Document::class);
+            $table->integer('page_number');
+            $table->json('content');
             $table->timestamps();
-            
-            // Ensure unique combinations
-            $table->unique(['client_id', 'dossier_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_dossier');
+        Schema::dropIfExists('pages');
     }
 };

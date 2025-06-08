@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email');
-            $table->string('phone');
-            $table->string('website');
-            $table->string('VAT');
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
+            $table->string('website')->unique();
+            $table->string('VAT')->unique()->nullable();
             $table->string('address');
             $table->string('postal_code');
             $table->string('city');

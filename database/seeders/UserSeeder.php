@@ -15,6 +15,33 @@ class UserSeeder extends Seeder
     {
         // Test employee user for login
         User::factory()->create([
+            'first_name' => 'Medewerker',
+            'last_name' => 'Loepos',
+            'email' => 'medewerker@loepos.be',
+            'password' => 'test123',
+            'organization_id' => '1',
+            'role' => User::ROLE_EMPLOYEE,
+        ]);
+
+        User::factory()->create([
+            'first_name' => 'Admin',
+            'last_name' => 'Loepos',
+            'email' => 'admin@loepos.be',
+            'password' => 'test123',
+            'organization_id' => '1',
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        User::factory()->create([
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
+            'email' => 'superadmin@loepos.be',
+            'password' => 'test123',
+            'organization_id' => null,
+            'role' => User::ROLE_SUPERADMIN,
+        ]);
+
+        User::factory()->create([
             'first_name' => 'James',
             'last_name' => 'Doe',
             'email' => 'james.doe@mail.be',
@@ -23,6 +50,7 @@ class UserSeeder extends Seeder
             'role' => User::ROLE_EMPLOYEE,
         ]);
 
+        // test admin user for login
         User::factory()->create([
             'first_name' => 'Jane',
             'last_name' => 'Doe',
@@ -30,15 +58,6 @@ class UserSeeder extends Seeder
             'password' => 'jane123',
             'organization_id' => 1,
             'role' => User::ROLE_ADMIN,
-        ]);
-
-        User::factory()->create([
-            'first_name' => 'Admin',
-            'last_name' => 'Loepos',
-            'email' => 'admin@loepos.be',
-            'password' => 'admin123',
-            'organization_id' => null,
-            'role' => User::ROLE_SUPERADMIN,
         ]);
 
         User::factory()->create([

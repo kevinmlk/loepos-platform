@@ -19,7 +19,7 @@
             href="/tasks"
             class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium bg-blue text-white"
         >
-            Inbox
+            Taken
         </a>
     </div>
 

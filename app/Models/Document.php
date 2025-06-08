@@ -19,23 +19,40 @@ class Document extends Model
         self::TYPE_AGREEMENT,
     ];
 
+    const STATUS_PENDING = 'pending';
+    const STATUS_VERIFIED = 'verified';
+    const STATUS_REJECTED = 'rejected';
+
+    public const STATUS = [
+        self::STATUS_PENDING,
+        self::STATUS_VERIFIED,
+        self::STATUS_REJECTED,
+    ];
+
     protected $fillable = [
-        'organization_id',
+        'upload_id',
         'dossier_id',
         'type',
         'file_name',
         'file_path',
         'parsed_data',
-        'verified_status'
+        'status',
+        'sender',
+        'receiver',
+        'amount'
     ];
 
     // Relations
-    public function organization() {
-        return $this->belongsTo(Organization::class);
+    public function upload() {
+        return $this->belongsTo(Upload::class);
     }
 
     public function dossier() {
         return $this->belongsTo(Dossier::class);
+    }
+
+    public function pages() {
+        return $this->hasMany(Page::class);
     }
 
     public function payment() {
@@ -44,9 +61,5 @@ class Document extends Model
 
     public function tasks() {
         return $this->hasMany(Task::class);
-    }
-
-    public function aiLogs() {
-        return $this->hasMany(AiLog::class);
     }
 }

@@ -3,12 +3,12 @@
     <x-header>
         Alle dossiers
         <x-slot:subText>
-            Hier vind je een overzicht van alle dossiers.
+            Hier vind u een overzicht van alle dossiers.
         </x-slot:subText>
     </x-header>
 
     {{-- Tab navigation --}}
-    <div class="flex gap-4">
+    <!-- <div class="flex gap-4">
         <a
             href="/dossiers"
             class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium bg-blue text-white"
@@ -20,9 +20,9 @@
             href="/tasks"
             class="px-4 py-2 rounded-md capitalize transition-colors duration-100 text-button font-medium"
         >
-            Inbox
+            Taken
         </a>
-    </div>
+    </div> -->
 
     {{-- Section to display the dossiers and inbox --}}
     <section class="border-2 border-light-gray rounded-xl p-6">
@@ -30,7 +30,7 @@
             <h2>Cliënten</h2>
             <div class="flex gap-3">
                 <x-ui.button-small icon="phosphor-magnifying-glass-bold" type="secondary">Zoeken</x-ui.button-small>
-                <x-ui.button-small href="/documents?tab=upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
+                <x-ui.button-small href="/upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
             </div>
         </div>
         <table class="w-full">

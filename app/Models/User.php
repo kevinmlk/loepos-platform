@@ -33,7 +33,8 @@ class User extends Authenticatable
         'last_name',
         'email',
         'password',
-        'organization_id'
+        'organization_id',
+        'role'
     ];
 
     /**
@@ -67,5 +68,9 @@ class User extends Authenticatable
 
     public function dossiers() {
         return $this->hasMany(Dossier::class);
+    }
+
+    public function uploads() {
+        return $this->hasMany(Upload::class);
     }
 }

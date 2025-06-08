@@ -3,7 +3,7 @@
     <x-header>
         Rapporten
         <x-slot:subText>
-            TBekijk de rapporten van je binnekomende dossiers en clienten.
+            Bekijk de rapporten van je binnekomende dossiers en clienten.
         </x-slot:subText>
     </x-header>
 

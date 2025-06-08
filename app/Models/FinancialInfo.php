@@ -10,6 +10,22 @@ class FinancialInfo extends Model
     /** @use HasFactory<\Database\Factories\FinancialInfoFactory> */
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'client_id',
+        'iban',
+        'bank_name',
+        'monthly_income',
+        'monthly_expenses',
+        'employer',
+        'contract',
+        'education'
+    ];
+
     // Enum values - CONTRACT
     const CONTRACT_PERMANENT = 'permanent';
     const CONTRACT_TEMPORARY = 'temporary';

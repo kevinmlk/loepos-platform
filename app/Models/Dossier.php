@@ -11,6 +11,13 @@ class Dossier extends Model
     /** @use HasFactory<\Database\Factories\DossierFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'client_id',
+        'user_id',
+        'status',
+        'type'
+    ];
+
     // ENUM Values
     const STATUS_ACTIVE = 'active';
     const STATUS_IN_PROCESS = 'in process';
@@ -31,13 +38,8 @@ class Dossier extends Model
     ];
 
     // Relations
-    public function clients() {
-        return $this->belongsToMany(Client::class, 'client_dossier')->withTimestamps();
-    }
-    
-    // Helper method to get the primary client (first client)
     public function client() {
-        return $this->clients()->first();
+        return $this->belongsTo(Client::class);
     }
 
     public function user() {
