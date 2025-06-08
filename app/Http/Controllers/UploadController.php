@@ -11,6 +11,7 @@ use App\Services\DocumentService;
 use App\Services\UploadService;
 
 use App\Models\Upload;
+use App\Models\Document;
 
 class UploadController extends Controller
 {
@@ -24,25 +25,33 @@ class UploadController extends Controller
         $this->uploadService = $uploadService;
     }
 
-    public function index()
-    {
-        // Fetch unassigned uploads for the organization
-        $organizationId = auth()->user()->organization_id;
-        $unassignedUploads = Upload::whereNull('user_id')
-            ->where('organization_id', $organizationId)
-            ->get();
+    // Index method removed - /uploads page no longer exists
+    // public function index()
+    // {
+    //     // Fetch unassigned uploads for the organization
+    //     $organizationId = auth()->user()->organization_id;
+    //     $unassignedUploads = Upload::whereNull('user_id')
+    //         ->where('organization_id', $organizationId)
+    //         ->get();
 
-        $uploads = Upload::where('user_id', auth()->id())->paginate(5);
+    //     $uploads = Upload::where('user_id', auth()->id())->paginate(5);
 
-        return view('uploads.index', [
-            'uploads' => $uploads,
-            'unassignedUploads' => $unassignedUploads,
-        ]);
-    }
+    //     return view('uploads.index', [
+    //         'uploads' => $uploads,
+    //         'unassignedUploads' => $unassignedUploads,
+    //     ]);
+    // }
 
     public function create()
     {
-        return view('uploads.create');
+        $user = Auth::user();
+        
+        // Calculate AI queue badge count
+        $queueCount = $this->calculateQueueCount($user);
+        
+        return view('uploads.create', [
+            'queueCount' => $queueCount
+        ]);
     }
 
     public function store(Request $request)
@@ -66,12 +75,13 @@ class UploadController extends Controller
         }
     }
 
-    public function show(Upload $upload)
-    {
-        return view('uploads.show', [
-            'upload' => $upload,
-        ]);
-    }
+    // Show method removed - /uploads/{upload} route no longer exists
+    // public function show(Upload $upload)
+    // {
+    //     return view('uploads.show', [
+    //         'upload' => $upload,
+    //     ]);
+    // }
 
     public function view(Upload $upload)
     {
@@ -119,5 +129,25 @@ class UploadController extends Controller
             ->header('Content-Type', $mimeType)
             ->header('Content-Disposition', 'inline; filename="' . $upload->file_name . '"')
             ->header('Content-Length', strlen($content));
+    }
+
+    /**
+     * Calculate the total count for AI queue badge
+     */
+    private function calculateQueueCount($user)
+    {
+        // Count pending uploads (documents column contains number of documents in each upload)
+        $pendingUploadsCount = Upload::where('organization_id', $user->organization_id)
+            ->where('status', Upload::STATUS_PENDING)
+            ->sum('documents');
+        
+        // Count pending documents
+        $pendingDocumentsCount = Document::where('status', Document::STATUS_PENDING)
+            ->whereHas('upload', function($query) use ($user) {
+                $query->where('organization_id', $user->organization_id);
+            })
+            ->count();
+        
+        return $pendingUploadsCount + $pendingDocumentsCount;
     }
 }
