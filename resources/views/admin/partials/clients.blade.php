@@ -1,30 +1,27 @@
 <section class="flex flex-col gap-8">
     <div class="container mt-4">
         <h2 class="mb-4">Cliënten in mijn organisatie</h2>
-
-        <table class="w-full">
+        <table>
             <thead>
-                <tr>
-                    <th class="text-start text-caption font-regular py-2">Naam</th>
-                    <th class="text-start text-caption font-regular py-2 px-6">GSM-nummer</th>
-                    <th class="text-start text-caption font-regular py-2 px-6">E-mail</th>
-                </tr>
+                <th class="text-start text-caption font-regular py-2">Naam</th>
+                <th class="text-start text-caption font-regular py-2">Laatst bijgewerkt</th>
+                <th class="text-start text-caption font-regular py-2">Aangemaakt op</th>
             </thead>
             <tbody>
                 @foreach($clients as $client)
-                    <x-shared.clients-row
-                        :client="$client"
-                        :first_name="$client->first_name"
-                        :last_name="$client->last_name"
-                        :status="$client->status"
-                        :phone="$client->phone"
-                        :email="$client->email"
-                    />
+                <tr>
+                    <td class="text-blue">
+                        <a href="/admin/clients/{{ $client->id }}" class="flex items-center gap-4 py-3">
+                            <div class="bg-transparant-blue rounded-full w-10 h-10 flex justify-center items-center">
+                                <x-phosphor-file-bold class="h-4 text-dark-blue" />
+                            </div>
+                            <span class="text-black hover:text-blue">{{ $client->first_name . ' ' . $client->last_name }}</span>
+                        </a>
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($client->updated_at)->translatedFormat('d M Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($client->created_at)->translatedFormat('d M Y') }}</td>
+                </tr>
                 @endforeach
-
-
-                
-
             </tbody>
         </table>
 

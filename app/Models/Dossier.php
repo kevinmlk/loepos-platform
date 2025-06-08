@@ -30,6 +30,13 @@ class Dossier extends Model
         self::TYPE_BUDGET_MANAGEMENT,
     ];
 
+    protected $fillable = [
+        'client_id',
+        'user_id',
+        'status',
+        'type',
+    ];
+
     // Relations
     public function client() {
         return $this->belongsTo(Client::class);

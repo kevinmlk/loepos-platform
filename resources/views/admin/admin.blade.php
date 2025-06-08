@@ -37,12 +37,8 @@
 
     {{-- Back button template (hidden) --}}
     <div id="back-button-template" class="hidden">
-        <x-ui.button href="#" class="mb-4 w-max float-left mr-4" id="show-admin-tools" type="secondary">
+        <x-ui.button href="#" class="mb-4 w-max mr-4" id="show-admin-tools" type="secondary">
             ← Terug naar administratie tools
-        </x-ui.button>
-
-        <x-ui.button href="/admin/employee" class="mb-4 w-max" type="primary">
-        Medewerker toevoegen
         </x-ui.button>
     </div>
 
@@ -50,8 +46,6 @@
     <section id="dynamic-section" class="mt-8 border-2 border-dashed border-gray-300 p-6 rounded-xl">
         <p>Klik op een kaart om meer te zien.</p>
     </section>
-
-
 </x-layout>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

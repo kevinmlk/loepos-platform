@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\DossierController;
 use App\Http\Controllers\AdminController;
@@ -43,7 +44,6 @@ Route::get('/uploads', [UploadController::class, 'index'])->middleware('auth')->
 Route::get('/upload/create', [UploadController::class, 'create'])->middleware('auth');
 Route::post('/upload', [UploadController::class, 'store'])->middleware('auth')->name('upload.create');
 Route::get('/uploads/{upload}', [UploadController::class, 'show'])->middleware('auth')->name('uploads.show');
-Route::get('/uploads/{upload}/view', [UploadController::class, 'view'])->middleware('auth')->name('uploads.view');
 
 // Queue
 Route::get('/queue', [DocumentController::class, 'queue'])->middleware('auth')->name('documents.queue');
@@ -163,16 +163,17 @@ Route::get('/admin/section/{type}', function ($type) {
     return view("admin.partials.$type");
 })->middleware('auth');
 
-
-use App\Http\Controllers\ClientController;
 // Admin - Clients
-Route::get('/clients', [ClientController::class, 'index']);
+Route::get('/admin/clients', [ClientController::class, 'index'])->middleware('auth');
+Route::get('/admin/client/create',[ClientController::class, 'create'])->middleware('auth')->name('admin.clients.create');
+Route::post('admin/client', [ClientController::class, 'store'])->middleware('auth');
+Route::get('admin/client/{client}', [ClientController::class, 'show'])->middleware('auth')->name('admin.clients.show');
+Route::patch('admin/client/{client}', [ClientController::class, 'update'])->middleware('auth');
 
 Route::get('/clients', function () {
     $clients = Client::with('dossiers')->get();
     return view('clients', compact('clients'));
 });
-
 
 // Super Admin routes
 
@@ -193,7 +194,6 @@ Route::get('/organisations/{organization}', [OrganizationController::class, 'sho
 Route::get('/organisations/{organization}/edit', [OrganizationController::class, 'edit'])->name('organisations.edit')->middleware('auth');
 Route::put('/organisations/{organization}', [OrganizationController::class, 'update'])->name('organisations.update')->middleware('auth');
 Route::delete('/organisations/{organization}', [OrganizationController::class, 'destroy'])->name('organisations.destroy')->middleware('auth');
-
 
 
 
