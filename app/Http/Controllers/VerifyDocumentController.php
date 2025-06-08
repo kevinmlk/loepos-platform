@@ -110,13 +110,20 @@ class VerifyDocumentController extends Controller
         // If no fields are filled, try to reanalyze the document
         if (!$hasFilledFields) {
             Log::info('No fields filled, attempting to reanalyze document', [
-                'document_id' => $document->id
+                'document_id' => $document->id,
+                'current_data' => [
+                    'sender' => $document->sender,
+                    'receiver' => $document->receiver,
+                    'amount' => $document->amount,
+                    'type' => $document->type
+                ]
             ]);
             
             // Retry the API call
             $newParsedData = $this->reanalyzeDocument($document);
             
-            if (!empty($newParsedData) && $this->isValidParsedData($newParsedData)) {
+            if (!empty($newParsedData)) {
+                // Accept any non-empty response, even if it doesn't pass strict validation
                 $parsedData = $newParsedData;
                 
                 // Update the document with new parsed data
@@ -134,7 +141,12 @@ class VerifyDocumentController extends Controller
                     'document_id' => $document->id,
                     'new_sender' => $document->sender,
                     'new_receiver' => $document->receiver,
-                    'new_amount' => $document->amount
+                    'new_amount' => $document->amount,
+                    'got_valid_response' => $this->isValidParsedData($newParsedData)
+                ]);
+            } else {
+                Log::warning('Failed to reanalyze document with empty fields', [
+                    'document_id' => $document->id
                 ]);
             }
         }
@@ -620,6 +632,24 @@ class VerifyDocumentController extends Controller
 
             return $responseData ?? [];
 
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            // Handle 500 errors specifically
+            Log::error('Server error reanalyzing document', [
+                'document_id' => $document->id,
+                'file' => $document->file_path,
+                'error' => 'API returned 500 error',
+                'response_body' => $e->hasResponse() ? (string) $e->getResponse()->getBody() : 'No response body'
+            ]);
+            return [];
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Handle 4xx errors
+            Log::error('Client error reanalyzing document', [
+                'document_id' => $document->id,
+                'file' => $document->file_path,
+                'status_code' => $e->hasResponse() ? $e->getResponse()->getStatusCode() : 'Unknown',
+                'error' => $e->getMessage()
+            ]);
+            return [];
         } catch (\Exception $e) {
             Log::error('Error reanalyzing document', [
                 'document_id' => $document->id,
