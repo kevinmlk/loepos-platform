@@ -30,7 +30,7 @@
             <h2>Cliënten</h2>
             <div class="flex gap-3">
                 <x-ui.button-small icon="phosphor-magnifying-glass-bold" type="secondary">Zoeken</x-ui.button-small>
-                <x-ui.button-small href="/documents?tab=upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
+                <x-ui.button-small href="/upload" icon="phosphor-upload-simple-bold" type="primary">Uploaden</x-ui.button-small>
             </div>
         </div>
         <table class="w-full">

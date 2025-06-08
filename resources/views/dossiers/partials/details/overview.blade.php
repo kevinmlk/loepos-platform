@@ -37,7 +37,7 @@
             @foreach($dossier->documents as $document)
                 <tr>
                     <td class="text-blue">
-                        <a href="{{ asset('storage/' . $document->file_path )}}" target="_blank" class="flex items-center gap-4 py-3">
+                        <a href="{{ route('documents.view', $document->id) }}" target="_blank" class="flex items-center gap-4 py-3">
                             <div class="bg-transparant-blue rounded-full w-10 h-10 flex justify-center items-center">
                                 <x-phosphor-file-bold class="h-4 text-dark-blue" />
                             </div>
