@@ -899,8 +899,8 @@
                 viewer.innerHTML = '';
 
                 const totalPages = documentData.pages.length;
-                documentData.pages.forEach((page) => {
-                    this.createPageElement(page, viewer, totalPages);
+                documentData.pages.forEach((page, index) => {
+                    this.createPageElement(page, viewer, totalPages, index);
                 });
             }
 
@@ -922,21 +922,25 @@
 
                 const totalPages = pages.length;
                 pages.forEach((page) => {
-                    this.createPageElement(page, viewer, totalPages);
+                    // For full upload view, show original page numbers
+                    this.createPageElement(page, viewer, totalPages, null);
                 });
 
                 this.currentUploadId = uploadId;
             }
 
-            createPageElement(page, container, totalPages = null) {
+            createPageElement(page, container, totalPages = null, pageIndexInDocument = null) {
                 const pageContainer = document.createElement('div');
                 pageContainer.className = 'mb-4 border border-gray rounded-lg overflow-hidden shadow-sm';
                 
                 const pageHeader = document.createElement('div');
                 pageHeader.className = 'bg-light-gray px-3 py-2 text-sm font-medium text-dark-gray';
                 
-                // Show "Pagina n van n" format if totalPages is provided
-                if (totalPages !== null) {
+                // Show page number relative to the document, not the upload
+                if (pageIndexInDocument !== null && totalPages !== null) {
+                    const displayPageNumber = pageIndexInDocument + 1;
+                    pageHeader.textContent = `Pagina ${displayPageNumber} van ${totalPages}`;
+                } else if (totalPages !== null) {
                     pageHeader.textContent = `Pagina ${page.pageNumber} van ${totalPages}`;
                 } else {
                     pageHeader.textContent = `Pagina ${page.pageNumber}`;
