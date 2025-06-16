@@ -249,6 +249,12 @@
                         // Skip if it's the save button
                         if (e.target.closest('#saveButton')) return;
                         
+                        // Skip if it's a lightbox link
+                        if (link && link.hasAttribute('data-fslightbox')) return;
+                        
+                        // Skip if it's the view button that opens lightbox
+                        if (e.target.closest('#viewBtn')) return;
+                        
                         e.preventDefault();
                         
                         if (confirm('U heeft onopgeslagen wijzigingen. Weet u zeker dat u deze pagina wilt verlaten? Uw wijzigingen gaan verloren.')) {
