@@ -49,7 +49,7 @@
             <article class="w-100 text-center border-2 border-light-gray rounded-lg p-6 flex flex-col justify-center gap-4">
                 <h1 class="text-display font-semibold">{{ count($latestUploads) }}</h1>
                 <p class="text-caption">Nieuwe uploads</p>
-                <x-ui.button type="tertiary" class="justify-center" href="/uploads">Bekijk uploads</x-ui.button>
+                <x-ui.button type="tertiary" class="justify-center" href="/queue">Bekijk uploads</x-ui.button>
             </article>
         </div>
     </section>
