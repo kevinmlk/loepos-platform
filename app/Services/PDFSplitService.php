@@ -96,27 +96,39 @@ class PDFSplitService
                 \Log::error('Error splitting PDF with FPDI', [
                     'original' => $originalPath,
                     'split_index' => $index,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e)
                 ]);
                 
+                // Try GhostScript as fallback
+                $gsResult = $this->splitWithGhostScript($fullPath, $split['pages'], $fullSplitPath);
                 
-                // If splitting fails, copy the original as fallback
-                try {
-                    if (file_exists($fullPath)) {
-                        copy($fullPath, $fullSplitPath);
-                    }
-                } catch (\Exception $copyError) {
-                    Log::error('Failed to copy original file as fallback', [
-                        'error' => $copyError->getMessage()
+                if ($gsResult) {
+                    Log::info('Successfully split PDF using GhostScript', [
+                        'split_path' => $splitPath,
+                        'pages' => $split['pages']
                     ]);
+                    
+                    $splitFiles[] = [
+                        'path' => $splitPath,
+                        'pages' => $split['pages'] ?? [],
+                        'name' => $split['name'] ?? $splitFileName,
+                        'method' => 'ghostscript'
+                    ];
+                } else {
+                    // If all methods fail, mark as failed - DO NOT use original
+                    Log::error('All PDF split methods failed', [
+                        'original' => $originalPath,
+                        'split_path' => $splitPath
+                    ]);
+                    
+                    $splitFiles[] = [
+                        'path' => null,
+                        'pages' => $split['pages'] ?? [],
+                        'name' => $split['name'] ?? $splitFileName,
+                        'error' => 'Failed to split PDF'
+                    ];
                 }
-                
-                $splitFiles[] = [
-                    'path' => $splitPath,
-                    'pages' => $split['pages'] ?? [],
-                    'name' => $split['name'] ?? $splitFileName,
-                    'error' => 'Failed to split - using original'
-                ];
             }
         }
         
@@ -148,6 +160,142 @@ class PDFSplitService
     {
         if (!Storage::disk('public')->exists('verified_documents')) {
             Storage::disk('public')->makeDirectory('verified_documents');
+        }
+    }
+    
+    /**
+     * Split PDF using GhostScript
+     * 
+     * @param string $inputPath The input PDF file path
+     * @param array $pages Array of page numbers to extract
+     * @param string $outputPath The output file path
+     * @return bool Success status
+     */
+    private function splitWithGhostScript(string $inputPath, array $pages, string $outputPath): bool
+    {
+        // Check if GhostScript is available - try multiple locations
+        $gsPath = null;
+        $possiblePaths = [
+            '/opt/homebrew/bin/gs',
+            '/usr/local/bin/gs',
+            '/usr/bin/gs',
+            'gs'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            exec("$path --version 2>&1", $output, $returnCode);
+            if ($returnCode === 0) {
+                $gsPath = $path;
+                break;
+            }
+        }
+        
+        if (!$gsPath) {
+            Log::warning('GhostScript not available in any known location');
+            return false;
+        }
+        
+        try {
+            // For GhostScript, we need to extract specific pages
+            // If pages are not consecutive, we'll create a temporary file
+            sort($pages);
+            
+            // Build the page list for GhostScript
+            $pageList = [];
+            foreach ($pages as $page) {
+                $pageList[] = $page;
+            }
+            $pageString = implode(' ', $pageList);
+            
+            // Extract each page individually then merge them
+            $tempFiles = [];
+            $tempDir = sys_get_temp_dir();
+            
+            // Step 1: Extract each page to a temporary file
+            foreach ($pages as $page) {
+                $tempFile = $tempDir . '/pdf_page_' . $page . '_' . uniqid() . '.pdf';
+                $extractCommand = sprintf(
+                    '%s -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -dFirstPage=%d -dLastPage=%d -sOutputFile=%s %s 2>&1',
+                    $gsPath,
+                    $page,
+                    $page,
+                    escapeshellarg($tempFile),
+                    escapeshellarg($inputPath)
+                );
+                
+                Log::info('Extracting page', [
+                    'page' => $page,
+                    'command' => $extractCommand
+                ]);
+                
+                exec($extractCommand, $pageOutput, $pageReturn);
+                
+                if ($pageReturn === 0 && file_exists($tempFile) && filesize($tempFile) > 0) {
+                    $tempFiles[] = $tempFile;
+                    Log::info('Page extracted successfully', [
+                        'page' => $page,
+                        'temp_file' => $tempFile
+                    ]);
+                } else {
+                    Log::error('Failed to extract page', [
+                        'page' => $page,
+                        'return_code' => $pageReturn,
+                        'output' => implode("\n", $pageOutput)
+                    ]);
+                }
+            }
+            
+            // Step 2: Check if all pages were extracted
+            if (count($tempFiles) !== count($pages)) {
+                // Clean up any temp files that were created
+                foreach ($tempFiles as $tempFile) {
+                    @unlink($tempFile);
+                }
+                Log::error('Not all pages could be extracted', [
+                    'requested' => count($pages),
+                    'extracted' => count($tempFiles)
+                ]);
+                return false;
+            }
+            
+            // Step 3: Merge all temporary files into the final output
+            $command = sprintf(
+                '%s -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile=%s %s 2>&1',
+                $gsPath,
+                escapeshellarg($outputPath),
+                implode(' ', array_map('escapeshellarg', $tempFiles))
+            );
+            
+            Log::info('Running GhostScript command', [
+                'command' => $command,
+                'pages' => $pages
+            ]);
+            
+            exec($command, $output, $returnCode);
+            
+            // Clean up temp files if they exist
+            if (isset($tempFiles)) {
+                foreach ($tempFiles as $tempFile) {
+                    @unlink($tempFile);
+                }
+            }
+            
+            if ($returnCode === 0 && file_exists($outputPath) && filesize($outputPath) > 0) {
+                return true;
+            }
+            
+            Log::error('GhostScript command failed', [
+                'return_code' => $returnCode,
+                'output' => implode("\n", $output)
+            ]);
+            
+            return false;
+            
+        } catch (\Exception $e) {
+            Log::error('Exception in GhostScript split', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
         }
     }
     

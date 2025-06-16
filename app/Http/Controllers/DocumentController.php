@@ -197,12 +197,26 @@ class DocumentController extends Controller
 
                 // Split the PDF
                 try {
+                    Log::info('Attempting to split PDF', [
+                        'upload_id' => $originalUploadId,
+                        'file_path' => $originalUpload->file_path,
+                        'split_count' => count($splitConfigs),
+                        'splits' => $splitConfigs
+                    ]);
+                    
                     $splitFiles = $this->pdfSplitService->splitPDF($originalUpload->file_path, $splitConfigs);
+                    
+                    Log::info('PDF split result', [
+                        'upload_id' => $originalUploadId,
+                        'split_files_count' => count($splitFiles),
+                        'split_files' => $splitFiles
+                    ]);
                 } catch (\Exception $e) {
                     Log::error('Error splitting PDF', [
                         'upload_id' => $originalUploadId,
                         'file_path' => $originalUpload->file_path,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
                     continue;
                 }
@@ -211,7 +225,11 @@ class DocumentController extends Controller
                 foreach ($splits as $index => $docData) {
                     $splitFile = $splitFiles[$index] ?? null;
 
-                    if (!$splitFile) {
+                    if (!$splitFile || !isset($splitFile['path']) || $splitFile['path'] === null) {
+                        Log::error('Split file failed or path is null', [
+                            'index' => $index,
+                            'splitFile' => $splitFile
+                        ]);
                         continue;
                     }
 
@@ -256,38 +274,35 @@ class DocumentController extends Controller
                         'parsed_data' => $parsedData
                     ]);
 
-                    $documentsToVerify[] = [
-                        'original_document_id' => $document->id,
-                        'file_name' => $docData['name'],
-                        'file_path' => $splitFile['path'],
-                        'pages' => $docData['pages'],
-                        'parsed_data' => json_decode($document->parsed_data, true),
-                        'metadata' => [
-                            'pages' => $docData['pages'],
-                            'original_file' => $originalUpload->file_name,
-                            'split_info' => $splitFile,
-                            'processed_count' => $processedCount,
-                            'total_count' => $totalCount
-                        ]
-                    ];
+                    $documentsToVerify[] = $document->id;
                 }
                 
-                // Update upload status to verified after processing
-                $originalUpload->status = Upload::STATUS_VERIFIED;
+                // Update upload status based on whether we processed any documents
+                if ($processedCount > 0) {
+                    $originalUpload->status = Upload::STATUS_VERIFIED;
+                } else {
+                    // If no documents were processed, mark upload as rejected/failed
+                    $originalUpload->status = Upload::STATUS_REJECTED;
+                    Log::error('Upload marked as rejected - no documents could be processed', [
+                        'upload_id' => $originalUpload->id,
+                        'attempted_splits' => count($splits)
+                    ]);
+                }
                 $originalUpload->save();
             }
 
-            // Store documents in session for verification
-            if (!empty($documentsToVerify)) {
-                Log::info('Storing documents in session for verification', [
-                    'count' => count($documentsToVerify),
-                    'first_doc' => $documentsToVerify[0] ?? null
-                ]);
-                
-                $request->session()->put('documents_to_verify', $documentsToVerify);
-                $request->session()->put('verify_progress', [
-                    'current' => 1,
-                    'total' => count($documentsToVerify)
+            // Check if we have any pending documents to verify
+            $pendingDocumentCount = Document::where('status', Document::STATUS_PENDING)
+                ->whereHas('upload', function($query) use ($user) {
+                    $query->where('organization_id', $user->organization_id);
+                })
+                ->count();
+
+            if ($pendingDocumentCount > 0) {
+                Log::info('Redirecting to verify page', [
+                    'pending_documents' => $pendingDocumentCount,
+                    'processed' => $processedCount,
+                    'total' => $totalCount
                 ]);
 
                 return response()->json([
@@ -298,7 +313,14 @@ class DocumentController extends Controller
                 ]);
             }
 
-            return response()->json(['success' => true]);
+            // Always redirect to verify page, even if no documents
+            // The verify page will handle the empty state
+            return response()->json([
+                'success' => true,
+                'redirect' => route('queue.verify'),
+                'processed' => $processedCount,
+                'total' => $totalCount
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error in processQueue', [
                 'error' => $e->getMessage(),
@@ -319,6 +341,14 @@ class DocumentController extends Controller
 
         // We should add additional access checks here
         // For example, check if the user's organization matches the document's dossier organization
+
+        Log::info('Document view requested', [
+            'document_id' => $document->id,
+            'file_path' => $document->file_path,
+            'file_name' => $document->file_name,
+            'upload_id' => $document->upload_id,
+            'file_exists' => Storage::disk('public')->exists($document->file_path)
+        ]);
 
         // Check if file exists
         if (!Storage::disk('public')->exists($document->file_path)) {

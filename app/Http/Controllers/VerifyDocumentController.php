@@ -43,6 +43,9 @@ class VerifyDocumentController extends Controller
         
         Log::info('Document loaded on verify page', [
             'document_id' => $document->id,
+            'file_path' => $document->file_path,
+            'file_name' => $document->file_name,
+            'upload_id' => $document->upload_id,
             'has_parsed_data' => !empty($parsedData),
             'parsed_data_keys' => array_keys($parsedData),
             'current_sender' => $document->sender,

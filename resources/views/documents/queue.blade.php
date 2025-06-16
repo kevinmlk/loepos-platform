@@ -1455,25 +1455,26 @@
                             // Show progress message
                             if (result.processed && result.total) {
                                 saveButton.innerHTML = `<i class="fas fa-check mr-2"></i>Verwerkt ${result.processed}/${result.total} documenten. Doorverwijzen...`;
+                            } else {
+                                saveButton.innerHTML = `<i class="fas fa-check mr-2"></i>Documenten verwerkt. Doorverwijzen...`;
                             }
                             
-                            // Redirect to verify page after a short delay
+                            // Always redirect to verify page
                             console.log('Redirecting to:', result.redirect);
                             setTimeout(() => {
                                 window.location.href = result.redirect;
                             }, 500);
                             return;
                         } else {
-                            console.warn('No redirect URL in response');
+                            // This should not happen anymore, but just in case
+                            console.error('No redirect URL in response');
+                            window.location.href = '/queue/verify';
                         }
                     } else {
                         const errorText = await response.text();
                         console.error('Server error:', errorText);
                         throw new Error('Server error bij het verwerken van documenten');
                     }
-                    
-                    // If no redirect, all uploads processed successfully
-                    alert('Alle uploads succesvol verwerkt!');
                     
                     // Mark as saved
                     this.hasUnsavedChanges = false;
