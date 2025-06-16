@@ -668,8 +668,8 @@
                                 arrow.classList.add('fa-chevron-down');
                             }
                             
-                            // If clicking on the file name area (not just the arrow), also display in viewer
-                            if (!e.target.classList.contains('collapse-arrow')) {
+                            // If clicking on the file name area (not just the arrow), also display all pages from upload in viewer
+                            if (!e.target.classList.contains('collapse-arrow') && !e.target.closest('.fa-chevron-up') && !e.target.closest('.fa-chevron-down')) {
                                 this.selectedDocument = -1;
                                 this.selectedPages.clear();
                                 this.updateDocumentSelection();
@@ -862,9 +862,6 @@
                     // Update subtitle with selected document name
                     const subtitleElement = document.getElementById('currentDocumentName');
                     subtitleElement.textContent = `Geselecteerd: ${doc.name}`;
-                    
-                    // Also display the upload this document belongs to
-                    this.displayUploadInViewer(doc.uploadId);
                 }
             }
 
