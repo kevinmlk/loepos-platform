@@ -212,6 +212,23 @@
                 }
             }
 
+            updateQueueBadge() {
+                // Calculate the total number of documents across all uploads
+                const totalDocuments = this.allDocuments.length;
+                
+                // Find the badge element
+                const badgeElement = document.querySelector('a[href="/queue"] .absolute');
+                
+                if (badgeElement) {
+                    if (totalDocuments > 0) {
+                        badgeElement.textContent = totalDocuments;
+                        badgeElement.style.display = 'flex';
+                    } else {
+                        badgeElement.style.display = 'none';
+                    }
+                }
+            }
+
             setupPDFJS() {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
@@ -360,6 +377,9 @@
                     
                     // Enable save button
                     document.getElementById('saveButton').disabled = false;
+                    
+                    // Update queue badge with initial count
+                    this.updateQueueBadge();
                     
                 } catch (error) {
                     console.error('Error loading uploads:', error);
@@ -710,6 +730,9 @@
                 
                 // Update document counter
                 this.updateDocumentCounter();
+                
+                // Update queue badge
+                this.updateQueueBadge();
                 
                 this.updateToolbarState();
             }
@@ -1499,6 +1522,9 @@
                     if (documentCounterElement) {
                         documentCounterElement.textContent = '0';
                     }
+                    
+                    // Update queue badge to show 0
+                    this.updateQueueBadge();
                     
                     // Show completion message
                     const subtitleElement = document.getElementById('currentDocumentName');
